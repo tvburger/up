@@ -23,8 +23,10 @@ public class LocalServicesManager {
         this.logger = logger;
     }
 
-    public <T, S extends T> void addService(Class<S> serviceClass, Object[] arguments) {
-        Class<T> serviceType = getServiceType(serviceClass);
+    public <T, S extends T> void addService(Class<T> serviceType, Class<S> serviceClass, Object[] arguments) {
+        if (serviceClass == null || serviceType == null || !serviceType.isAssignableFrom(serviceClass) || !serviceType.isInterface()) {
+            throw new IllegalArgumentException();
+        }
         T service = createLoggerProxy(instantiateService(serviceClass, arguments), createServiceManager(serviceType));
         Set<Object> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
         services.add(service);
@@ -60,6 +62,13 @@ public class LocalServicesManager {
     private <T, S extends T> T instantiateService(Class<S> serviceClass, Object[] arguments) {
         try {
             Constructor<S> constructor = (Constructor<S>) getConstructor(serviceClass, arguments);
+            Class<?>[] parameterTypes = constructor.getParameterTypes();
+            for (int i = 0; i < arguments.length; i++) {
+                System.out.println(arguments[i]);
+                if (parameterTypes[i].equals(arguments[i])) {
+                    arguments[i] = getService(parameterTypes[i]);
+                }
+            }
             return constructor.newInstance(arguments);
         } catch (ClassCastException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException cause) {

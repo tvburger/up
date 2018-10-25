@@ -3,6 +3,8 @@ package net.tvburger.up.logger.impl;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.Logger;
 
+import java.util.Date;
+
 public class ConsoleLogger implements Logger {
 
     @Override
@@ -10,7 +12,7 @@ public class ConsoleLogger implements Logger {
         System.out.println(String.format(
                 "[%s] %s %s{%s} (%s@%s:%s) [%s@%s] %s",
                 logStatement.getLogLevel().name(),
-                logStatement.getTimestamp(),
+                new Date(logStatement.getTimestamp()),
                 logStatement.getServiceInfo().getServiceType().getSimpleName(),
                 logStatement.getServiceInfo().getServiceInstanceId(),
                 logStatement.getLocation().getHostName(),

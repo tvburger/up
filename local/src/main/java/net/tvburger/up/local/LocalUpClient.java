@@ -33,8 +33,8 @@ public class LocalUpClient implements UpClient {
     }
 
     @Override
-    public <T> void addService(Class<T> serviceClass, Object... arguments) {
-        environmentManager.getLocalServicesManager().addService(serviceClass, arguments);
+    public <T, S extends T> void addTypedService(Class<T> serviceType, Class<S> serviceClass, Object... arguments) {
+        environmentManager.getLocalServicesManager().addService(serviceType, serviceClass, arguments);
     }
 
 }
