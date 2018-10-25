@@ -65,7 +65,7 @@ public class LocalServicesManager {
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < arguments.length; i++) {
                 System.out.println(arguments[i]);
-                if (parameterTypes[i].equals(arguments[i])) {
+                if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {
                     arguments[i] = getService(parameterTypes[i]);
                 }
             }
