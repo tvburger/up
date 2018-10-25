@@ -1,34 +1,65 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.ServiceManager;
+import net.tvburger.up.impl.ServiceInfoImpl;
+import net.tvburger.up.impl.ServiceManagerImpl;
+import net.tvburger.up.logger.Logger;
+
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Proxy;
 import java.util.*;
 
 public class LocalServicesManager {
 
     private final Map<Class<?>, Set<Object>> serviceRegistry = new HashMap<>();
     private final Map<Object, Class<?>> serviceIndex = new HashMap<>();
+    private final String environment;
+    private final Logger logger;
 
-    public <T> void addService(Class<T> serviceClass, Object[] arguments) {
-        Class<?> interfaze = getInterface(serviceClass);
-        T service = instantiateService(serviceClass, arguments);
-        Set<Object> services = serviceRegistry.computeIfAbsent(interfaze, (key) -> new HashSet<>());
-        services.add(service);
-        serviceIndex.put(service, interfaze);
+    public LocalServicesManager(String environment, Logger logger) {
+        this.environment = environment;
+        this.logger = logger;
     }
 
-    private Class<?> getInterface(Class<?> serviceClass) {
+    public <T, S extends T> void addService(Class<S> serviceClass, Object[] arguments) {
+        Class<T> serviceType = getServiceType(serviceClass);
+        T service = createLoggerProxy(instantiateService(serviceClass, arguments), createServiceManager(serviceType));
+        Set<Object> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
+        services.add(service);
+        serviceIndex.put(service, serviceType);
+    }
+
+    private <T> ServiceManager<T> createServiceManager(Class<T> serviceClass) {
+        return new ServiceManagerImpl<>(new ServiceInfoImpl<>(
+                environment,
+                serviceClass,
+                null,
+                UUID.randomUUID()));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T> T createLoggerProxy(T service, ServiceManager<T> serviceManager) {
+        return (T) Proxy.newProxyInstance(
+                service.getClass().getClassLoader(),
+                service.getClass().getInterfaces(),
+                new LocalServiceProxy(service, serviceManager, logger));
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T, S extends T> Class<T> getServiceType(Class<S> serviceClass) {
         Class<?>[] interfaces = serviceClass.getInterfaces();
         if (interfaces.length == 0) {
             throw new IllegalArgumentException("Must implement at least 1 interface!");
         }
-        return interfaces[0];
+        return (Class<T>) interfaces[0];
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T instantiateService(Class<T> serviceClass, Object[] arguments) {
+    private <T, S extends T> T instantiateService(Class<S> serviceClass, Object[] arguments) {
         try {
-            Constructor<T> constructor = (Constructor<T>) getConstructor(serviceClass, arguments);
+            Constructor<S> constructor = (Constructor<S>) getConstructor(serviceClass, arguments);
             return constructor.newInstance(arguments);
         } catch (ClassCastException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException cause) {
@@ -63,6 +94,18 @@ public class LocalServicesManager {
             throw new IllegalStateException();
         }
         return (T) iterator.next();
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> ServiceManager<T> getServiceManager(T service) {
+        if (service == null || !Proxy.isProxyClass(service.getClass())) {
+            throw new IllegalArgumentException();
+        }
+        InvocationHandler invocationHandler = Proxy.getInvocationHandler(service);
+        if (!(invocationHandler instanceof LocalServiceProxy)) {
+            throw new IllegalArgumentException();
+        }
+        return ((LocalServiceProxy<T>) invocationHandler).getServiceManager();
     }
 
 }

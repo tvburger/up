@@ -20,6 +20,7 @@
 
     <modules>
         <module>api</module>
+        <module>logger</module>
         <module>local</module>
         <module>example</module>
     </modules>

@@ -1,5 +1,7 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.ServiceManager;
 import net.tvburger.up.UpClient;
 
 public class LocalUpClient implements UpClient {
@@ -13,6 +15,16 @@ public class LocalUpClient implements UpClient {
     @Override
     public <T> T getService(Class<T> serviceType) {
         return environmentManager.getLocalServicesManager().getService(serviceType);
+    }
+
+    @Override
+    public <T> ServiceInfo<T> getServiceInfo(T service) {
+        return getServiceManager(service).getServiceInfo();
+    }
+
+    @Override
+    public <T> ServiceManager<T> getServiceManager(T service) {
+        return environmentManager.getLocalServicesManager().getServiceManager(service);
     }
 
     @Override

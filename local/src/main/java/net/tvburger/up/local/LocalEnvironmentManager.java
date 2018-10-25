@@ -1,6 +1,8 @@
 package net.tvburger.up.local;
 
 import net.tvburger.up.EnvironmentManager;
+import net.tvburger.up.logger.Logger;
+import net.tvburger.up.logger.impl.ConsoleLogger;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -11,9 +13,10 @@ import java.util.Map;
 public class LocalEnvironmentManager implements EnvironmentManager {
 
     private static final Map<String, LocalEnvironmentManager> environments = new HashMap<>();
+    private static final Logger logger = new ConsoleLogger();
 
     public static LocalEnvironmentManager get(String environment) {
-        return environments.computeIfAbsent(environment, (key) -> new LocalEnvironmentManager(new LocalServicesManager()));
+        return environments.computeIfAbsent(environment, (key) -> new LocalEnvironmentManager(new LocalServicesManager(key, logger)));
     }
 
     private final LocalServicesManager localServicesManager;
