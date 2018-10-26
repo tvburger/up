@@ -6,23 +6,29 @@
         <groupId>net.tvburger.up</groupId>
         <artifactId>up</artifactId>
         <version>0.1.0</version>
+        <relativePath>../..</relativePath>
     </parent>
 
     <packaging>jar</packaging>
 
-    <name>UP :: Example</name>
-    <artifactId>up-example</artifactId>
+    <name>UP :: Protocol :: Servlet</name>
+    <artifactId>up-proto-servlet</artifactId>
+
+    <properties>
+        <jetty.version>9.4.12.v20180830</jetty.version>
+    </properties>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-local</artifactId>
+            <artifactId>up-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>up-proto-jaxrs</artifactId>
-            <version>${project.version}</version>
+            <groupId>org.eclipse.jetty.aggregate</groupId>
+            <artifactId>jetty-all</artifactId>
+            <version>${jetty.version}</version>
+            <type>pom</type>
         </dependency>
     </dependencies>
 

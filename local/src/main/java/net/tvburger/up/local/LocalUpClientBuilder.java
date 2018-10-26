@@ -2,6 +2,7 @@ package net.tvburger.up.local;
 
 import net.tvburger.up.UpClient;
 import net.tvburger.up.UpClientBuilder;
+import net.tvburger.up.impl.ProtocolLifecycleManagerProvider;
 
 public class LocalUpClientBuilder implements UpClientBuilder {
 
@@ -33,7 +34,10 @@ public class LocalUpClientBuilder implements UpClientBuilder {
         if (!isValid()) {
             throw new IllegalStateException();
         }
-        return new LocalUpClient(LocalEnvironmentManager.get(environment));
+        ProtocolLifecycleManagerProvider provider = new ProtocolLifecycleManagerProvider();
+        UpClient upClient = new LocalUpClient(LocalEnvironmentManager.get(environment), provider);
+        provider.init(upClient);
+        return upClient;
     }
 
 }

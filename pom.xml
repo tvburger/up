@@ -22,6 +22,8 @@
         <module>api</module>
         <module>logger</module>
         <module>local</module>
+        <module>proto/servlet</module>
+        <module>proto/jaxrs</module>
         <module>example</module>
     </modules>
 

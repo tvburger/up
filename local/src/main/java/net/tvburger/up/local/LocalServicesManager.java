@@ -1,6 +1,6 @@
 package net.tvburger.up.local;
 
-import net.tvburger.up.ServiceManager;
+import net.tvburger.up.admin.ServiceManager;
 import net.tvburger.up.impl.ServiceInfoImpl;
 import net.tvburger.up.impl.ServiceManagerImpl;
 import net.tvburger.up.logger.Logger;

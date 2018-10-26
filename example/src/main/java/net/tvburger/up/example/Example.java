@@ -2,6 +2,9 @@ package net.tvburger.up.example;
 
 import net.tvburger.up.Up;
 import net.tvburger.up.UpClient;
+import net.tvburger.up.proto.JaxrsProtocolManager;
+
+import javax.ws.rs.client.ClientBuilder;
 
 public class Example {
 
@@ -13,6 +16,9 @@ public class Example {
         ExampleService exampleService = client.getService(ExampleService.class);
         client.getServiceManager(exampleService).setLogged(true);
         exampleService.sayHelloTo("test");
+
+        client.getProtocol(JaxrsProtocolManager.class).registerResourceSingleton(ExampleResource.class, ExampleService.class);
+        System.out.println(ClientBuilder.newClient().target("http://localhost:8080/").request().header("host", client.getEnvironment()).get());
     }
 
 }

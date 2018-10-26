@@ -1,4 +1,6 @@
-package net.tvburger.up;
+package net.tvburger.up.admin;
+
+import net.tvburger.up.ServiceInfo;
 
 public interface ServiceManager<T> {
 
