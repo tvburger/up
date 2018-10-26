@@ -6,8 +6,6 @@ import javax.servlet.Servlet;
 
 public interface ServletProtocolManager extends ProtocolManager {
 
-    void registerServlet(Servlet servlet);
-
-    void unregisterServlet(Servlet servet);
+    void registerServlet(String mapping, Class<? extends Servlet> servletClass, Object... arguments);
 
 }

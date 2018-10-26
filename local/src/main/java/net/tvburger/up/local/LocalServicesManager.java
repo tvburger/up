@@ -1,17 +1,59 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.UpClient;
 import net.tvburger.up.admin.ServiceManager;
 import net.tvburger.up.impl.ServiceInfoImpl;
 import net.tvburger.up.impl.ServiceManagerImpl;
+import net.tvburger.up.impl.ServiceUtil;
 import net.tvburger.up.logger.Logger;
+import net.tvburger.up.spi.ProtocolManager;
 
-import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationHandler;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Proxy;
 import java.util.*;
 
 public class LocalServicesManager {
+
+    private final UpClient client = new UpClient() {
+        @Override
+        public String getEnvironment() {
+            return null;
+        }
+
+        @Override
+        public <T> T getService(Class<T> serviceType) {
+            return LocalServicesManager.this.getService(serviceType);
+        }
+
+        @Override
+        public <T> ServiceInfo<T> getServiceInfo(T service) {
+            return null;
+        }
+
+        @Override
+        public <T> ServiceManager<T> getServiceManager(T service) {
+            return null;
+        }
+
+        @Override
+        public <T, S extends T> void addTypedService(Class<T> serviceType, Class<S> serviceClass, Object... arguments) {
+        }
+
+        @Override
+        public <T> void removeService(T service) {
+        }
+
+        @Override
+        public <P extends ProtocolManager> boolean supportsProtocol(Class<P> protocolType) {
+            return false;
+        }
+
+        @Override
+        public <P extends ProtocolManager> P getProtocol(Class<P> protocolType) {
+            return null;
+        }
+    };
 
     private final Map<Class<?>, Set<Object>> serviceRegistry = new HashMap<>();
     private final Map<Object, Class<?>> serviceIndex = new HashMap<>();
@@ -27,7 +69,7 @@ public class LocalServicesManager {
         if (serviceClass == null || serviceType == null || !serviceType.isAssignableFrom(serviceClass) || !serviceType.isInterface()) {
             throw new IllegalArgumentException();
         }
-        T service = createLoggerProxy(instantiateService(serviceClass, arguments), createServiceManager(serviceType));
+        T service = createLoggerProxy(ServiceUtil.instantiateService(client, serviceClass, arguments), createServiceManager(serviceType));
         Set<Object> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
         services.add(service);
         serviceIndex.put(service, serviceType);
@@ -47,44 +89,6 @@ public class LocalServicesManager {
                 service.getClass().getClassLoader(),
                 service.getClass().getInterfaces(),
                 new LocalServiceProxy(service, serviceManager, logger));
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T, S extends T> Class<T> getServiceType(Class<S> serviceClass) {
-        Class<?>[] interfaces = serviceClass.getInterfaces();
-        if (interfaces.length == 0) {
-            throw new IllegalArgumentException("Must implement at least 1 interface!");
-        }
-        return (Class<T>) interfaces[0];
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T, S extends T> T instantiateService(Class<S> serviceClass, Object[] arguments) {
-        try {
-            Constructor<S> constructor = (Constructor<S>) getConstructor(serviceClass, arguments);
-            Class<?>[] parameterTypes = constructor.getParameterTypes();
-            for (int i = 0; i < arguments.length; i++) {
-                System.out.println(arguments[i]);
-                if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {
-                    arguments[i] = getService(parameterTypes[i]);
-                }
-            }
-            return constructor.newInstance(arguments);
-        } catch (ClassCastException | InstantiationException | IllegalAccessException |
-                IllegalArgumentException | InvocationTargetException cause) {
-            throw new IllegalArgumentException();
-        }
-    }
-
-    private Constructor<?> getConstructor(Class<?> serviceClass, Object[] arguments) {
-        int argumentLength = arguments == null ? 0 : arguments.length;
-        Constructor<?>[] constructors = serviceClass.getConstructors();
-        for (Constructor<?> constructor : constructors) {
-            if (constructor.getParameterCount() == argumentLength) {
-                return constructor;
-            }
-        }
-        throw new IllegalArgumentException();
     }
 
     public <T> void removeService(T service) {

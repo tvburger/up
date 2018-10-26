@@ -1,29 +1,30 @@
 package net.tvburger.up.proto.servlet;
 
 import net.tvburger.up.UpClient;
+import net.tvburger.up.impl.ServiceUtil;
 import net.tvburger.up.proto.ServletProtocolManager;
 import net.tvburger.up.spi.ProtocolLifecycleManager;
 import org.eclipse.jetty.server.Server;
-import sun.reflect.generics.reflectiveObjects.NotImplementedException;
+import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.Servlet;
 import java.io.IOException;
 
-public class ServletProtocolManagerImpl implements ServletProtocolManager, ProtocolLifecycleManager<ServletProtocolManager> {
+// https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
+// TODO: add logging
+// TODO: add removal of servlet
+// TODO: handle environments (based on host headers)
+public class ServletProtocolImpl implements ServletProtocolManager, ProtocolLifecycleManager<ServletProtocolManager> {
 
     private UpClient upClient;
     private Server server;
+    private ServletHandler servletHandler;
 
     @Override
-    public void registerServlet(Servlet servlet) {
-        // Add servlet
-        throw new NotImplementedException();
-    }
-
-    @Override
-    public void unregisterServlet(Servlet servlet) {
-        // Remove servlet
-        throw new NotImplementedException();
+    public void registerServlet(String mapping, Class<? extends Servlet> servletClass, Object... arguments) {
+        Servlet servlet = ServiceUtil.instantiateService(upClient, servletClass, arguments);
+        servletHandler.addServletWithMapping(new ServletHolder(servlet), mapping);
     }
 
     @Override
@@ -39,8 +40,10 @@ public class ServletProtocolManagerImpl implements ServletProtocolManager, Proto
     @Override
     public void init(UpClient upClient) {
         this.upClient = upClient;
-        server = new Server(8080);
+        servletHandler = new ServletHandler();
+        server = new Server(8099);
         server.setStopAtShutdown(true);
+        server.setHandler(servletHandler);
     }
 
     @Override
