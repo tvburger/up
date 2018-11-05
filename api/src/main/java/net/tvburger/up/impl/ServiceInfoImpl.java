@@ -1,27 +1,23 @@
 package net.tvburger.up.impl;
 
+import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.identity.Identity;
 
-import java.security.PublicKey;
 import java.util.UUID;
 
 public class ServiceInfoImpl<T> implements ServiceInfo<T> {
 
-    private final String environment;
     private final Class<T> serviceType;
-    private final PublicKey serviceIdentity;
+    private final Identity identity;
     private final UUID serviceInstanceId;
+    private final EnvironmentInfo environmentInfo;
 
-    public ServiceInfoImpl(String environment, Class<T> serviceType, PublicKey serviceIdentity, UUID serviceInstanceId) {
-        this.environment = environment;
+    public ServiceInfoImpl(Class<T> serviceType, Identity identity, UUID serviceInstanceId, EnvironmentInfo environmentInfo) {
         this.serviceType = serviceType;
-        this.serviceIdentity = serviceIdentity;
+        this.identity = identity;
         this.serviceInstanceId = serviceInstanceId;
-    }
-
-    @Override
-    public String getEnvironment() {
-        return environment;
+        this.environmentInfo = environmentInfo;
     }
 
     @Override
@@ -30,12 +26,27 @@ public class ServiceInfoImpl<T> implements ServiceInfo<T> {
     }
 
     @Override
-    public PublicKey getServiceIdentity() {
-        return serviceIdentity;
+    public Identity getServiceIdentity() {
+        return identity;
     }
 
     @Override
     public UUID getServiceInstanceId() {
         return serviceInstanceId;
     }
+
+    @Override
+    public EnvironmentInfo getEnvironmentInfo() {
+        return environmentInfo;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%s{%s:%s}@%s",
+                serviceType == null ? "null" : serviceType.getSimpleName(),
+                getServiceIdentity().getPrincipal().getName(),
+                serviceInstanceId,
+                environmentInfo.getName());
+    }
+
 }

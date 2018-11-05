@@ -1,6 +1,6 @@
 package net.tvburger.up.proto.servlet;
 
-import net.tvburger.up.UpClient;
+import net.tvburger.up.deploy.EndpointTechnology;
 import net.tvburger.up.impl.ServiceUtil;
 import net.tvburger.up.proto.ServletProtocolManager;
 import net.tvburger.up.spi.ProtocolLifecycleManager;
@@ -17,14 +17,20 @@ import java.io.IOException;
 // TODO: handle environments (based on host headers)
 public class ServletProtocolImpl implements ServletProtocolManager, ProtocolLifecycleManager<ServletProtocolManager> {
 
-    private UpClient upClient;
+    public static final EndpointTechnology TECHNOLOGY = new EndpointTechnology("servlet", "3.1");
+
     private Server server;
     private ServletHandler servletHandler;
 
     @Override
     public void registerServlet(String mapping, Class<? extends Servlet> servletClass, Object... arguments) {
-        Servlet servlet = ServiceUtil.instantiateService(upClient, servletClass, arguments);
+        Servlet servlet = ServiceUtil.instantiateService(servletClass, arguments);
         servletHandler.addServletWithMapping(new ServletHolder(servlet), mapping);
+    }
+
+    @Override
+    public EndpointTechnology getEndpointTechnology() {
+        return TECHNOLOGY;
     }
 
     @Override
@@ -38,8 +44,7 @@ public class ServletProtocolImpl implements ServletProtocolManager, ProtocolLife
     }
 
     @Override
-    public void init(UpClient upClient) {
-        this.upClient = upClient;
+    public void init() {
         servletHandler = new ServletHandler();
         server = new Server(8099);
         server.setStopAtShutdown(true);

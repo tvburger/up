@@ -10,14 +10,15 @@ public class ConsoleLogger implements Logger {
     @Override
     public void log(LogStatement logStatement) {
         System.out.println(String.format(
-                "[%s] %s %s{%s} (%s@%s:%s) [%s@%s] %s",
+                "[%s] %s %s{%s@%s} (%s@%s%s) [%s@%s] %s",
                 logStatement.getLogLevel().name(),
                 new Date(logStatement.getTimestamp()),
                 logStatement.getServiceInfo().getServiceType().getSimpleName(),
+                logStatement.getServiceInfo().getServiceIdentity().getPrincipal().getName(),
                 logStatement.getServiceInfo().getServiceInstanceId(),
                 logStatement.getLocation().getHostName(),
                 logStatement.getLocation().getThreadName(),
-                logStatement.getServiceInfo().getEnvironment(),
+                logStatement.getServiceInfo().getEnvironmentInfo() == null ? "" : ":" + logStatement.getServiceInfo().getEnvironmentInfo().getName(),
                 logStatement.getSource().getFileName(),
                 logStatement.getSource().getLineNumber(),
                 logStatement.getMessage()));

@@ -1,6 +1,10 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.Environment;
+import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.admin.EnvironmentManager;
+import net.tvburger.up.identity.Identity;
+import net.tvburger.up.impl.EnvironmentInfoImpl;
 import net.tvburger.up.logger.Logger;
 import net.tvburger.up.logger.impl.ConsoleLogger;
 
@@ -16,23 +20,33 @@ public class LocalEnvironmentManager implements EnvironmentManager {
     private static final Logger logger = new ConsoleLogger();
 
     public static LocalEnvironmentManager get(String environment) {
-        return environments.computeIfAbsent(environment, (key) -> new LocalEnvironmentManager(key, new LocalServicesManager(key, logger)));
+        return environments.computeIfAbsent(environment, (key) -> {
+            EnvironmentInfo info = new EnvironmentInfoImpl(key, Identity.ANONYMOUS);
+            return new LocalEnvironmentManager(info, new LocalServicesManager(info, logger));
+        });
     }
 
-    private final String environment;
+    private final EnvironmentInfo environmentInfo;
+    private final Environment environment;
     private final LocalServicesManager localServicesManager;
 
-    public LocalEnvironmentManager(String environment, LocalServicesManager localServicesManager) {
-        this.environment = environment;
+    public LocalEnvironmentManager(EnvironmentInfo environmentInfo, LocalServicesManager localServicesManager) {
+        this.environmentInfo = environmentInfo;
+        this.environment = new LocalEnvironment(this);
         this.localServicesManager = localServicesManager;
+    }
+
+    public Environment getEnvironment() {
+        return environment;
     }
 
     public LocalServicesManager getLocalServicesManager() {
         return localServicesManager;
     }
 
-    public String getEnvironment() {
-        return environment;
+    @Override
+    public EnvironmentInfo getEnvironmentInfo() {
+        return environmentInfo;
     }
 
     @Override
@@ -49,4 +63,18 @@ public class LocalEnvironmentManager implements EnvironmentManager {
     public void clear() {
     }
 
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
 }

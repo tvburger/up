@@ -1,8 +1,7 @@
 package net.tvburger.up.proto.jaxrs;
 
-import net.tvburger.up.UpClient;
+import net.tvburger.up.deploy.EndpointTechnology;
 import net.tvburger.up.proto.JaxrsProtocolManager;
-import net.tvburger.up.proto.ServletProtocolManager;
 import net.tvburger.up.spi.ProtocolLifecycleManager;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
@@ -10,8 +9,12 @@ import java.io.IOException;
 
 public class JaxrsProtocolImpl implements JaxrsProtocolManager, ProtocolLifecycleManager {
 
-    private UpClient upClient;
-    private ServletProtocolManager servletProtocol;
+    public static final EndpointTechnology TECHNOLOGY = new EndpointTechnology("jaxrs", "2.1");
+
+    @Override
+    public EndpointTechnology getEndpointTechnology() {
+        return TECHNOLOGY;
+    }
 
     @Override
     public Class<JaxrsProtocolManager> getProtocolType() {
@@ -24,9 +27,7 @@ public class JaxrsProtocolImpl implements JaxrsProtocolManager, ProtocolLifecycl
     }
 
     @Override
-    public void init(UpClient upClient) {
-        this.upClient = upClient;
-        servletProtocol = upClient.getProtocol(ServletProtocolManager.class);
+    public void init() {
     }
 
     @Override

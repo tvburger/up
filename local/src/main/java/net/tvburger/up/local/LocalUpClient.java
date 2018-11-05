@@ -1,8 +1,9 @@
 package net.tvburger.up.local;
 
-import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.Environment;
+import net.tvburger.up.Service;
 import net.tvburger.up.UpClient;
-import net.tvburger.up.admin.ServiceManager;
+import net.tvburger.up.identity.Identity;
 import net.tvburger.up.impl.ProtocolLifecycleManagerProvider;
 import net.tvburger.up.spi.ProtocolManager;
 
@@ -10,40 +11,27 @@ public class LocalUpClient implements UpClient {
 
     private final LocalEnvironmentManager environmentManager;
     private final ProtocolLifecycleManagerProvider protocolProvider;
+    private final Identity identity;
 
-    public LocalUpClient(LocalEnvironmentManager environmentManager, ProtocolLifecycleManagerProvider protocolProvider) {
+    public LocalUpClient(LocalEnvironmentManager environmentManager, ProtocolLifecycleManagerProvider protocolProvider, Identity identity) {
         this.environmentManager = environmentManager;
         this.protocolProvider = protocolProvider;
+        this.identity = identity;
     }
 
     @Override
-    public String getEnvironment() {
+    public Environment getEnvironment() {
         return environmentManager.getEnvironment();
     }
 
     @Override
-    public <T> T getService(Class<T> serviceType) {
+    public <T> Service<T> getService(Class<T> serviceType) {
         return environmentManager.getLocalServicesManager().getService(serviceType);
     }
 
     @Override
-    public <T> ServiceInfo<T> getServiceInfo(T service) {
-        return getServiceManager(service).getServiceInfo();
-    }
-
-    @Override
-    public <T> ServiceManager<T> getServiceManager(T service) {
-        return environmentManager.getLocalServicesManager().getServiceManager(service);
-    }
-
-    @Override
-    public <T, S extends T> void addTypedService(Class<T> serviceType, Class<S> serviceClass, Object... arguments) {
-        environmentManager.getLocalServicesManager().addService(serviceType, serviceClass, arguments);
-    }
-
-    @Override
-    public <T> void removeService(T service) {
-        environmentManager.getLocalServicesManager().removeService(service);
+    public <T, S extends T> Service<T> registerService(Class<T> serviceType, Class<S> serviceClass, Object... arguments) {
+        return environmentManager.getLocalServicesManager().addService(serviceType, serviceClass, arguments);
     }
 
     @Override
@@ -56,4 +44,8 @@ public class LocalUpClient implements UpClient {
         return protocolProvider.get(protocolType).getProtocolManager();
     }
 
+    @Override
+    public Identity getIdentity() {
+        return identity;
+    }
 }

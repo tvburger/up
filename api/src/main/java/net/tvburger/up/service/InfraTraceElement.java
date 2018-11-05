@@ -1,22 +1,24 @@
-package net.tvburger.up.logger;
+package net.tvburger.up.service;
 
 import java.io.Serializable;
+import java.net.InetAddress;
 
 public class InfraTraceElement implements Serializable {
 
-    private final String hostName;
+    private final InetAddress hostName;
     private final String threadName;
 
-    public InfraTraceElement(String hostName, String threadName) {
+    public InfraTraceElement(InetAddress hostName, String threadName) {
         this.hostName = hostName;
         this.threadName = threadName;
     }
 
-    public String getHostName() {
+    public InetAddress getHostName() {
         return hostName;
     }
 
     public String getThreadName() {
         return threadName;
     }
+
 }

@@ -1,6 +1,7 @@
 package net.tvburger.up.local;
 
-import net.tvburger.up.admin.ServiceManager;
+import net.tvburger.up.Service;
+import net.tvburger.up.local.spi.LocalUpServiceContext;
 import net.tvburger.up.logger.LogLevel;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.Logger;
@@ -11,37 +12,35 @@ import java.util.Objects;
 
 public class LocalServiceProxy<T> implements InvocationHandler {
 
-    private final T service;
-    private final ServiceManager<T> serviceManager;
+    private final Service<T> service;
     private final Logger logger;
 
-    public LocalServiceProxy(T service, ServiceManager<T> serviceManager, Logger logger) {
+    public LocalServiceProxy(Service<T> service, Logger logger) {
         this.service = service;
-        this.serviceManager = serviceManager;
         this.logger = logger;
     }
 
-    public T getService() {
+    public Service<T> getService() {
         return service;
-    }
-
-    public ServiceManager<T> getServiceManager() {
-        return serviceManager;
     }
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        boolean logMethod = serviceManager.isLogged() && !method.getDeclaringClass().equals(Object.class);
-        return logMethod ? invokeLogged(method, args) : method.invoke(service, args);
+        LocalUpServiceContext context = LocalUpServiceContext.get();
+        LocalUpServiceContext.set(new LocalUpServiceContext(LocalUpInstance.get().getInterpreter(), service.getInfo()));
+        try {
+            boolean logMethod = service.getManager().isLogged() && !method.getDeclaringClass().equals(Object.class);
+            return logMethod ? invokeLogged(method, args) : method.invoke(service.getService(), args);
+        } finally {
+            LocalUpServiceContext.set(context);
+        }
     }
 
     public Object invokeLogged(Method method, Object[] args) throws Throwable {
-        LogStatement.Builder builder = new LogStatement.Builder()
-                .withServiceInfo(getServiceManager().getServiceInfo())
-                .withLogLevel(LogLevel.TRACE);
+        LogStatement.Builder builder = new LogStatement.Builder().withLogLevel(LogLevel.TRACE);
         logger.log(builder.withMessage(buildMessage(method, args)).build());
         try {
-            Object result = method.invoke(service, args);
+            Object result = method.invoke(service.getService(), args);
             logger.log(builder.withMessage("Returning " + Objects.toString(result)).build());
             return result;
         } catch (Throwable t) {

@@ -26,4 +26,19 @@ public class ServiceManagerImpl<T> implements ServiceManager<T> {
     public void setLogged(boolean logged) {
         this.logged = logged;
     }
+
+    @Override
+    public void start() {
+
+    }
+
+    @Override
+    public void stop() {
+
+    }
+
+    @Override
+    public void destroy() {
+
+    }
 }

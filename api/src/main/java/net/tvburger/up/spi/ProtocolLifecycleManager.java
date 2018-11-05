@@ -1,16 +1,18 @@
 package net.tvburger.up.spi;
 
-import net.tvburger.up.UpClient;
+import net.tvburger.up.deploy.EndpointTechnology;
 
 import java.io.IOException;
 
 public interface ProtocolLifecycleManager<P extends ProtocolManager> {
 
+    EndpointTechnology getEndpointTechnology();
+
     Class<P> getProtocolType();
 
     P getProtocolManager();
 
-    void init(UpClient upClient) throws IOException;
+    void init() throws IOException;
 
     void start() throws IOException;
 

@@ -1,4 +1,4 @@
-package net.tvburger.up;
+package net.tvburger.up.deploy;
 
 public interface LookupStrategy {
 }

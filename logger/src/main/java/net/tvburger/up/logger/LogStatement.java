@@ -1,6 +1,8 @@
 package net.tvburger.up.logger;
 
 import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.UpContext;
+import net.tvburger.up.service.InfraTraceElement;
 
 import java.io.Serializable;
 
@@ -14,7 +16,6 @@ public class LogStatement implements Serializable {
         private Long timestamp;
         private LogLevel logLevel;
         private String message;
-        private StackTraceElement stackTraceElement;
 
         public Builder withSource(StackTraceElement source) {
             this.source = source;
@@ -46,25 +47,14 @@ public class LogStatement implements Serializable {
             return this;
         }
 
-        public boolean isValid() {
-            return serviceInfo != null;
-        }
-
         public LogStatement build() {
-            if (!isValid()) {
-                throw new IllegalStateException();
-            }
             return new LogStatement(
                     source == null ? getStackTraceElement() : source,
-                    location == null ? createLocation() : location,
-                    serviceInfo,
+                    location == null ? UpContext.getServiceContext().getLocation() : location,
+                    serviceInfo == null ? UpContext.getServiceContext().getServiceInfo() : serviceInfo,
                     timestamp == null ? System.currentTimeMillis() : timestamp,
                     logLevel == null ? LogLevel.INFO : logLevel,
                     message == null ? "<no message>" : message);
-        }
-
-        private InfraTraceElement createLocation() {
-            return new InfraTraceElement("localhost", Thread.currentThread().getName());
         }
 
         private StackTraceElement getStackTraceElement() {

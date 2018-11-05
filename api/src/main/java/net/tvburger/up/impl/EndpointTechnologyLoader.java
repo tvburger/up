@@ -1,33 +1,21 @@
 package net.tvburger.up.impl;
 
-import net.tvburger.up.UpClient;
-import net.tvburger.up.deploy.EndpointTechnology;
 import net.tvburger.up.spi.ProtocolLifecycleManager;
 import net.tvburger.up.spi.ProtocolManager;
 
 import java.io.IOException;
 import java.util.*;
 
-public class ProtocolLifecycleManagerProvider {
+public class EndpointTechnologyLoader {
 
     private final Map<Class<? extends ProtocolManager>, ProtocolLifecycleManager<? extends ProtocolManager>> lifecycleManagers = new HashMap<>();
-    private final Set<EndpointTechnology> endpointTechnologies = new HashSet<>();
-    private UpClient upClient;
 
     @SuppressWarnings("unchecked")
-    public void init(UpClient upClient) {
-        if (upClient == null) {
-            throw new IllegalArgumentException();
-        }
-        if (this.upClient != null) {
-            throw new IllegalStateException();
-        }
-        this.upClient = upClient;
+    public void init() {
         ServiceLoader<ProtocolLifecycleManager<?>> serviceLoader = ServiceLoader.load((Class) ProtocolLifecycleManager.class);
         for (ProtocolLifecycleManager<?> lifecycleManager : serviceLoader) {
             initLifecycleManager(lifecycleManager);
             lifecycleManagers.put(lifecycleManager.getProtocolType(), lifecycleManager);
-            endpointTechnologies.add(lifecycleManager.getEndpointTechnology());
         }
     }
 
@@ -38,10 +26,6 @@ public class ProtocolLifecycleManagerProvider {
         } catch (IOException cause) {
             throw new IllegalStateException(cause);
         }
-    }
-
-    public Set<EndpointTechnology> getEndpointTechnologies() {
-        return endpointTechnologies;
     }
 
     @SuppressWarnings("unchecked")
