@@ -6,6 +6,6 @@ public interface JaxrsProtocolManager extends ProtocolManager {
 
     <T> void registerResourceClass(Class<T> resourceClass);
 
-    <T> void registerResourceSingleton(Class<T> resourceClass, Object... arguments);
+    <T> void registerResourceSingleton(Class<T> resourceClass, String pathSpec, Object... arguments);
 
 }
