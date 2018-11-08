@@ -14,11 +14,12 @@ import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr340.Jsr340;
 import net.tvburger.up.util.Services;
 import org.eclipse.jetty.server.Server;
-import org.eclipse.jetty.servlet.ServletHandler;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 
 import javax.servlet.Servlet;
-import javax.servlet.ServletContext;
 import java.util.*;
 
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
@@ -28,12 +29,13 @@ import java.util.*;
 public final class Jetty9TechnologyManager implements EndpointTechnologyManager {
 
     private final Map<EnvironmentInfo, Set<Jsr340.Endpoint>> endpoints = new HashMap<>();
-    private final Map<EnvironmentInfo, ServletContext> servletContexts = new HashMap<>();
+    private final Map<EnvironmentInfo, ServletContextHandler> servletContextHandlers = new HashMap<>();
     private final UpEngine engine;
     private final Identity identity;
     private Server server;
-    private ServletHandler servletHandler;
+    private ServerConnector http;
     private boolean logged;
+    private int port;
 
     public Jetty9TechnologyManager(UpEngine engine, Identity identity) {
         this.engine = engine;
@@ -51,16 +53,39 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
 
     @Override
     public void init() {
-        servletHandler = new ServletHandler();
-        server = new Server(8091);
+        server = new Server();
+        http = new ServerConnector(server);
+        http.setHost("localhost");
+        http.setPort(0);
+        http.setIdleTimeout(30_000);
+        server.addConnector(http);
         server.setStopAtShutdown(true);
-        server.setHandler(servletHandler);
+    }
+
+    private ContextHandlerCollection createHandler() {
+        ServletContextHandler[] handlers = new ServletContextHandler[servletContextHandlers.size()];
+        int i = 0;
+        for (ServletContextHandler servletContextHandler : servletContextHandlers.values()) {
+            handlers[i++] = servletContextHandler;
+        }
+        ContextHandlerCollection contexts = new ContextHandlerCollection();
+        contexts.setHandlers(handlers);
+        return contexts;
     }
 
     @Override
     public void start() throws LifecycleException {
         try {
+            if (server.isStarting() || server.isStarted()) {
+                return;
+            }
+            if (port != 0) {
+                http.setPort(port);
+            }
+            server.setHandler(createHandler());
             server.start();
+            port = http.getLocalPort();
+            System.out.println(http.getHost() + " " + http.getLocalPort() + " " + http.getPort() + " " + http.getDefaultProtocol());
         } catch (Exception cause) {
             throw new LifecycleException(cause);
         }
@@ -69,6 +94,9 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
     @Override
     public void stop() throws LifecycleException {
         try {
+            if (server.isStopping() || server.isStopped()) {
+                return;
+            }
             server.stop();
         } catch (Exception cause) {
             throw new LifecycleException(cause);
@@ -79,7 +107,6 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
     public void destroy() {
         server.destroy();
         server = null;
-        servletHandler = null;
     }
 
     @Override
@@ -112,31 +139,43 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
         this.logged = logged;
     }
 
+    private ServletContextHandler create(EnvironmentInfo environmentInfo) {
+        ServletContextHandler handler = new ServletContextHandler(ServletContextHandler.SESSIONS);
+        handler.setContextPath("/" + environmentInfo.getName());
+        return handler;
+    }
+
     @SuppressWarnings("unchecked")
     @Override
     public void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException, AccessDeniedException {
-//        ServletContext servletContext = servletContexts.computeIfAbsent(environmentInfo, null);
-        if (environmentInfo == null || endpointDefinition == null) {
-            throw new IllegalArgumentException();
+        try {
+            ServletContextHandler servletContextHandler = servletContextHandlers.computeIfAbsent(environmentInfo, this::create);
+            if (environmentInfo == null || endpointDefinition == null) {
+                throw new IllegalArgumentException();
+            }
+            if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
+                throw new DeployException("Unsupported specification!");
+            }
+            Class<?> serviceClass = endpointDefinition.getInstanceDefinition().getInstanceClass();
+            if (!Servlet.class.isAssignableFrom(serviceClass)) {
+                throw new DeployException("Illegal service class, not a Servlet: " + serviceClass.getName());
+            }
+            Map<String, String> settings = endpointDefinition.getSettings();
+            if (!settings.containsKey("mapping")) {
+                throw new DeployException("Invalid endpoint definition: no mapping specified in settings!");
+            }
+            Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
+            Servlet servlet = Services.instantiateService(environment, (Class<? extends Servlet>) serviceClass, new ArrayList<>(endpointDefinition.getInstanceDefinition().getArguments()).toArray());
+            String mapping = settings.getOrDefault("mapping", "/");
+            servletContextHandler.addServlet(new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet)), mapping);
+            endpoints.computeIfAbsent(environmentInfo, k -> new HashSet<>()).add(Jetty9Endpoint.Factory.create(servlet, servletContextHandler, http, mapping));
+            if (server.isStarted()) {
+                stop();
+                start();
+            }
+        } catch (LifecycleException cause) {
+            throw new DeployException(cause);
         }
-        if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
-            throw new DeployException("Unsupported specification!");
-        }
-        Class<?> serviceClass = endpointDefinition.getInstanceDefinition().getInstanceClass();
-        if (!Servlet.class.isAssignableFrom(serviceClass)) {
-            throw new DeployException("Illegal service class, not a Servlet: " + serviceClass.getName());
-        }
-        Map<String, String> settings = endpointDefinition.getSettings();
-        if (!settings.containsKey("mapping")) {
-            throw new DeployException("Invalid endpoint definition: no mapping specified in settings!");
-        }
-        Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-        Servlet servlet = Services.instantiateService(environment, (Class<? extends Servlet>) serviceClass, new ArrayList<>(endpointDefinition.getInstanceDefinition().getArguments()).toArray());
-        String mapping = settings.get("mapping");
-        String envMapping = "/" + environmentInfo.getName() + (mapping.startsWith("/") ? "" : "/") + mapping;
-        servletHandler.addServletWithMapping(new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet)), envMapping);
-//        servletContext.addServlet("", servlet);
-        endpoints.computeIfAbsent(environmentInfo, k -> new HashSet<>()).add(Jetty9Endpoint.Factory.create(servlet));
     }
 
 }

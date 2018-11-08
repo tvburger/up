@@ -2,6 +2,8 @@ package net.tvburger.up.technology.jetty9;
 
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import org.eclipse.jetty.server.ServerConnector;
+import org.eclipse.jetty.servlet.ServletContextHandler;
 
 import javax.servlet.Servlet;
 
@@ -9,12 +11,11 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     public static final class Factory {
 
-        public static Jetty9Endpoint create(Servlet servlet) {
-            String serverName = servlet.getServletConfig().getServletContext().getVirtualServerName();
-            String contextPath = servlet.getServletConfig().getServletContext().getContextPath();
-            String name = servlet.getServletConfig().getServletName();
-            String mapping = "?";
-            return new Jetty9Endpoint(new Info(serverName, contextPath, name, mapping));
+        public static Jetty9Endpoint create(Servlet servlet, ServletContextHandler context, ServerConnector http, String mapping) {
+            String serverName = http.getHost();
+            String contextPath = context.getContextPath();
+            String name = servlet.getClass().getName();
+            return new Jetty9Endpoint(new Info(serverName, contextPath, mapping, name));
         }
 
         private Factory() {

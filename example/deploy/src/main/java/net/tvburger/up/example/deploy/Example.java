@@ -21,10 +21,12 @@ public final class Example {
 
     public static void main(String[] args) throws InterruptedException, UpException {
         UpClientTarget clientTarget = prepareInfrastructure(new MyRuntimeDefinition());
+
         UpClient client = Up.createClientBuilder(clientTarget)
                 .withEnvironment("dev")
                 .withIdentity(Identities.ANONYMOUS)
                 .build();
+
         deployApplication(client, new MyDeploymentDefinition("<DEV> Hello"));
         configureEnvironment(client);
         useApplicationThroughClient(client);
@@ -37,6 +39,11 @@ public final class Example {
         configureEnvironment(client2);
         useApplicationThroughClient(client2);
         printEnvironment(client.getEnvironment());
+
+        Thread.sleep(60_000);
+
+        client.getEnvironment().getRuntime().getManager().stop();
+        client.getEnvironment().getRuntime().getManager().destroy();
     }
 
     private static UpClientTarget prepareInfrastructure(UpRuntimeDefinition runtimeDefinition) throws DeployException {
@@ -78,10 +85,6 @@ public final class Example {
                 System.out.println("   - Endpoint: " + endpoint.getInfo());
             }
         }
-    }
-
-    private static void sleepLongTimeForWebAccess() throws InterruptedException {
-        Thread.sleep(60_000);
     }
 
 }

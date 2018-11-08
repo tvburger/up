@@ -15,7 +15,7 @@ public final class MyDeploymentDefinition extends UpDeploymentDefinition {
                         new EndpointDefinition.Builder()
                                 .withEndpointTechnology(Jsr340.Specification.get())
                                 .withEndpointDefinition(ExampleServlet.class, ExampleService.class)
-                                .withSetting("mapping", "/*")
+                                .withSetting("mapping", "/hello/*")
                                 .build())
                 .build());
     }
