@@ -2,10 +2,11 @@ package net.tvburger.up.impl;
 
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.Specification;
+import net.tvburger.up.behaviors.ValueObject;
 
 import java.util.Objects;
 
-public class ImplementationImpl implements Implementation {
+public class ImplementationImpl implements Implementation, ValueObject {
 
     public static final class Factory {
 
@@ -44,6 +45,23 @@ public class ImplementationImpl implements Implementation {
     @Override
     public Specification getSpecification() {
         return specification;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return object == this
+                || null != object &&
+                (object instanceof Implementation
+                        && Objects.equals(getSpecification(), ((Implementation) object).getSpecification())
+                        && Objects.equals(getImplementationName(), ((Implementation) object).getImplementationName())
+                        && Objects.equals(getImplementationVersion(), ((Implementation) object).getImplementationVersion()));
+    }
+
+    @Override
+    public int hashCode() {
+        return 17 + Objects.hashCode(specification) * 37
+                + Objects.hashCode(name) * 43
+                + Objects.hashCode(version) * 3;
     }
 
     @Override

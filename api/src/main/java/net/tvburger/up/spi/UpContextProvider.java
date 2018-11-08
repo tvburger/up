@@ -1,12 +1,9 @@
 package net.tvburger.up.spi;
 
-import net.tvburger.up.context.CallerInfo;
-import net.tvburger.up.context.UpServiceContext;
+import net.tvburger.up.context.UpContext;
 
 public interface UpContextProvider {
 
-    UpServiceContext getServiceContext();
-
-    CallerInfo getCallerInfo();
+    UpContext getContext();
 
 }

@@ -1,4 +1,4 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
 import net.tvburger.up.EndpointTechnologyInfo;
 import net.tvburger.up.Environment;
@@ -26,7 +26,7 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
 
     public static final class Factory {
 
-        private static final UpLogger logger = new ConsoleLogger("Runtime");
+        private static final UpLogger logger = new ConsoleLogger(LocalUpInstance.class.getName());
 
         public static LocalEnvironmentManager create(UpEngine engine, String environmentName, UpRuntimeInfo runtimeInfo) {
             EnvironmentInfo info = EnvironmentInfoImpl.Factory.create(environmentName, runtimeInfo, Identities.ANONYMOUS);
@@ -109,27 +109,27 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     @Override
     public void deploy(UpDeploymentDefinition deploymentDefinition) throws AccessDeniedException, DeployException {
         for (ServiceDefinition serviceDefinition : deploymentDefinition.getServiceDefinitions()) {
-            deploy(serviceDefinition, deploymentDefinition.getServiceTypes().get(serviceDefinition.getServiceType()));
+            deploy(serviceDefinition);
         }
         for (EndpointDefinition endpointDefinition : deploymentDefinition.getEndpointDefinitions()) {
-            deploy(endpointDefinition, deploymentDefinition.getServiceTypes().get(endpointDefinition.getServiceDefinition().getServiceType()));
+            deploy(endpointDefinition);
         }
     }
 
     @SuppressWarnings("unchecked")
     @Override
-    public void deploy(ServiceDefinition serviceDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException {
+    public void deploy(ServiceDefinition serviceDefinition) throws AccessDeniedException, DeployException {
         getLocalServicesManager().addService(
                 (Class) serviceDefinition.getServiceType(),
-                (Class) serviceClass,
+                (Class) serviceDefinition.getServiceImplementation(),
                 new ArrayList<>(serviceDefinition.getArguments()).toArray());
 
     }
 
     @Override
-    public void deploy(EndpointDefinition endpointDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException {
-        EndpointTechnologyInfo<?> info = getEndpointReference(endpointDefinition.getEndpointReference());
-        engine.getEndpointTechnology(info).getManager().deploy(getInfo().getName(), endpointDefinition, serviceClass);
+    public void deploy(EndpointDefinition endpointDefinition) throws AccessDeniedException, DeployException {
+        EndpointTechnologyInfo<?> info = getEndpointReference(endpointDefinition.getEndpointTechnology());
+        engine.getEndpointTechnology(info).getManager().deploy(getInfo(), endpointDefinition);
     }
 
 

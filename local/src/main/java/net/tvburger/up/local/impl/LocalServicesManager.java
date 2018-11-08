@@ -1,4 +1,4 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
@@ -39,7 +39,7 @@ public final class LocalServicesManager {
         Identity identity = Identities.ANONYMOUS;
         ServiceManager<T> serviceManager = createServiceManager(serviceType, serviceClass, identity);
         Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-        T serviceInstance = createLoggerProxy(Services.instantiateService(environment, serviceClass, arguments), identity, environment, serviceManager);
+        T serviceInstance = createLoggerProxy(Services.instantiateService(environment, serviceClass, arguments), identity, serviceManager);
         Set<Service<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
         Service<T> service = new ServiceImpl<>(serviceManager, serviceInstance);
         services.add(service);
@@ -75,11 +75,11 @@ public final class LocalServicesManager {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T createLoggerProxy(T service, Identity identity, Environment environment, ServiceManager<T> serviceManager) {
+    private <T> T createLoggerProxy(T service, Identity identity, ServiceManager<T> serviceManager) {
         return (T) Proxy.newProxyInstance(
                 service.getClass().getClassLoader(),
                 service.getClass().getInterfaces(),
-                new LocalServiceProxy(engine, new ServiceImpl<>(serviceManager, service), identity, environment, logger));
+                new LocalServiceProxy(engine, new ServiceImpl<>(serviceManager, service), identity, logger));
     }
 
     public <T> void removeService(Service<T> service) {
@@ -89,9 +89,9 @@ public final class LocalServicesManager {
     }
 
     @SuppressWarnings("unchecked")
-    public <T> Service<T> getService(Class<T> serviceType) {
+    public <T> Service<T> getService(Class<T> serviceType) throws DeployException {
         if (!serviceRegistry.containsKey(serviceType)) {
-            throw new IllegalStateException();
+            throw new DeployException("No such service registered: " + serviceType);
         }
         Iterator<Service<?>> iterator = serviceRegistry.get(serviceType).iterator();
         if (!iterator.hasNext()) {

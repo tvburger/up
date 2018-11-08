@@ -50,8 +50,8 @@ public class LogStatement implements Serializable {
         public LogStatement build() {
             return new LogStatement(
                     source == null ? getStackTraceElement() : source,
-                    locality == null ? Up.getServiceContext() != null ? Up.getServiceContext().getLocality() : null : locality,
-                    serviceInfo == null ? Up.getServiceContext() != null ? Up.getServiceContext().getInfo() : null : serviceInfo,
+                    locality == null ? Up.getContext() != null ? Up.getContext().getLocality() : null : locality,
+                    serviceInfo == null ? Up.getContext() != null ? Up.getContext().getServiceInfo() : null : serviceInfo,
                     timestamp == null ? System.currentTimeMillis() : timestamp,
                     logLevel == null ? LogLevel.INFO : logLevel,
                     message == null ? "<no message>" : message);

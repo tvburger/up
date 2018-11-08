@@ -1,4 +1,4 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.client.UpClient;

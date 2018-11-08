@@ -2,8 +2,7 @@ package net.tvburger.up;
 
 import net.tvburger.up.client.UpClientBuilder;
 import net.tvburger.up.client.UpClientTarget;
-import net.tvburger.up.context.CallerInfo;
-import net.tvburger.up.context.UpServiceContext;
+import net.tvburger.up.context.UpContext;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.spi.UpClientBuilderFactory;
 import net.tvburger.up.spi.UpContextProvider;
@@ -16,7 +15,14 @@ public final class Up {
 
     private static final Set<UpClientBuilderFactory> clientBuilderFactories = UpClientBuilderFactoryLoader.load();
     private static final UpContextProvider contextProvider = ServiceLoader.load(UpContextProvider.class).iterator().next();
-
+    
+    /**
+     * Creates a new ClientBuilder for the specified target.
+     *
+     * @param target
+     * @return
+     * @throws DeployException
+     */
     public static UpClientBuilder createClientBuilder(UpClientTarget target) throws DeployException {
         for (UpClientBuilderFactory factory : clientBuilderFactories) {
             if (factory.supportsTarget(target)) {
@@ -26,12 +32,13 @@ public final class Up {
         throw new DeployException("Unsupported target: " + target);
     }
 
-    public static UpServiceContext getServiceContext() {
-        return contextProvider.getServiceContext();
-    }
-
-    public static CallerInfo getCallerInfo() {
-        return contextProvider.getCallerInfo();
+    /**
+     * Returns null if called from outside an Engine (e.g. from a Client)
+     *
+     * @return
+     */
+    public static UpContext getContext() {
+        return contextProvider.getContext();
     }
 
 }

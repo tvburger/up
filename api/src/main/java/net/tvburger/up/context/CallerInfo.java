@@ -4,16 +4,28 @@ import net.tvburger.up.ServiceInfo;
 import net.tvburger.up.client.UpClientInfo;
 
 import java.io.Serializable;
+import java.util.Objects;
 
 public final class CallerInfo implements Serializable {
 
     public static final class Factory {
 
+        public static CallerInfo create() {
+            return new CallerInfo(null, null, System.currentTimeMillis());
+        }
+
+        public static CallerInfo create(UpContext context) {
+            Objects.requireNonNull(context);
+            return new CallerInfo(context.getServiceInfo(), context.getCallerInfo().getClientInfo(), System.currentTimeMillis());
+        }
+
         public static CallerInfo create(ServiceInfo<?> serviceInfo) {
+            Objects.requireNonNull(serviceInfo);
             return new CallerInfo(serviceInfo, null, System.currentTimeMillis());
         }
 
         public static CallerInfo create(UpClientInfo clientInfo) {
+            Objects.requireNonNull(clientInfo);
             return new CallerInfo(null, clientInfo, System.currentTimeMillis());
         }
 

@@ -7,10 +7,10 @@ import net.tvburger.up.client.UpClientInfo;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpRuntime;
 import net.tvburger.up.impl.UpClientInfoImpl;
-import net.tvburger.up.local.LocalClientProxy;
-import net.tvburger.up.local.LocalUpClient;
-import net.tvburger.up.local.LocalUpClientManager;
-import net.tvburger.up.local.LocalUpClientTarget;
+import net.tvburger.up.local.impl.LocalClientProxy;
+import net.tvburger.up.local.impl.LocalUpClient;
+import net.tvburger.up.local.impl.LocalUpClientManager;
+import net.tvburger.up.local.impl.LocalUpClientTarget;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;
@@ -70,7 +70,7 @@ public final class LocalUpClientBuilder implements UpClientBuilder {
         UpClientInfo clientInfo = UpClientInfoImpl.Factory.create(environment.getInfo(), Identities.getSafeIdentification(identity));
         LocalUpClientManager clientManager = new LocalUpClientManager(clientInfo);
         LocalUpClient client = new LocalUpClient(target, clientManager, identity);
-        return (UpClient) LocalClientProxy.Factory.create(client.getInfo(), client);
+        return (UpClient) LocalClientProxy.Factory.create(target, client);
     }
 
 }

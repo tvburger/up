@@ -1,4 +1,4 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
 import net.tvburger.up.*;
 import net.tvburger.up.deploy.DeployException;

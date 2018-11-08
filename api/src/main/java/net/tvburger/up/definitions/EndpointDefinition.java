@@ -10,17 +10,17 @@ public class EndpointDefinition {
 
     public static final class Builder {
 
-        private Specification endpointReference;
+        private Specification endpointTechnology;
         private ServiceDefinition serviceDefinition;
         private List<Object> arguments = new ArrayList<>();
 
-        public Builder withEndpointReference(Specification endpointReference) {
-            this.endpointReference = endpointReference;
+        public Builder withEndpointTechnology(Specification endpointTechnology) {
+            this.endpointTechnology = endpointTechnology;
             return this;
         }
 
-        public Builder withServiceDefinition(Class<?> serviceType, Object... arguments) {
-            return withServiceDefinition(ServiceDefinition.Factory.create(serviceType, arguments));
+        public Builder withServiceDefinition(Class<?> serviceType, Class<?> serviceImplementation, Object... arguments) {
+            return withServiceDefinition(ServiceDefinition.Factory.create(serviceType, serviceImplementation, arguments));
         }
 
         public Builder withServiceDefinition(ServiceDefinition serviceDefinition) {
@@ -34,26 +34,26 @@ public class EndpointDefinition {
         }
 
         public EndpointDefinition build() {
-            if (serviceDefinition == null || endpointReference == null) {
+            if (serviceDefinition == null || endpointTechnology == null) {
                 throw new IllegalStateException();
             }
-            return new EndpointDefinition(endpointReference, serviceDefinition, Collections.unmodifiableList(new ArrayList<>(arguments)));
+            return new EndpointDefinition(endpointTechnology, serviceDefinition, Collections.unmodifiableList(new ArrayList<>(arguments)));
         }
 
     }
 
-    private final Specification endpointReference;
+    private final Specification endpointTechnology;
     private final ServiceDefinition serviceDefinition;
     private final List<Object> arguments;
 
-    protected EndpointDefinition(Specification endpointReference, ServiceDefinition serviceDefinition, List<Object> arguments) {
-        this.endpointReference = endpointReference;
+    protected EndpointDefinition(Specification endpointTechnology, ServiceDefinition serviceDefinition, List<Object> arguments) {
+        this.endpointTechnology = endpointTechnology;
         this.serviceDefinition = serviceDefinition;
         this.arguments = arguments;
     }
 
-    public Specification getEndpointReference() {
-        return endpointReference;
+    public Specification getEndpointTechnology() {
+        return endpointTechnology;
     }
 
     public ServiceDefinition getServiceDefinition() {

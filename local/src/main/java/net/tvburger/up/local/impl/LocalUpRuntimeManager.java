@@ -1,7 +1,8 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.definitions.UpEngineDefinition;
 import net.tvburger.up.deploy.*;
 import net.tvburger.up.impl.UpRuntimeImpl;
 import net.tvburger.up.impl.UpRuntimeInfoImpl;
@@ -20,12 +21,16 @@ public final class LocalUpRuntimeManager implements UpRuntimeManager {
 
     public static final class Factory {
 
-        public static LocalUpRuntimeManager create() throws LifecycleException {
-            Identity identity = Identities.ANONYMOUS;
-            UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, LocalUpEngineManager.getImplementation().getSpecification());
-            LocalUpRuntimeManager manager = new LocalUpRuntimeManager(info, identity);
-            manager.init();
-            return manager;
+        public static LocalUpRuntimeManager create(UpEngineDefinition engineDefinition) throws DeployException {
+            try {
+                Identity identity = Identities.ANONYMOUS;
+                UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, engineDefinition.getEngineImplementation().getSpecification());
+                LocalUpRuntimeManager manager = new LocalUpRuntimeManager(info, identity, engineDefinition);
+                manager.init();
+                return manager;
+            } catch (LifecycleException cause) {
+                throw new DeployException(cause);
+            }
         }
 
         private Factory() {
@@ -35,13 +40,15 @@ public final class LocalUpRuntimeManager implements UpRuntimeManager {
 
     private final UpRuntimeInfo info;
     private final Identity identity;
+    private final UpEngineDefinition engineDefinition;
     private final Map<String, Environment> environments = new ConcurrentHashMap<>();
     private UpRuntime runtime;
     private LocalUpEngineManager engineManager;
 
-    private LocalUpRuntimeManager(UpRuntimeInfo info, Identity identity) {
+    private LocalUpRuntimeManager(UpRuntimeInfo info, Identity identity, UpEngineDefinition engineDefinition) {
         this.info = info;
         this.identity = identity;
+        this.engineDefinition = engineDefinition;
     }
 
     public UpRuntime getRuntime() {
@@ -80,7 +87,7 @@ public final class LocalUpRuntimeManager implements UpRuntimeManager {
         try {
             Set<UpEngine> engines = new HashSet<>();
             runtime = UpRuntimeImpl.Factory.create(this, engines, environments);
-            engineManager = LocalUpEngineManager.Factory.create(runtime, identity);
+            engineManager = LocalUpEngineManager.Factory.create(runtime, engineDefinition, identity);
             engines.add(engineManager.getEngine());
             engineManager.init();
         } catch (UnknownHostException cause) {
@@ -89,17 +96,17 @@ public final class LocalUpRuntimeManager implements UpRuntimeManager {
     }
 
     @Override
-    public void start() {
+    public void start() throws LifecycleException {
         engineManager.start();
     }
 
     @Override
-    public void stop() {
+    public void stop() throws LifecycleException {
         engineManager.stop();
     }
 
     @Override
-    public void destroy() {
+    public void destroy() throws LifecycleException {
         engineManager.destroy();
     }
 

@@ -1,21 +1,21 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
-import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.definitions.UpRuntimeDefinition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.deploy.UpRuntime;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identity;
 
 public final class LocalUpInstance {
 
     private LocalUpRuntimeManager runtimeManager;
 
-    public void init() throws DeployException {
-        try {
-            runtimeManager = LocalUpRuntimeManager.Factory.create();
-        } catch (LifecycleException cause) {
-            throw new DeployException(cause);
+    public void init(UpRuntimeDefinition runtimeDefinition) throws DeployException {
+        if (runtimeDefinition.getEngineDefinitions().size() != 1) {
+            throw new DeployException("Must contain exactly 1 engine definition!");
         }
+        runtimeManager = LocalUpRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next());
     }
 
     public UpRuntime getRuntime() {
@@ -28,6 +28,10 @@ public final class LocalUpInstance {
 
     public LocalEnvironmentManager getLocalEnvironmentManager(String environmentName) throws AccessDeniedException {
         return (LocalEnvironmentManager) getRuntime().getEnvironment(environmentName).getManager();
+    }
+
+    public Identity getEngineIdentity() throws AccessDeniedException {
+        return ((LocalUpEngineManager) getEngine().getManager()).getIdentity();
     }
 
 }

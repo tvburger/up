@@ -21,8 +21,8 @@ public interface EnvironmentManager extends LogManager, LifecycleManager, Manage
 
     void deploy(UpDeploymentDefinition deploymentDefinition) throws AccessDeniedException, DeployException;
 
-    void deploy(ServiceDefinition serviceDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException;
+    void deploy(ServiceDefinition serviceDefinition) throws AccessDeniedException, DeployException;
 
-    void deploy(EndpointDefinition endpointDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException;
+    void deploy(EndpointDefinition endpointDefinition) throws AccessDeniedException, DeployException;
 
 }

@@ -1,13 +1,12 @@
-package net.tvburger.up.local;
+package net.tvburger.up.local.impl;
 
-import net.tvburger.up.Environment;
 import net.tvburger.up.Service;
 import net.tvburger.up.Up;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
-import net.tvburger.up.context.UpServiceContext;
+import net.tvburger.up.context.UpContext;
 import net.tvburger.up.deploy.UpEngine;
-import net.tvburger.up.impl.UpServiceContextImpl;
+import net.tvburger.up.impl.UpContextImpl;
 import net.tvburger.up.logger.LogLevel;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.UpLogger;
@@ -19,19 +18,22 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Objects;
 
+/**
+ * This proxy sets the context correct for invocations to a Service.
+ *
+ * @param <T>
+ */
 public final class LocalServiceProxy<T> implements InvocationHandler {
 
     private final UpEngine engine;
     private final Service<T> service;
     private final Identity serviceIdentity;
-    private final Environment environment;
     private final UpLogger logger;
 
-    public LocalServiceProxy(UpEngine engine, Service<T> service, Identity serviceIdentity, Environment environment, UpLogger logger) {
+    public LocalServiceProxy(UpEngine engine, Service<T> service, Identity serviceIdentity, UpLogger logger) {
         this.engine = engine;
         this.service = service;
         this.serviceIdentity = serviceIdentity;
-        this.environment = environment;
         this.logger = logger;
     }
 
@@ -41,43 +43,33 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
 
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-        UpServiceContext serviceContext = Up.getServiceContext();
-        CallerInfo callerInfo = Up.getCallerInfo();
+        UpContext callerContext = Up.getContext();
         try {
-            CallerInfo thisCaller;
-            if (serviceContext != null) {
-                thisCaller = CallerInfo.Factory.create(serviceContext.getInfo());
-                ThreadBasedContextProvider.set(thisCaller);
-            } else {
-                thisCaller = callerInfo;
-            }
-            UpServiceContext thisServiceContext = createServiceContext();
-            ThreadBasedContextProvider.set(thisServiceContext);
+            UpContext serviceContext = createContext(callerContext);
+            ThreadBasedContextProvider.set(serviceContext);
             boolean logMethod = service.getManager().isLogged() && !method.getDeclaringClass().equals(Object.class);
-            return logMethod ? invokeLogged(method, args, thisCaller, thisServiceContext) : method.invoke(service.getInterface(), args);
+            return logMethod ? invokeLogged(method, args, serviceContext) : method.invoke(service.getInterface(), args);
         } catch (InvocationTargetException cause) {
             throw cause.getCause();
         } finally {
-            if (serviceContext != null) {
-                ThreadBasedContextProvider.set(callerInfo);
-            }
-            ThreadBasedContextProvider.set(serviceContext);
+            ThreadBasedContextProvider.set(callerContext);
         }
     }
 
-    private UpServiceContext createServiceContext() {
-        UpServiceContextImpl context = new UpServiceContextImpl();
-        context.setInfo(service.getInfo());
+    private UpContext createContext(UpContext callerContext) {
+        UpContextImpl context = new UpContextImpl();
+        context.setCallerInfo(CallerInfo.Factory.create(callerContext));
+        context.setServiceInfo(service.getInfo());
         context.setIdentity(serviceIdentity);
-        context.setEnvironment(environment);
+        context.setEnvironment(callerContext.getEnvironment());
         context.setLocality(Locality.Factory.create(engine));
-        context.setEngine(engine);
         return context;
     }
 
-    public Object invokeLogged(Method method, Object[] args, CallerInfo callerInfo, UpServiceContext serviceContext) throws Throwable {
+    public Object invokeLogged(Method method, Object[] args, UpContext serviceContext) throws Throwable {
         LogStatement.Builder builder = new LogStatement.Builder().withLogLevel(LogLevel.TRACE);
-        String caller = callerInfo.getServiceInfo() == null ? callerInfo.getClientInfo().toString() : callerInfo.getServiceInfo().toString();
+        CallerInfo callerInfo = serviceContext.getCallerInfo();
+        String caller = callerInfo.getServiceInfo() == null ? Objects.toString(callerInfo.getClientInfo()) : Objects.toString(callerInfo.getServiceInfo());
         logger.log(builder.withMessage(buildMessage(method, args)).build());
         try {
             logger.log(builder.withMessage("Called by " + caller).build());

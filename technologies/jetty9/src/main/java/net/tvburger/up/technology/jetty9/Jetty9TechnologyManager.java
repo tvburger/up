@@ -3,12 +3,15 @@ package net.tvburger.up.technology.jetty9;
 import net.tvburger.up.EndpointTechnologyInfo;
 import net.tvburger.up.EndpointTechnologyManager;
 import net.tvburger.up.Environment;
+import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.definitions.EndpointDefinition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identity;
+import net.tvburger.up.technology.servlet.JSR340ContextServlet;
 import net.tvburger.up.technology.servlet.JSR340Manager;
 import net.tvburger.up.technology.servlet.JSR340TechnologyInfo;
 import net.tvburger.up.util.Services;
@@ -27,13 +30,15 @@ import java.util.List;
 public final class Jetty9TechnologyManager implements EndpointTechnologyManager<JSR340Manager> {
 
     private final UpEngine engine;
+    private final Identity identity;
     private Server server;
     private ServletHandler servletHandler;
     private JSR340Manager JSR340Manager;
     private boolean logged;
 
-    public Jetty9TechnologyManager(UpEngine engine) {
+    public Jetty9TechnologyManager(UpEngine engine, Identity identity) {
         this.engine = engine;
+        this.identity = identity;
     }
 
     public UpEngine getEngine() {
@@ -110,13 +115,14 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager<
 
     @SuppressWarnings("unchecked")
     @Override
-    public void deploy(String environmentName, EndpointDefinition endpointDefinition, Class<?> serviceClass) throws DeployException, AccessDeniedException {
-        if (serviceClass == null || environmentName == null || endpointDefinition == null) {
+    public void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException, AccessDeniedException {
+        if (environmentInfo == null || endpointDefinition == null) {
             throw new IllegalArgumentException();
         }
-        if (!endpointDefinition.getEndpointReference().equals(getSpecification())) {
+        if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
             throw new DeployException("Unsupported specification!");
         }
+        Class<?> serviceClass = endpointDefinition.getServiceDefinition().getServiceImplementation();
         if (!Servlet.class.isAssignableFrom(serviceClass)) {
             throw new DeployException("Illegal service class, not a Servlet: " + serviceClass.getName());
         }
@@ -124,11 +130,11 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager<
         if (arguments.size() != 1 && arguments.get(0) instanceof String) {
             throw new DeployException("Invalid endpoint definition!");
         }
-        Environment environment = engine.getRuntime().getEnvironment(environmentName);
+        Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
         Servlet servlet = Services.instantiateService(environment, (Class<? extends Servlet>) serviceClass, new ArrayList<>(endpointDefinition.getServiceDefinition().getArguments()).toArray());
         String mapping = (String) arguments.get(0);
-        String envMapping = "/" + environmentName + (mapping.startsWith("/") ? "" : "/") + arguments.get(0);
-        servletHandler.addServletWithMapping(new ServletHolder(servlet), envMapping);
+        String envMapping = "/" + environmentInfo.getName() + (mapping.startsWith("/") ? "" : "/") + arguments.get(0);
+        servletHandler.addServletWithMapping(new ServletHolder(new JSR340ContextServlet(engine, identity, servlet)), envMapping);
     }
 
 }
