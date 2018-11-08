@@ -12,7 +12,7 @@ public class ExampleServiceImpl implements ExampleService {
 
     @Override
     public String sayHelloTo(String name) {
-        return String.format("%s %s %s", dependencyService.getTime(name), prefix, name);
+        return String.format("%s %s %s", dependencyService.getPrompt(true), prefix, name);
     }
 
 }
