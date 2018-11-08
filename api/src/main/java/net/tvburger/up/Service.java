@@ -1,14 +1,9 @@
 package net.tvburger.up;
 
-import net.tvburger.up.admin.ServiceManager;
-import net.tvburger.up.identity.Entity;
+import net.tvburger.up.behaviors.ManagedEntity;
 
-public interface Service<T> extends Entity {
+public interface Service<T> extends ManagedEntity<ServiceManager<T>, ServiceInfo<T>> {
 
-    ServiceManager<T> getManager();
-
-    ServiceInfo<T> getInfo();
-
-    T getService();
+    T getInterface();
 
 }

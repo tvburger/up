@@ -22,9 +22,9 @@
         <module>api</module>
         <module>logger</module>
         <module>local</module>
-        <module>proto/servlet</module>
-        <module>proto/jaxrs</module>
-        <module>example</module>
+        <module>technologies/jetty9</module>
+        <module>example/code</module>
+        <module>example/deploy</module>
     </modules>
 
     <licenses>

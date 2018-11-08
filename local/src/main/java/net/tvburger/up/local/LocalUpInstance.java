@@ -1,50 +1,33 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.deploy.UpRuntime;
-import net.tvburger.up.identity.Identity;
-import net.tvburger.up.impl.ProtocolLifecycleManagerProvider;
-
-import java.net.UnknownHostException;
+import net.tvburger.up.security.AccessDeniedException;
 
 public final class LocalUpInstance {
 
-    private static final LocalUpInstance INSTANCE = new LocalUpInstance();
-    private static final ProtocolLifecycleManagerProvider provider = new ProtocolLifecycleManagerProvider();
+    private LocalUpRuntimeManager runtimeManager;
 
-    public static LocalUpInstance get() {
-        return INSTANCE;
-    }
-
-    private Java8Interpreter interpreter = Java8Interpreter.Factory.create();
-    private UpEngine engine;
-    private UpRuntime runtime = new LocalUpRuntime(Identity.ANONYMOUS);
-
-    {
+    public void init() throws DeployException {
         try {
-            engine = LocalUpEngine.Factory.create();
-        } catch (UnknownHostException cause) {
-            throw new ExceptionInInitializerError(cause);
+            runtimeManager = LocalUpRuntimeManager.Factory.create();
+        } catch (LifecycleException cause) {
+            throw new DeployException(cause);
         }
     }
 
-    private LocalUpInstance() {
-    }
-
-    public ProtocolLifecycleManagerProvider getProvider() {
-        return provider;
-    }
-
-    public Java8Interpreter getInterpreter() {
-        return interpreter;
+    public UpRuntime getRuntime() {
+        return runtimeManager.getRuntime();
     }
 
     public UpEngine getEngine() {
-        return engine;
+        return runtimeManager.getEngine();
     }
 
-    public UpRuntime getRuntime() {
-        return runtime;
+    public LocalEnvironmentManager getLocalEnvironmentManager(String environmentName) throws AccessDeniedException {
+        return (LocalEnvironmentManager) getRuntime().getEnvironment(environmentName).getManager();
     }
 
 }

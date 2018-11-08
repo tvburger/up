@@ -1,30 +1,37 @@
 package net.tvburger.up;
 
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.client.UpClientBuilder;
+import net.tvburger.up.client.UpClientTarget;
+import net.tvburger.up.context.CallerInfo;
+import net.tvburger.up.context.UpServiceContext;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.spi.UpClientBuilderFactory;
+import net.tvburger.up.spi.UpContextProvider;
+import net.tvburger.up.util.UpClientBuilderFactoryLoader;
 
 import java.util.ServiceLoader;
+import java.util.Set;
 
 public final class Up {
 
-    public static final String DEFAULT_ENVIRONMENT = "default";
+    private static final Set<UpClientBuilderFactory> clientBuilderFactories = UpClientBuilderFactoryLoader.load();
+    private static final UpContextProvider contextProvider = ServiceLoader.load(UpContextProvider.class).iterator().next();
 
-    private static final UpClientBuilderFactory clientBuilderFactory = ServiceLoader.load(UpClientBuilderFactory.class).iterator().next();
-
-    public static UpClientBuilder createClientBuilder() {
-        return clientBuilderFactory.createClientBuilder();
+    public static UpClientBuilder createClientBuilder(UpClientTarget target) throws DeployException {
+        for (UpClientBuilderFactory factory : clientBuilderFactories) {
+            if (factory.supportsTarget(target)) {
+                return factory.createClientBuilder(target);
+            }
+        }
+        throw new DeployException("Unsupported target: " + target);
     }
 
-    public static UpClient createClient() {
-        return createClient(Identity.ANONYMOUS);
+    public static UpServiceContext getServiceContext() {
+        return contextProvider.getServiceContext();
     }
 
-    public static UpClient createClient(Identity identity) {
-        return createClient(DEFAULT_ENVIRONMENT, identity);
-    }
-
-    public static UpClient createClient(String environmentName, Identity identity) {
-        return createClientBuilder().withEnvironment(environmentName).withIdentity(identity).build();
+    public static CallerInfo getCallerInfo() {
+        return contextProvider.getCallerInfo();
     }
 
 }

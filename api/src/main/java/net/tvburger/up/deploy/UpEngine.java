@@ -1,21 +1,18 @@
 package net.tvburger.up.deploy;
 
-import net.tvburger.up.identity.Entity;
+import net.tvburger.up.EndpointTechnology;
+import net.tvburger.up.EndpointTechnologyInfo;
+import net.tvburger.up.behaviors.ManagedEntity;
+import net.tvburger.up.security.AccessDeniedException;
 
-import java.net.InetAddress;
 import java.util.Set;
-import java.util.UUID;
 
-public interface UpEngine extends Entity {
+public interface UpEngine extends ManagedEntity<UpEngineManager, UpEngineInfo> {
 
-    int getPort();
+    Set<EndpointTechnologyInfo<?>> getEndpointTechnologies() throws AccessDeniedException;
 
-    InetAddress getHost();
-
-    UUID getUUID();
+    <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) throws AccessDeniedException;
 
     UpRuntime getRuntime();
-
-    Set<UpLanguageInterpreter> getLanguageInterpreters();
 
 }

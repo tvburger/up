@@ -1,17 +1,33 @@
 package net.tvburger.up.local;
 
-import net.tvburger.up.Environment;
-import net.tvburger.up.EnvironmentInfo;
-import net.tvburger.up.UpClient;
-import net.tvburger.up.admin.EnvironmentManager;
-import net.tvburger.up.deploy.UpRuntime;
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.*;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpEngine;
+import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identification;
 
-public class LocalEnvironment implements Environment {
+import java.util.Objects;
 
+public final class LocalEnvironment implements Environment {
+
+    public static final class Factory {
+
+        public static LocalEnvironment create(UpEngine engine, LocalEnvironmentManager manager) {
+            Objects.requireNonNull(engine);
+            Objects.requireNonNull(manager);
+            return new LocalEnvironment(engine, manager);
+        }
+
+        private Factory() {
+        }
+
+    }
+
+    private final UpEngine engine;
     private final LocalEnvironmentManager manager;
 
-    public LocalEnvironment(LocalEnvironmentManager manager) {
+    private LocalEnvironment(UpEngine engine, LocalEnvironmentManager manager) {
+        this.engine = engine;
         this.manager = manager;
     }
 
@@ -22,22 +38,22 @@ public class LocalEnvironment implements Environment {
 
     @Override
     public EnvironmentInfo getInfo() {
-        return manager.getEnvironmentInfo();
+        return manager.getInfo();
     }
 
     @Override
-    public UpClient getClient(Identity identity) {
-        return new LocalUpClient(manager, LocalUpInstance.get().getProvider(), identity);
+    public Identification getIdentification() {
+        return manager.getInfo().getIdentification();
     }
 
     @Override
-    public UpRuntime getRuntime() {
-        return LocalUpInstance.get().getRuntime();
+    public <T> Service<T> getService(Class<T> serviceType) throws AccessDeniedException, DeployException {
+        return manager.getLocalServicesManager().getService(serviceType);
     }
 
     @Override
-    public Identity getIdentity() {
-        return Identity.ANONYMOUS;
+    public <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) throws AccessDeniedException, DeployException {
+        return engine.getEndpointTechnology(info);
     }
 
 }

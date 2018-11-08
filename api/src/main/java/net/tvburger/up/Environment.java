@@ -1,18 +1,13 @@
 package net.tvburger.up;
 
-import net.tvburger.up.admin.EnvironmentManager;
-import net.tvburger.up.deploy.UpRuntime;
-import net.tvburger.up.identity.Entity;
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.behaviors.ManagedEntity;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.security.AccessDeniedException;
 
-public interface Environment extends Entity {
+public interface Environment extends ManagedEntity<EnvironmentManager, EnvironmentInfo> {
 
-    EnvironmentManager getManager();
+    <T> Service<T> getService(Class<T> serviceType) throws AccessDeniedException, DeployException;
 
-    EnvironmentInfo getInfo();
-
-    UpClient getClient(Identity identity);
-
-    UpRuntime getRuntime();
+    <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) throws AccessDeniedException, DeployException;
 
 }

@@ -1,51 +1,42 @@
 package net.tvburger.up.local;
 
 import net.tvburger.up.Environment;
-import net.tvburger.up.Service;
-import net.tvburger.up.UpClient;
-import net.tvburger.up.identity.Identity;
-import net.tvburger.up.impl.ProtocolLifecycleManagerProvider;
-import net.tvburger.up.spi.ProtocolManager;
+import net.tvburger.up.client.UpClient;
+import net.tvburger.up.client.UpClientInfo;
+import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identification;
+import net.tvburger.up.security.Identity;
+import net.tvburger.up.util.Identities;
 
-public class LocalUpClient implements UpClient {
+public final class LocalUpClient implements UpClient {
 
-    private final LocalEnvironmentManager environmentManager;
-    private final ProtocolLifecycleManagerProvider protocolProvider;
+    private final LocalUpClientTarget target;
+    private final LocalUpClientManager manager;
     private final Identity identity;
 
-    public LocalUpClient(LocalEnvironmentManager environmentManager, ProtocolLifecycleManagerProvider protocolProvider, Identity identity) {
-        this.environmentManager = environmentManager;
-        this.protocolProvider = protocolProvider;
+    public LocalUpClient(LocalUpClientTarget target, LocalUpClientManager manager, Identity identity) {
+        this.target = target;
+        this.manager = manager;
         this.identity = identity;
     }
 
     @Override
-    public Environment getEnvironment() {
-        return environmentManager.getEnvironment();
+    public LocalUpClientManager getManager() {
+        return manager;
+    }
+
+    public UpClientInfo getInfo() {
+        return manager.getInfo();
     }
 
     @Override
-    public <T> Service<T> getService(Class<T> serviceType) {
-        return environmentManager.getLocalServicesManager().getService(serviceType);
+    public Environment getEnvironment() throws AccessDeniedException {
+        return target.getInstance().getRuntime().getEnvironment(manager.getInfo().getEnvironmentInfo().getName());
     }
 
     @Override
-    public <T, S extends T> Service<T> registerService(Class<T> serviceType, Class<S> serviceClass, Object... arguments) {
-        return environmentManager.getLocalServicesManager().addService(serviceType, serviceClass, arguments);
+    public Identification getIdentification() {
+        return Identities.getSafeIdentification(identity);
     }
 
-    @Override
-    public <P extends ProtocolManager> boolean supportsProtocol(Class<P> protocolType) {
-        return protocolProvider.getProtocols().contains(protocolType);
-    }
-
-    @Override
-    public <P extends ProtocolManager> P getProtocol(Class<P> protocolType) {
-        return protocolProvider.get(protocolType).getProtocolManager();
-    }
-
-    @Override
-    public Identity getIdentity() {
-        return identity;
-    }
 }

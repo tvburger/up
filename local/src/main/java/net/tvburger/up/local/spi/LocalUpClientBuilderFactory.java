@@ -1,13 +1,20 @@
 package net.tvburger.up.local.spi;
 
-import net.tvburger.up.UpClientBuilder;
+import net.tvburger.up.client.UpClientBuilder;
+import net.tvburger.up.client.UpClientTarget;
+import net.tvburger.up.local.LocalUpClientTarget;
 import net.tvburger.up.spi.UpClientBuilderFactory;
 
-public class LocalUpClientBuilderFactory implements UpClientBuilderFactory {
+public final class LocalUpClientBuilderFactory implements UpClientBuilderFactory {
 
     @Override
-    public UpClientBuilder createClientBuilder() {
-        return new LocalUpClientBuilder();
+    public boolean supportsTarget(UpClientTarget target) {
+        return target instanceof LocalUpClientTarget;
+    }
+
+    @Override
+    public UpClientBuilder createClientBuilder(UpClientTarget target) {
+        return new LocalUpClientBuilder((LocalUpClientTarget) target);
     }
 
 }

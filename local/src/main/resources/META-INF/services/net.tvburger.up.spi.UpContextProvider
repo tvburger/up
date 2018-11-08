@@ -1,1 +1,1 @@
-net.tvburger.up.local.spi.LocalUpContextProvider
+net.tvburger.up.util.ThreadBasedContextProvider

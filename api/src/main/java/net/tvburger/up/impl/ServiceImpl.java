@@ -2,8 +2,8 @@ package net.tvburger.up.impl;
 
 import net.tvburger.up.Service;
 import net.tvburger.up.ServiceInfo;
-import net.tvburger.up.admin.ServiceManager;
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.ServiceManager;
+import net.tvburger.up.security.Identification;
 
 public class ServiceImpl<T> implements Service<T> {
 
@@ -22,17 +22,22 @@ public class ServiceImpl<T> implements Service<T> {
 
     @Override
     public ServiceInfo<T> getInfo() {
-        return manager.getServiceInfo();
+        return manager.getInfo();
     }
 
     @Override
-    public T getService() {
+    public T getInterface() {
         return service;
     }
 
     @Override
-    public Identity getIdentity() {
-        return manager.getServiceInfo().getServiceIdentity();
+    public Identification getIdentification() {
+        return manager.getInfo().getIdentification();
+    }
+
+    @Override
+    public String toString() {
+        return String.format("Service{%s}", getInfo());
     }
 
 }

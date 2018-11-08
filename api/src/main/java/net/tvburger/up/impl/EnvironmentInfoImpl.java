@@ -1,16 +1,36 @@
 package net.tvburger.up.impl;
 
 import net.tvburger.up.EnvironmentInfo;
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.deploy.UpRuntimeInfo;
+import net.tvburger.up.security.Identification;
+import net.tvburger.up.security.Identity;
+
+import java.util.Objects;
 
 public class EnvironmentInfoImpl implements EnvironmentInfo {
 
-    private final String name;
-    private final Identity identity;
+    public static final class Factory {
 
-    public EnvironmentInfoImpl(String name, Identity identity) {
+        public static EnvironmentInfoImpl create(String name, UpRuntimeInfo runtimeInfo, Identity identity) {
+            Objects.requireNonNull(name);
+            Objects.requireNonNull(runtimeInfo);
+            Objects.requireNonNull(identity);
+            return new EnvironmentInfoImpl(name, runtimeInfo, identity);
+        }
+
+        private Factory() {
+        }
+
+    }
+
+    private final String name;
+    private final UpRuntimeInfo runtimeInfo;
+    private final Identification identification;
+
+    protected EnvironmentInfoImpl(String name, UpRuntimeInfo runtimeInfo, Identification identification) {
         this.name = name;
-        this.identity = identity;
+        this.runtimeInfo = runtimeInfo;
+        this.identification = identification;
     }
 
     @Override
@@ -19,8 +39,35 @@ public class EnvironmentInfoImpl implements EnvironmentInfo {
     }
 
     @Override
-    public Identity getEnvironmentIdentity() {
-        return identity;
+    public UpRuntimeInfo getRuntimeInfo() {
+        return runtimeInfo;
+    }
+
+    @Override
+    public Identification getIdentification() {
+        return identification;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("EnvironmentInfo{%s, %s, %s}", name, runtimeInfo, identification);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        return this == object
+                || null != object &&
+                (object instanceof EnvironmentInfo
+                        && Objects.equals(getName(), ((EnvironmentInfo) object).getName())
+                        && Objects.equals(getRuntimeInfo(), ((EnvironmentInfo) object).getRuntimeInfo())
+                        && Objects.equals(getIdentification(), ((EnvironmentInfo) object).getIdentification()));
+    }
+
+    @Override
+    public int hashCode() {
+        return 13 + Objects.hashCode(name) * 31
+                + Objects.hashCode(runtimeInfo) * 91
+                + Objects.hashCode(identification) * 47;
     }
 
 }

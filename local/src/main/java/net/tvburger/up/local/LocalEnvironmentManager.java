@@ -1,38 +1,56 @@
 package net.tvburger.up.local;
 
+import net.tvburger.up.EndpointTechnologyInfo;
 import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
-import net.tvburger.up.admin.EnvironmentManager;
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.EnvironmentManager;
+import net.tvburger.up.behaviors.Specification;
+import net.tvburger.up.definitions.EndpointDefinition;
+import net.tvburger.up.definitions.ServiceDefinition;
+import net.tvburger.up.definitions.UpDeploymentDefinition;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpEngine;
+import net.tvburger.up.deploy.UpRuntimeInfo;
 import net.tvburger.up.impl.EnvironmentInfoImpl;
-import net.tvburger.up.logger.Logger;
+import net.tvburger.up.logger.UpLogger;
 import net.tvburger.up.logger.impl.ConsoleLogger;
+import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.util.Identities;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.ArrayList;
 
-public class LocalEnvironmentManager implements EnvironmentManager {
+public final class LocalEnvironmentManager implements EnvironmentManager {
 
-    private static final Map<String, LocalEnvironmentManager> environments = new HashMap<>();
-    private static final Logger logger = new ConsoleLogger();
+    public static final class Factory {
 
-    public static LocalEnvironmentManager get(String environment) {
-        return environments.computeIfAbsent(environment, (key) -> {
-            EnvironmentInfo info = new EnvironmentInfoImpl(key, Identity.ANONYMOUS);
-            return new LocalEnvironmentManager(info, new LocalServicesManager(info, logger));
-        });
+        private static final UpLogger logger = new ConsoleLogger("Runtime");
+
+        public static LocalEnvironmentManager create(UpEngine engine, String environmentName, UpRuntimeInfo runtimeInfo) {
+            EnvironmentInfo info = EnvironmentInfoImpl.Factory.create(environmentName, runtimeInfo, Identities.ANONYMOUS);
+            LocalEnvironmentManager manager = new LocalEnvironmentManager(
+                    engine, info,
+                    new LocalServicesManager(engine, info, logger));
+            manager.init();
+            return manager;
+        }
+
+        private Factory() {
+        }
+
     }
 
+    private final UpEngine engine;
     private final EnvironmentInfo environmentInfo;
-    private final Environment environment;
     private final LocalServicesManager localServicesManager;
+    private Environment environment;
+    private boolean logged;
 
-    public LocalEnvironmentManager(EnvironmentInfo environmentInfo, LocalServicesManager localServicesManager) {
+    public LocalEnvironmentManager(UpEngine engine, EnvironmentInfo environmentInfo, LocalServicesManager localServicesManager) {
+        this.engine = engine;
         this.environmentInfo = environmentInfo;
-        this.environment = new LocalEnvironment(this);
         this.localServicesManager = localServicesManager;
     }
 
@@ -45,36 +63,84 @@ public class LocalEnvironmentManager implements EnvironmentManager {
     }
 
     @Override
-    public EnvironmentInfo getEnvironmentInfo() {
+    public EnvironmentInfo getInfo() {
         return environmentInfo;
     }
 
     @Override
     public void dump(OutputStream out) throws IOException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void restore(InputStream in) throws IOException {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
-    public void clear() {
+    public boolean isLogged() {
+        return logged;
+    }
+
+    @Override
+    public void setLogged(boolean logged) {
+        this.logged = logged;
+    }
+
+    @Override
+    public void init() {
+        environment = LocalEnvironment.Factory.create(engine, this);
     }
 
     @Override
     public void start() {
-
     }
 
     @Override
     public void stop() {
-
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void destroy() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public void deploy(UpDeploymentDefinition deploymentDefinition) throws AccessDeniedException, DeployException {
+        for (ServiceDefinition serviceDefinition : deploymentDefinition.getServiceDefinitions()) {
+            deploy(serviceDefinition, deploymentDefinition.getServiceTypes().get(serviceDefinition.getServiceType()));
+        }
+        for (EndpointDefinition endpointDefinition : deploymentDefinition.getEndpointDefinitions()) {
+            deploy(endpointDefinition, deploymentDefinition.getServiceTypes().get(endpointDefinition.getServiceDefinition().getServiceType()));
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    @Override
+    public void deploy(ServiceDefinition serviceDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException {
+        getLocalServicesManager().addService(
+                (Class) serviceDefinition.getServiceType(),
+                (Class) serviceClass,
+                new ArrayList<>(serviceDefinition.getArguments()).toArray());
 
     }
+
+    @Override
+    public void deploy(EndpointDefinition endpointDefinition, Class<?> serviceClass) throws AccessDeniedException, DeployException {
+        EndpointTechnologyInfo<?> info = getEndpointReference(endpointDefinition.getEndpointReference());
+        engine.getEndpointTechnology(info).getManager().deploy(getInfo().getName(), endpointDefinition, serviceClass);
+    }
+
+
+    private EndpointTechnologyInfo<?> getEndpointReference(Specification endpointReference) throws DeployException, AccessDeniedException {
+        for (EndpointTechnologyInfo<?> info : engine.getEndpointTechnologies()) {
+            if (info.getSpecificationName().equals(endpointReference.getSpecificationName())
+                    && info.getSpecificationVersion().equals(endpointReference.getSpecificationVersion())) {
+                return info;
+            }
+        }
+        throw new DeployException("No such endpoint: " + endpointReference);
+    }
+
 }

@@ -1,28 +1,41 @@
 package net.tvburger.up.local.spi;
 
-import net.tvburger.up.Up;
-import net.tvburger.up.UpClient;
-import net.tvburger.up.UpClientBuilder;
-import net.tvburger.up.identity.Identity;
-import net.tvburger.up.local.LocalUpInstance;
-import net.tvburger.up.local.LocalUpRuntime;
+import net.tvburger.up.Environment;
+import net.tvburger.up.client.UpClient;
+import net.tvburger.up.client.UpClientBuilder;
+import net.tvburger.up.client.UpClientInfo;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpRuntime;
+import net.tvburger.up.impl.UpClientInfoImpl;
+import net.tvburger.up.local.LocalClientProxy;
+import net.tvburger.up.local.LocalUpClient;
+import net.tvburger.up.local.LocalUpClientManager;
+import net.tvburger.up.local.LocalUpClientTarget;
+import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identity;
+import net.tvburger.up.util.Identities;
 
-public class LocalUpClientBuilder implements UpClientBuilder {
+public final class LocalUpClientBuilder implements UpClientBuilder {
 
-    private String environment = Up.DEFAULT_ENVIRONMENT;
-    private Identity identity = Identity.ANONYMOUS;
+    private final LocalUpClientTarget target;
+    private String environmentName = "default";
+    private Identity identity = Identities.ANONYMOUS;
 
-    @Override
-    public String getEnvironment() {
-        return environment;
+    public LocalUpClientBuilder(LocalUpClientTarget target) {
+        this.target = target;
     }
 
     @Override
-    public UpClientBuilder withEnvironment(String environment) {
-        if (environment == null || environment.isEmpty()) {
+    public String getEnvironment() {
+        return environmentName;
+    }
+
+    @Override
+    public UpClientBuilder withEnvironment(String environmentName) {
+        if (environmentName == null || environmentName.isEmpty()) {
             throw new IllegalArgumentException();
         }
-        this.environment = environment;
+        this.environmentName = environmentName;
         return this;
     }
 
@@ -38,21 +51,26 @@ public class LocalUpClientBuilder implements UpClientBuilder {
     }
 
     private boolean isValid() {
-        return environment != null && !environment.isEmpty() &&
+        return environmentName != null && !environmentName.isEmpty() &&
                 identity != null;
     }
 
     @Override
-    public UpClient build() {
+    public UpClient build() throws AccessDeniedException, DeployException {
         if (!isValid()) {
             throw new IllegalStateException();
         }
-        LocalUpRuntime runtime = (LocalUpRuntime) LocalUpInstance.get().getRuntime();
-        runtime.ensureExistsEnvironment(environment);
-        UpClient client = runtime.getEnvironment(environment).getClient(identity);
-        LocalUpContextProvider.setEnvironment(runtime.getEnvironment(environment));
-        LocalUpContextProvider.setIdentity(identity);
-        return client;
+        UpRuntime runtime = target.getInstance().getRuntime();
+        Environment environment;
+        if (!runtime.hasEnvironment(environmentName)) {
+            environment = runtime.getManager().createEnvironment(environmentName);
+        } else {
+            environment = runtime.getEnvironment(environmentName);
+        }
+        UpClientInfo clientInfo = UpClientInfoImpl.Factory.create(environment.getInfo(), Identities.getSafeIdentification(identity));
+        LocalUpClientManager clientManager = new LocalUpClientManager(clientInfo);
+        LocalUpClient client = new LocalUpClient(target, clientManager, identity);
+        return (UpClient) LocalClientProxy.Factory.create(client.getInfo(), client);
     }
 
 }

@@ -1,13 +1,12 @@
 package net.tvburger.up;
 
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.behaviors.ManagedEntity;
+import net.tvburger.up.deploy.UpRuntimeInfo;
 
-import java.io.Serializable;
-
-public interface EnvironmentInfo extends Serializable {
+public interface EnvironmentInfo extends ManagedEntity.Info {
 
     String getName();
 
-    Identity getEnvironmentIdentity();
+    UpRuntimeInfo getRuntimeInfo();
 
 }

@@ -1,15 +1,13 @@
 package net.tvburger.up;
 
-import net.tvburger.up.identity.Identity;
+import net.tvburger.up.behaviors.ManagedEntity;
+import net.tvburger.up.behaviors.Specification;
 
-import java.io.Serializable;
 import java.util.UUID;
 
-public interface ServiceInfo<T> extends Serializable {
+public interface ServiceInfo<T> extends Specification, ManagedEntity.Info {
 
     Class<T> getServiceType();
-
-    Identity getServiceIdentity();
 
     UUID getServiceInstanceId();
 

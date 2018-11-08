@@ -1,0 +1,35 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.tvburger.up</groupId>
+        <artifactId>up</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <name>UP :: Technologies :: Jetty9</name>
+    <artifactId>up-technology-jetty9</artifactId>
+
+    <properties>
+        <jetty.version>9.4.12.v20180830</jetty.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>up-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.aggregate</groupId>
+            <artifactId>jetty-all</artifactId>
+            <version>${jetty.version}</version>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+
+</project>

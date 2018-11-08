@@ -1,26 +1,40 @@
 package net.tvburger.up.logger.impl;
 
+import net.tvburger.up.ServiceInfo;
+import net.tvburger.up.context.Locality;
 import net.tvburger.up.logger.LogStatement;
-import net.tvburger.up.logger.Logger;
+import net.tvburger.up.logger.UpLogger;
 
 import java.util.Date;
 
-public class ConsoleLogger implements Logger {
+public final class ConsoleLogger implements UpLogger {
+
+    private final String loggerName;
+
+    public ConsoleLogger(String loggerName) {
+        this.loggerName = loggerName;
+    }
 
     @Override
     public void log(LogStatement logStatement) {
+        ServiceInfo<?> serviceInfo = logStatement.getServiceInfo();
+        Locality locality = logStatement.getLocality();
+        StackTraceElement source = logStatement.getSource();
         System.out.println(String.format(
-                "[%s] %s %s{%s@%s} (%s@%s%s) [%s@%s] %s",
-                logStatement.getLogLevel().name(),
+                "%s [%s] <%s> %s(%s@%s%s) [%s@%s] : %s",
                 new Date(logStatement.getTimestamp()),
-                logStatement.getServiceInfo().getServiceType().getSimpleName(),
-                logStatement.getServiceInfo().getServiceIdentity().getPrincipal().getName(),
-                logStatement.getServiceInfo().getServiceInstanceId(),
-                logStatement.getLocation().getHostName(),
-                logStatement.getLocation().getThreadName(),
-                logStatement.getServiceInfo().getEnvironmentInfo() == null ? "" : ":" + logStatement.getServiceInfo().getEnvironmentInfo().getName(),
-                logStatement.getSource().getFileName(),
-                logStatement.getSource().getLineNumber(),
+                logStatement.getLogLevel().name(),
+                loggerName,
+                serviceInfo == null ? "" :
+                        String.format("%s{%s@%s} ",
+                                serviceInfo.getServiceType().getSimpleName(),
+                                serviceInfo.getIdentification().getPrincipal().getName(),
+                                serviceInfo.getServiceInstanceId()),
+                locality == null ? "?" : locality.getEngineInfo().getHost(),
+                locality == null ? "?" : Thread.currentThread().getName(),
+                serviceInfo == null ? "" : serviceInfo.getEnvironmentInfo() == null ? "" : ":" + logStatement.getServiceInfo().getEnvironmentInfo().getName(),
+                source == null ? "?" : source.getFileName(),
+                source == null ? "?" : source.getLineNumber(),
                 logStatement.getMessage()));
     }
 
