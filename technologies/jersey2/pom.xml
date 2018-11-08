@@ -1,0 +1,29 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.tvburger.up</groupId>
+        <artifactId>up</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <name>UP :: Technologies :: Jersey 2</name>
+    <artifactId>up-technology-jersey2</artifactId>
+
+    <properties>
+        <jersey.version>2.27.0</jersey.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>up-technology-jsr370</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

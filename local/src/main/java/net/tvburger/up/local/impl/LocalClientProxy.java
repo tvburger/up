@@ -7,7 +7,6 @@ import net.tvburger.up.context.Locality;
 import net.tvburger.up.context.UpContext;
 import net.tvburger.up.impl.UpContextImpl;
 import net.tvburger.up.security.AccessDeniedException;
-import net.tvburger.up.util.ThreadBasedContextProvider;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -72,7 +71,7 @@ public final class LocalClientProxy<T> implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         UpContext context = Up.getContext();
         try {
-            ThreadBasedContextProvider.set(createContext());
+            Up.setContext(createContext());
             Object object = method.invoke(instance, args);
             return object != null && !object.getClass().isPrimitive()
                     ? Factory.create(target, callerInfo, object)
@@ -80,7 +79,7 @@ public final class LocalClientProxy<T> implements InvocationHandler {
         } catch (InvocationTargetException cause) {
             throw cause.getCause();
         } finally {
-            ThreadBasedContextProvider.set(context);
+            Up.setContext(context);
         }
     }
 

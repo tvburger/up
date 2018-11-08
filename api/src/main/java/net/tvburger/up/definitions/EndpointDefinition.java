@@ -2,66 +2,73 @@ package net.tvburger.up.definitions;
 
 import net.tvburger.up.behaviors.Specification;
 
-import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
 public class EndpointDefinition {
 
     public static final class Builder {
 
         private Specification endpointTechnology;
-        private ServiceDefinition serviceDefinition;
-        private List<Object> arguments = new ArrayList<>();
+        private InstanceDefinition instanceDefinition;
+        private Map<String, String> settings = new LinkedHashMap<>();
 
         public Builder withEndpointTechnology(Specification endpointTechnology) {
             this.endpointTechnology = endpointTechnology;
             return this;
         }
 
-        public Builder withServiceDefinition(Class<?> serviceType, Class<?> serviceImplementation, Object... arguments) {
-            return withServiceDefinition(ServiceDefinition.Factory.create(serviceType, serviceImplementation, arguments));
+        public Builder withEndpointDefinition(Class<?> endpointClass, Object... arguments) {
+            InstanceDefinition.Builder builder = new InstanceDefinition.Builder()
+                    .withInstanceClass(endpointClass);
+            if (arguments != null) {
+                for (Object argument : arguments) {
+                    builder.withArgument(argument);
+                }
+            }
+            return withEndpointDefinition(builder.build());
         }
 
-        public Builder withServiceDefinition(ServiceDefinition serviceDefinition) {
-            this.serviceDefinition = serviceDefinition;
+        public Builder withEndpointDefinition(InstanceDefinition instanceDefinition) {
+            this.instanceDefinition = instanceDefinition;
             return this;
         }
 
-        public Builder withArgument(Object value) {
-            arguments.add(value);
+        public Builder withSetting(String name, String value) {
+            settings.put(name, value);
             return this;
         }
 
         public EndpointDefinition build() {
-            if (serviceDefinition == null || endpointTechnology == null) {
+            if (instanceDefinition == null || endpointTechnology == null) {
                 throw new IllegalStateException();
             }
-            return new EndpointDefinition(endpointTechnology, serviceDefinition, Collections.unmodifiableList(new ArrayList<>(arguments)));
+            return new EndpointDefinition(endpointTechnology, instanceDefinition, Collections.unmodifiableMap(new LinkedHashMap<>(settings)));
         }
 
     }
 
     private final Specification endpointTechnology;
-    private final ServiceDefinition serviceDefinition;
-    private final List<Object> arguments;
+    private final InstanceDefinition instanceDefinition;
+    private final Map<String, String> settings;
 
-    protected EndpointDefinition(Specification endpointTechnology, ServiceDefinition serviceDefinition, List<Object> arguments) {
+    protected EndpointDefinition(Specification endpointTechnology, InstanceDefinition instanceDefinition, Map<String, String> settings) {
         this.endpointTechnology = endpointTechnology;
-        this.serviceDefinition = serviceDefinition;
-        this.arguments = arguments;
+        this.instanceDefinition = instanceDefinition;
+        this.settings = settings;
     }
 
     public Specification getEndpointTechnology() {
         return endpointTechnology;
     }
 
-    public ServiceDefinition getServiceDefinition() {
-        return serviceDefinition;
+    public InstanceDefinition getInstanceDefinition() {
+        return instanceDefinition;
     }
 
-    public List<Object> getArguments() {
-        return arguments;
+    public Map<String, String> getSettings() {
+        return settings;
     }
 
 }

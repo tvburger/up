@@ -1,4 +1,4 @@
-package net.tvburger.up.technology.servlet;
+package net.tvburger.up.technology.jetty9;
 
 import net.tvburger.up.Up;
 import net.tvburger.up.context.CallerInfo;
@@ -8,19 +8,18 @@ import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.impl.UpContextImpl;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.util.ThreadBasedContextProvider;
 
 import javax.servlet.*;
 import javax.servlet.http.HttpServletRequest;
 import java.io.IOException;
 
-public class JSR340ContextServlet implements Servlet {
+public final class Jetty9ContextServlet implements Servlet {
 
     private final UpEngine engine;
     private final Identity identity;
     private final Servlet servlet;
 
-    public JSR340ContextServlet(UpEngine engine, Identity identity, Servlet servlet) {
+    public Jetty9ContextServlet(UpEngine engine, Identity identity, Servlet servlet) {
         this.engine = engine;
         this.identity = identity;
         this.servlet = servlet;
@@ -58,10 +57,10 @@ public class JSR340ContextServlet implements Servlet {
     public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
         UpContext context = Up.getContext();
         try {
-            ThreadBasedContextProvider.set(createContext(servletRequest));
+            Up.setContext(createContext(servletRequest));
             servlet.service(servletRequest, servletResponse);
         } finally {
-            ThreadBasedContextProvider.set(context);
+            Up.setContext(context);
         }
     }
 

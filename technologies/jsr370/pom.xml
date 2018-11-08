@@ -1,0 +1,34 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.tvburger.up</groupId>
+        <artifactId>up</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <name>UP :: Technologies :: JAX-RS 2.1 (JSR-370)</name>
+    <artifactId>up-technology-jsr370</artifactId>
+
+    <properties>
+        <jaxrs.version>2.1</jaxrs.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>up-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.ws.rs</groupId>
+            <artifactId>javax.ws.rs-api</artifactId>
+            <version>${jaxrs.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>

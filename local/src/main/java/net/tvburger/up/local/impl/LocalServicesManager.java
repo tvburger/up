@@ -21,6 +21,7 @@ import java.util.*;
 public final class LocalServicesManager {
 
     private final Map<Class<?>, Set<Service<?>>> serviceRegistry = new HashMap<>();
+    private final Set<Service<?>> services = new HashSet<>();
     private final Map<Object, Class<?>> serviceIndex = new HashMap<>();
     private final UpEngine engine;
     private final EnvironmentInfo environmentInfo;
@@ -43,6 +44,7 @@ public final class LocalServicesManager {
         Set<Service<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
         Service<T> service = new ServiceImpl<>(serviceManager, serviceInstance);
         services.add(service);
+        this.services.add(service);
         serviceIndex.put(service, serviceType);
         return service;
     }
@@ -91,13 +93,17 @@ public final class LocalServicesManager {
     @SuppressWarnings("unchecked")
     public <T> Service<T> getService(Class<T> serviceType) throws DeployException {
         if (!serviceRegistry.containsKey(serviceType)) {
-            throw new DeployException("No such service registered: " + serviceType);
+            throw new DeployException("No such service: " + serviceType);
         }
         Iterator<Service<?>> iterator = serviceRegistry.get(serviceType).iterator();
         if (!iterator.hasNext()) {
             throw new IllegalStateException();
         }
         return (Service<T>) iterator.next();
+    }
+
+    public Set<Service<?>> getServices() {
+        return Collections.unmodifiableSet(services);
     }
 
 }

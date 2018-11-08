@@ -121,8 +121,8 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     public void deploy(ServiceDefinition serviceDefinition) throws AccessDeniedException, DeployException {
         getLocalServicesManager().addService(
                 (Class) serviceDefinition.getServiceType(),
-                (Class) serviceDefinition.getServiceImplementation(),
-                new ArrayList<>(serviceDefinition.getArguments()).toArray());
+                (Class) serviceDefinition.getInstanceDefinition().getInstanceClass(),
+                new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
 
     }
 

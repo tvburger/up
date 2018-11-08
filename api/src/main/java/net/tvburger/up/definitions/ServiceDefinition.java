@@ -12,7 +12,7 @@ public class ServiceDefinition {
             if (arguments != null) {
                 argumentList.addAll(Arrays.asList(arguments));
             }
-            return new ServiceDefinition(serviceType, serviceImplementation, Collections.unmodifiableList(new ArrayList<>(argumentList)));
+            return new ServiceDefinition(serviceType, new InstanceDefinition(serviceImplementation, Collections.unmodifiableList(new ArrayList<>(argumentList))));
         }
 
         private Factory() {
@@ -45,31 +45,25 @@ public class ServiceDefinition {
             if (serviceType == null || serviceImplementation == null || !serviceType.isAssignableFrom(serviceImplementation)) {
                 throw new IllegalStateException();
             }
-            return new ServiceDefinition(serviceType, serviceImplementation, Collections.unmodifiableList(new ArrayList<>(arguments)));
+            return new ServiceDefinition(serviceType, new InstanceDefinition(serviceImplementation, Collections.unmodifiableList(new ArrayList<>(arguments))));
         }
 
     }
 
     private final Class<?> serviceType;
-    private final Class<?> serviceImplementation;
-    private final List<Object> arguments;
+    private final InstanceDefinition instanceDefinition;
 
-    protected ServiceDefinition(Class<?> serviceType, Class<?> serviceImplementation, List<Object> arguments) {
+    protected ServiceDefinition(Class<?> serviceType, InstanceDefinition instanceDefinition) {
         this.serviceType = serviceType;
-        this.serviceImplementation = serviceImplementation;
-        this.arguments = arguments;
+        this.instanceDefinition = instanceDefinition;
     }
 
     public Class<?> getServiceType() {
         return serviceType;
     }
 
-    public Class<?> getServiceImplementation() {
-        return serviceImplementation;
-    }
-
-    public List<Object> getArguments() {
-        return arguments;
+    public InstanceDefinition getInstanceDefinition() {
+        return instanceDefinition;
     }
 
 }

@@ -15,7 +15,7 @@ public final class Up {
 
     private static final Set<UpClientBuilderFactory> clientBuilderFactories = UpClientBuilderFactoryLoader.load();
     private static final UpContextProvider contextProvider = ServiceLoader.load(UpContextProvider.class).iterator().next();
-    
+
     /**
      * Creates a new ClientBuilder for the specified target.
      *
@@ -39,6 +39,14 @@ public final class Up {
      */
     public static UpContext getContext() {
         return contextProvider.getContext();
+    }
+
+    /**
+     * Only used for internal implementation of an Engine
+     * @param context
+     */
+    public static void setContext(UpContext context) {
+        contextProvider.setContext(context);
     }
 
 }

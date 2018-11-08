@@ -11,7 +11,6 @@ import net.tvburger.up.logger.LogLevel;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.UpLogger;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.util.ThreadBasedContextProvider;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -46,13 +45,13 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
         UpContext callerContext = Up.getContext();
         try {
             UpContext serviceContext = createContext(callerContext);
-            ThreadBasedContextProvider.set(serviceContext);
+            Up.setContext(serviceContext);
             boolean logMethod = service.getManager().isLogged() && !method.getDeclaringClass().equals(Object.class);
             return logMethod ? invokeLogged(method, args, serviceContext) : method.invoke(service.getInterface(), args);
         } catch (InvocationTargetException cause) {
             throw cause.getCause();
         } finally {
-            ThreadBasedContextProvider.set(callerContext);
+            Up.setContext(callerContext);
         }
     }
 

@@ -6,4 +6,6 @@ public interface UpContextProvider {
 
     UpContext getContext();
 
+    void setContext(UpContext context);
+
 }

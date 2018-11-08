@@ -7,13 +7,14 @@ public final class ThreadBasedContextProvider implements UpContextProvider {
 
     private static final ThreadLocal<UpContext> contexts = new InheritableThreadLocal<>();
 
-    public static void set(UpContext context) {
-        contexts.set(context);
-    }
-
     @Override
     public UpContext getContext() {
         return contexts.get();
+    }
+
+    @Override
+    public void setContext(UpContext context) {
+        contexts.set(context);
     }
 
 }

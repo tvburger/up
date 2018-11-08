@@ -5,7 +5,6 @@ import net.tvburger.up.impl.SpecificationImpl;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
-import java.util.Objects;
 import java.util.Set;
 
 public class UpDeploymentDefinition {
@@ -17,7 +16,7 @@ public class UpDeploymentDefinition {
         private Set<EndpointDefinition> endpointDefinitions = new LinkedHashSet<>();
         private Set<ServiceDefinition> serviceDefinitions = new LinkedHashSet<>();
 
-        public Builder withServiceImplementations(Class<?> serviceClass) {
+        public Builder withServiceImplementation(Class<?> serviceClass) {
             serviceImplementations.add(serviceClass);
             return this;
         }
@@ -31,29 +30,8 @@ public class UpDeploymentDefinition {
             return this;
         }
 
-        public Builder withEndpointDefinition(String name, String version, ServiceDefinition serviceDefinition, Object... arguments) {
-            Objects.requireNonNull(name);
-            Objects.requireNonNull(version);
-            return withEndpointDefinition(SpecificationImpl.Factory.create(name, version), serviceDefinition, arguments);
-        }
-
-        public Builder withEndpointDefinition(Specification specification, ServiceDefinition serviceDefinition, Object... arguments) {
-            Objects.requireNonNull(specification);
-            Objects.requireNonNull(serviceDefinition);
-            EndpointDefinition.Builder builder = new EndpointDefinition.Builder()
-                    .withEndpointTechnology(specification)
-                    .withServiceDefinition(serviceDefinition);
-            if (arguments != null) {
-                for (Object argument : arguments) {
-                    builder.withArgument(argument);
-                }
-            }
-            return withEndpointDefinition(builder.build());
-        }
-
         public Builder withEndpointDefinition(EndpointDefinition endpointDefinition) {
             endpointDefinitions.add(endpointDefinition);
-            serviceImplementations.add(endpointDefinition.getServiceDefinition().getServiceImplementation());
             endpointTechnologies.add(endpointDefinition.getEndpointTechnology());
             return this;
         }
@@ -64,6 +42,7 @@ public class UpDeploymentDefinition {
 
         public Builder withServiceDefinition(ServiceDefinition serviceDefinition) {
             serviceDefinitions.add(serviceDefinition);
+            serviceImplementations.add(serviceDefinition.getInstanceDefinition().getInstanceClass());
             return this;
         }
 

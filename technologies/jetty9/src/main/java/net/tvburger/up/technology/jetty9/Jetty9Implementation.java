@@ -1,7 +1,7 @@
 package net.tvburger.up.technology.jetty9;
 
 import net.tvburger.up.impl.ImplementationImpl;
-import net.tvburger.up.technology.servlet.JSR340Specification;
+import net.tvburger.up.technology.jsr340.Jsr340;
 
 public final class Jetty9Implementation extends ImplementationImpl {
 
@@ -12,7 +12,7 @@ public final class Jetty9Implementation extends ImplementationImpl {
     }
 
     private Jetty9Implementation() {
-        super(JSR340Specification.get(), "jetty", "9.4.12.v20180830");
+        super(Jsr340.Specification.get(), "jetty", "9.4.12.v20180830");
     }
 
 }

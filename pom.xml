@@ -22,7 +22,10 @@
         <module>api</module>
         <module>logger</module>
         <module>local</module>
+        <module>technologies/jsr340</module>
+        <module>technologies/jsr370</module>
         <module>technologies/jetty9</module>
+        <module>technologies/jersey2</module>
         <module>example/code</module>
         <module>example/deploy</module>
     </modules>

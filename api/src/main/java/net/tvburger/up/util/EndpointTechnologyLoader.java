@@ -72,7 +72,7 @@ public final class EndpointTechnologyLoader {
     public <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) {
         EndpointTechnology<?> endpointTechnology = endpointTechnologies.get(info);
         if (endpointTechnology != null
-                && endpointTechnology.getInfo().getEndpointManagerType().equals(info.getEndpointManagerType())) {
+                && endpointTechnology.getInfo().getEndpointType().equals(info.getEndpointType())) {
             return (EndpointTechnology<T>) endpointTechnologies.get(info);
         }
         return null;

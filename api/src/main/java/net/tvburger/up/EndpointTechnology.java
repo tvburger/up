@@ -1,10 +1,13 @@
 package net.tvburger.up;
 
 import net.tvburger.up.behaviors.ManagedObject;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.security.AccessDeniedException;
+
+import java.util.Set;
 
 public interface EndpointTechnology<T> extends ManagedObject<EndpointTechnologyManager<T>, EndpointTechnologyInfo<T>> {
 
-    T getEndpointManager(String environmentName) throws AccessDeniedException;
+    Set<T> getEndpoints(EnvironmentInfo environmentInfo) throws AccessDeniedException, DeployException;
 
 }

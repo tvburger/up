@@ -21,12 +21,12 @@ public final class Services {
             return constructor.newInstance(arguments);
         } catch (ClassCastException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException cause) {
-            throw new IllegalArgumentException(cause);
+            throw new DeployException(cause);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> getConstructor(Class<T> serviceClass, Object[] arguments) {
+    private static <T> Constructor<T> getConstructor(Class<T> serviceClass, Object[] arguments) throws DeployException {
         int argumentLength = arguments == null ? 0 : arguments.length;
         Constructor<?>[] constructors = serviceClass.getConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -34,7 +34,7 @@ public final class Services {
                 return (Constructor<T>) constructor;
             }
         }
-        throw new IllegalArgumentException();
+        throw new DeployException(String.format("No constructor of %s found with %s arguments!", serviceClass, argumentLength));
     }
 
     private Services() {

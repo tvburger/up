@@ -18,7 +18,6 @@ import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.EndpointTechnologyLoader;
 import net.tvburger.up.util.Identities;
-import net.tvburger.up.util.ThreadBasedContextProvider;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
@@ -104,7 +103,7 @@ public final class LocalUpEngineManager implements UpEngineManager {
             UpContextImpl engineContext = new UpContextImpl();
             engineContext.setIdentity(identity);
             engineContext.setLocality(Locality.Factory.create(engine));
-            ThreadBasedContextProvider.set(engineContext);
+            Up.setContext(engineContext);
             endpointTechnologies.putAll(EndpointTechnologyLoader.load(engine, identity, engineDefinition.getEndpointImplementations()));
             for (EndpointTechnology<?> endpointTechnology : endpointTechnologies.values()) {
                 endpointTechnology.getManager().init();
@@ -112,7 +111,7 @@ public final class LocalUpEngineManager implements UpEngineManager {
         } catch (DeployException | AccessDeniedException cause) {
             throw new LifecycleException(cause);
         } finally {
-            ThreadBasedContextProvider.set(serviceContext);
+            Up.setContext(serviceContext);
         }
     }
 
