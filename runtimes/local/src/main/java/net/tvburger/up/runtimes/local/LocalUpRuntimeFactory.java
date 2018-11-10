@@ -6,11 +6,11 @@ import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientTarget;
-import net.tvburger.up.definition.UpEngineDefinition;
-import net.tvburger.up.definition.UpRuntimeDefinition;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpRuntimeFactory;
-import net.tvburger.up.deploy.UpRuntimeManager;
+import net.tvburger.up.topology.UpEngineDefinition;
+import net.tvburger.up.topology.UpRuntimeTopology;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpRuntimeFactory;
+import net.tvburger.up.runtime.UpRuntimeManager;
 import net.tvburger.up.runtimes.local.impl.LocalUpClientTarget;
 import net.tvburger.up.runtimes.local.impl.LocalUpInstance;
 import net.tvburger.up.security.AccessDeniedException;
@@ -33,7 +33,7 @@ public final class LocalUpRuntimeFactory implements UpRuntimeFactory {
                     builder.withEndpointImplementation(implementation);
                 }
             }
-            LocalUpClientTarget target = (LocalUpClientTarget) new LocalUpRuntimeFactory().create(UpRuntimeDefinition.Factory.create(builder.build()));
+            LocalUpClientTarget target = (LocalUpClientTarget) new LocalUpRuntimeFactory().create(UpRuntimeTopology.Factory.create(builder.build()));
             UpClient client = Up.createClientBuilder(target).withIdentity(Identities.ANONYMOUS).withEnvironment("default").build();
             Environment environment = client.getEnvironment();
             targets.put(environment, target);
@@ -70,7 +70,7 @@ public final class LocalUpRuntimeFactory implements UpRuntimeFactory {
     }
 
     @Override
-    public UpClientTarget create(UpRuntimeDefinition runtimeDefinition) throws DeployException {
+    public UpClientTarget create(UpRuntimeTopology runtimeDefinition) throws DeployException {
         try {
             LocalUpInstance instance = new LocalUpInstance();
             instance.init(runtimeDefinition);

@@ -1,4 +1,4 @@
-package net.tvburger.up.definition;
+package net.tvburger.up.topology;
 
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.impl.SpecificationImpl;
@@ -7,7 +7,7 @@ import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UpDeploymentDefinition {
+public class UpApplicationTopology {
 
     public static final class Builder {
 
@@ -46,8 +46,8 @@ public class UpDeploymentDefinition {
             return this;
         }
 
-        public UpDeploymentDefinition build() {
-            return new UpDeploymentDefinition(
+        public UpApplicationTopology build() {
+            return new UpApplicationTopology(
                     Collections.unmodifiableSet(new LinkedHashSet<>(serviceImplementations)),
                     Collections.unmodifiableSet(new LinkedHashSet<>(endpointTechnologies)),
                     Collections.unmodifiableSet(new LinkedHashSet<>(endpointDefinitions)),
@@ -61,14 +61,14 @@ public class UpDeploymentDefinition {
     private final Set<EndpointDefinition> endpointDefinitions;
     private final Set<ServiceDefinition> serviceDefinitions;
 
-    protected UpDeploymentDefinition(UpDeploymentDefinition deploymentDefinition) {
+    protected UpApplicationTopology(UpApplicationTopology deploymentDefinition) {
         serviceImplementations = deploymentDefinition.serviceImplementations;
         endpointTechnologies = deploymentDefinition.endpointTechnologies;
         serviceDefinitions = deploymentDefinition.serviceDefinitions;
         endpointDefinitions = deploymentDefinition.endpointDefinitions;
     }
 
-    private UpDeploymentDefinition(Set<Class<?>> serviceImplementations, Set<Specification> endpointTechnologies, Set<EndpointDefinition> endpointDefinitions, Set<ServiceDefinition> serviceDefinitions) {
+    private UpApplicationTopology(Set<Class<?>> serviceImplementations, Set<Specification> endpointTechnologies, Set<EndpointDefinition> endpointDefinitions, Set<ServiceDefinition> serviceDefinitions) {
         this.serviceImplementations = serviceImplementations;
         this.endpointTechnologies = endpointTechnologies;
         this.endpointDefinitions = endpointDefinitions;

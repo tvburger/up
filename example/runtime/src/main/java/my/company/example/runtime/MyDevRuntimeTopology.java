@@ -1,14 +1,14 @@
 package my.company.example.runtime;
 
-import net.tvburger.up.definition.UpEngineDefinition;
-import net.tvburger.up.definition.UpRuntimeDefinition;
+import net.tvburger.up.topology.UpEngineDefinition;
+import net.tvburger.up.topology.UpRuntimeTopology;
 import net.tvburger.up.technology.jetty9.Jetty9Implementation;
 import net.tvburger.up.util.LocalJavaImplementation;
 
-public final class MyApplicationDevRuntime extends UpRuntimeDefinition {
+public final class MyDevRuntimeTopology extends UpRuntimeTopology {
 
-    public MyApplicationDevRuntime() {
-        super(new UpRuntimeDefinition.Builder()
+    public MyDevRuntimeTopology() {
+        super(new UpRuntimeTopology.Builder()
                 .withEngineDefinition(new UpEngineDefinition.Builder()
                         .withImplementation(LocalJavaImplementation.get())
                         .withEndpointImplementation(Jetty9Implementation.get())

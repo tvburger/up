@@ -1,6 +1,6 @@
 package net.tvburger.up.client;
 
-import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 

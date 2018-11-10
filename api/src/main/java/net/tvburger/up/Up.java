@@ -3,7 +3,7 @@ package net.tvburger.up;
 import net.tvburger.up.client.UpClientBuilder;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.context.UpContext;
-import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.spi.UpClientBuilderFactory;
 import net.tvburger.up.spi.UpContextProvider;
 import net.tvburger.up.util.UpClientBuilderFactoryLoader;

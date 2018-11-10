@@ -1,14 +1,14 @@
-package net.tvburger.up.definition;
+package net.tvburger.up.topology;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UpRuntimeDefinition {
+public class UpRuntimeTopology {
 
     public static final class Factory {
 
-        public static UpRuntimeDefinition create(UpEngineDefinition... engineDefinitions) {
+        public static UpRuntimeTopology create(UpEngineDefinition... engineDefinitions) {
             if (engineDefinitions == null || engineDefinitions.length == 0) {
                 throw new IllegalArgumentException();
             }
@@ -33,22 +33,22 @@ public class UpRuntimeDefinition {
             return this;
         }
 
-        public UpRuntimeDefinition build() {
+        public UpRuntimeTopology build() {
             if (engineDefinitions.isEmpty()) {
                 throw new IllegalStateException();
             }
-            return new UpRuntimeDefinition(Collections.unmodifiableSet(new LinkedHashSet<>(engineDefinitions)));
+            return new UpRuntimeTopology(Collections.unmodifiableSet(new LinkedHashSet<>(engineDefinitions)));
         }
 
     }
 
     private final Set<UpEngineDefinition> engineDefinitions;
 
-    protected UpRuntimeDefinition(UpRuntimeDefinition runtimeDefinition) {
+    protected UpRuntimeTopology(UpRuntimeTopology runtimeDefinition) {
         this.engineDefinitions = runtimeDefinition.engineDefinitions;
     }
 
-    private UpRuntimeDefinition(Set<UpEngineDefinition> engineDefinitions) {
+    private UpRuntimeTopology(Set<UpEngineDefinition> engineDefinitions) {
         this.engineDefinitions = engineDefinitions;
     }
 

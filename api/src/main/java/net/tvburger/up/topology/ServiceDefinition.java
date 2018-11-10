@@ -1,4 +1,4 @@
-package net.tvburger.up.definition;
+package net.tvburger.up.topology;
 
 import java.util.*;
 

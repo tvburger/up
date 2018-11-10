@@ -11,8 +11,8 @@
 
     <packaging>jar</packaging>
 
-    <name>UP :: Engines :: Remote</name>
-    <artifactId>up-engine-remote</artifactId>
+    <name>UP :: Runtimes :: Remote</name>
+    <artifactId>up-runtime-remote</artifactId>
 
     <dependencies>
         <dependency>

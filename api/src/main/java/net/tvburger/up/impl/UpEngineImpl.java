@@ -2,10 +2,10 @@ package net.tvburger.up.impl;
 
 import net.tvburger.up.EndpointTechnology;
 import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.deploy.UpEngine;
-import net.tvburger.up.deploy.UpEngineInfo;
-import net.tvburger.up.deploy.UpEngineManager;
-import net.tvburger.up.deploy.UpRuntime;
+import net.tvburger.up.runtime.UpEngine;
+import net.tvburger.up.runtime.UpEngineInfo;
+import net.tvburger.up.runtime.UpEngineManager;
+import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.security.Identification;
 
 import java.util.Collections;

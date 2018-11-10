@@ -5,8 +5,8 @@ import net.tvburger.up.EndpointTechnologyInfo;
 import net.tvburger.up.Environment;
 import net.tvburger.up.Service;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpEngine;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.util.LinkedHashSet;

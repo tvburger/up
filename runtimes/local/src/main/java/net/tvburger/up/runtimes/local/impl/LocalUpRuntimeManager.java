@@ -2,8 +2,8 @@ package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.behaviors.LifecycleException;
-import net.tvburger.up.definition.UpEngineDefinition;
-import net.tvburger.up.deploy.*;
+import net.tvburger.up.topology.UpEngineDefinition;
+import net.tvburger.up.runtime.*;
 import net.tvburger.up.impl.SpecificationImpl;
 import net.tvburger.up.impl.UpRuntimeImpl;
 import net.tvburger.up.impl.UpRuntimeInfoImpl;

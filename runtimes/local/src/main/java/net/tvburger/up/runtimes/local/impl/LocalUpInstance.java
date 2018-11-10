@@ -1,9 +1,9 @@
 package net.tvburger.up.runtimes.local.impl;
 
-import net.tvburger.up.definition.UpRuntimeDefinition;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpEngine;
-import net.tvburger.up.deploy.UpRuntime;
+import net.tvburger.up.topology.UpRuntimeTopology;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpEngine;
+import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 
@@ -11,7 +11,7 @@ public final class LocalUpInstance {
 
     private LocalUpRuntimeManager runtimeManager;
 
-    public void init(UpRuntimeDefinition runtimeDefinition) throws DeployException {
+    public void init(UpRuntimeTopology runtimeDefinition) throws DeployException {
         if (runtimeDefinition.getEngineDefinitions().size() != 1) {
             throw new DeployException("Must contain exactly 1 engine definition!");
         }

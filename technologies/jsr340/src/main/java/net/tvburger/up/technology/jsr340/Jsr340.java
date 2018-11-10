@@ -14,6 +14,10 @@ public interface Jsr340 {
 
         interface Info extends EndpointInfo {
 
+            String getUrl();
+
+            int getPort();
+
             String getServerName();
 
             String getContextPath();

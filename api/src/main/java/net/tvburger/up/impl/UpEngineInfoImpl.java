@@ -1,7 +1,7 @@
 package net.tvburger.up.impl;
 
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.deploy.UpEngineInfo;
+import net.tvburger.up.runtime.UpEngineInfo;
 import net.tvburger.up.security.Identification;
 
 import java.net.InetAddress;

@@ -1,4 +1,4 @@
-package net.tvburger.up.deploy;
+package net.tvburger.up.runtime;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.behaviors.LifecycleManager;

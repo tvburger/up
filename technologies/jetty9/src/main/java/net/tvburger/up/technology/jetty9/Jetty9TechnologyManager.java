@@ -6,12 +6,12 @@ import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.definition.EndpointDefinition;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpEngine;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import net.tvburger.up.topology.EndpointDefinition;
 import net.tvburger.up.util.Java8Specification;
 import net.tvburger.up.util.Services;
 import org.eclipse.jetty.server.Server;
@@ -85,7 +85,6 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
             server.setHandler(createHandler());
             server.start();
             port = http.getLocalPort();
-            System.out.println(http.getHost() + " " + http.getLocalPort() + " " + http.getPort() + " " + http.getDefaultProtocol());
         } catch (Exception cause) {
             throw new LifecycleException(cause);
         }
@@ -160,15 +159,20 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
             if (!Servlet.class.isAssignableFrom(serviceClass)) {
                 throw new DeployException("Illegal service class, not a Servlet: " + serviceClass.getName());
             }
+            Class<? extends Servlet> servletClass = (Class<? extends Servlet>) serviceClass;
             Map<String, String> settings = endpointDefinition.getSettings();
             if (!settings.containsKey("mapping")) {
                 throw new DeployException("Invalid endpoint definition: no mapping specified in settings!");
             }
             Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-            Servlet servlet = Services.instantiateService(environment, (Class<? extends Servlet>) serviceClass, new ArrayList<>(endpointDefinition.getInstanceDefinition().getArguments()).toArray());
             String mapping = settings.getOrDefault("mapping", "/");
-            servletContextHandler.addServlet(new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet)), mapping);
-            endpoints.computeIfAbsent(environmentInfo, k -> new HashSet<>()).add(Jetty9Endpoint.Factory.create(servlet, servletContextHandler, http, mapping));
+            if (endpointDefinition.getInstanceDefinition().getArguments().isEmpty()) {
+                servletContextHandler.addServlet(servletClass, mapping);
+            } else {
+                Servlet servlet = Services.instantiateService(environment, (Class<? extends Servlet>) servletClass, new ArrayList<>(endpointDefinition.getInstanceDefinition().getArguments()).toArray());
+                servletContextHandler.addServlet(new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet)), mapping);
+            }
+            endpoints.computeIfAbsent(environmentInfo, k -> new HashSet<>()).add(Jetty9Endpoint.Factory.create(servletClass, servletContextHandler, http, mapping));
             if (server.isStarted()) {
                 stop();
                 start();

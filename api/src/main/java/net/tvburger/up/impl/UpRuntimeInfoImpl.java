@@ -1,7 +1,7 @@
 package net.tvburger.up.impl;
 
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.deploy.UpRuntimeInfo;
+import net.tvburger.up.runtime.UpRuntimeInfo;
 import net.tvburger.up.security.Identification;
 
 import java.util.Objects;

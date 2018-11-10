@@ -14,6 +14,7 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.ServiceLoader;
 
+// TODO: implement log levels, now only INFO and more is logged
 public final class UpLoggerAdapter extends MarkerIgnoringBase implements org.slf4j.Logger {
 
     public static class Factory implements ILoggerFactory {
@@ -73,8 +74,9 @@ public final class UpLoggerAdapter extends MarkerIgnoringBase implements org.slf
     }
 
     private boolean isLevelEnabled(LogLevel level) {
-        // TODO: implement
-        return true;
+        return level == LogLevel.ERROR
+                || level == LogLevel.WARN
+                || level == LogLevel.INFO;
     }
 
     public boolean isTraceEnabled() {

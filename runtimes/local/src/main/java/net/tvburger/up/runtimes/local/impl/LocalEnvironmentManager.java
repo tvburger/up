@@ -5,12 +5,12 @@ import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.EnvironmentManager;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.definition.EndpointDefinition;
-import net.tvburger.up.definition.ServiceDefinition;
-import net.tvburger.up.definition.UpDeploymentDefinition;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpEngine;
-import net.tvburger.up.deploy.UpRuntimeInfo;
+import net.tvburger.up.topology.EndpointDefinition;
+import net.tvburger.up.topology.ServiceDefinition;
+import net.tvburger.up.topology.UpApplicationTopology;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpEngine;
+import net.tvburger.up.runtime.UpRuntimeInfo;
 import net.tvburger.up.impl.EnvironmentInfoImpl;
 import net.tvburger.up.logger.UpLogger;
 import net.tvburger.up.loggers.console.ConsoleLogger;
@@ -107,7 +107,7 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     }
 
     @Override
-    public void deploy(UpDeploymentDefinition deploymentDefinition) throws AccessDeniedException, DeployException {
+    public void deploy(UpApplicationTopology deploymentDefinition) throws AccessDeniedException, DeployException {
         for (ServiceDefinition serviceDefinition : deploymentDefinition.getServiceDefinitions()) {
             deploy(serviceDefinition);
         }

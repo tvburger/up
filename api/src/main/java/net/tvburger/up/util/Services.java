@@ -1,7 +1,7 @@
 package net.tvburger.up.util;
 
 import net.tvburger.up.Environment;
-import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.lang.reflect.Constructor;

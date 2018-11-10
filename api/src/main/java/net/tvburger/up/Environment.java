@@ -2,8 +2,8 @@ package net.tvburger.up;
 
 import net.tvburger.up.behaviors.ManagedEntity;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.deploy.DeployException;
-import net.tvburger.up.deploy.UpRuntime;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.util.Set;

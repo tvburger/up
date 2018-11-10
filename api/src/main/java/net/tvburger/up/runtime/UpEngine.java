@@ -1,4 +1,4 @@
-package net.tvburger.up.deploy;
+package net.tvburger.up.runtime;
 
 import net.tvburger.up.EndpointTechnology;
 import net.tvburger.up.EndpointTechnologyInfo;
