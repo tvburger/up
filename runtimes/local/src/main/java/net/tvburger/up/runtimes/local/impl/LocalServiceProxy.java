@@ -2,14 +2,16 @@ package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.Service;
 import net.tvburger.up.Up;
+import net.tvburger.up.UpRuntimeException;
+import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
 import net.tvburger.up.context.UpContext;
-import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.impl.UpContextImpl;
 import net.tvburger.up.logger.LogLevel;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.UpLogger;
+import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.Identity;
 
 import java.lang.reflect.InvocationHandler;
@@ -36,14 +38,13 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
         this.logger = logger;
     }
 
-    public Service<T> getService() {
-        return service;
-    }
-
     @Override
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         UpContext callerContext = Up.getContext();
         try {
+            if (service.getManager().getState() != LifecycleManager.State.ACTIVE) {
+                throw new UpRuntimeException("We are not active: " + service.getInfo());
+            }
             UpContext serviceContext = createContext(callerContext);
             Up.setContext(serviceContext);
             boolean logMethod = service.getManager().isLogged() && !method.getDeclaringClass().equals(Object.class);

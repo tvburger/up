@@ -9,7 +9,7 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-public class LocalUpEngineInfo extends UpEngineInfoImpl {
+public final class LocalUpEngineInfo extends UpEngineInfoImpl {
 
     public LocalUpEngineInfo(Identity identity) throws UnknownHostException {
         super(UUID.randomUUID(), InetAddress.getLocalHost(), -1, Identities.getSafeIdentification(identity), LocalJavaImplementation.get().getSpecification());

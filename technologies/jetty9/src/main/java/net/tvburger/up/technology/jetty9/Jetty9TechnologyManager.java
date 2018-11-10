@@ -94,7 +94,9 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         for (Map.Entry<EnvironmentInfo, Set<Jsr340.Endpoint>> entry : endpoints.entrySet()) {
             ServletContextHandler handler = createServletContextHandler(entry.getKey());
             for (Jsr340.Endpoint endpoint : entry.getValue()) {
-                addEndpointToHandler(handler, endpoint);
+                if (endpoint.getManager().getState() == State.ACTIVE) {
+                    addEndpointToHandler(handler, endpoint);
+                }
             }
             handlers.add(handler);
         }

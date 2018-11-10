@@ -4,10 +4,11 @@ import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.Service;
 import net.tvburger.up.ServiceManager;
-import net.tvburger.up.runtime.DeployException;
-import net.tvburger.up.runtime.UpEngine;
+import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.impl.*;
 import net.tvburger.up.logger.UpLogger;
+import net.tvburger.up.runtime.DeployException;
+import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;
@@ -40,7 +41,7 @@ public final class LocalServicesManager {
         Identity identity = Identities.ANONYMOUS;
         ServiceManager<T> serviceManager = createServiceManager(serviceType, serviceClass, identity);
         Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-        T serviceInstance = createLoggerProxy(Services.instantiateService(environment, serviceClass, arguments), identity, serviceManager);
+        T serviceInstance = createServiceProxy(Services.instantiateService(environment, serviceClass, arguments), identity, serviceManager, this);
         Set<Service<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
         Service<T> service = new ServiceImpl<>(serviceManager, serviceInstance);
         services.add(service);
@@ -77,7 +78,7 @@ public final class LocalServicesManager {
     }
 
     @SuppressWarnings("unchecked")
-    private <T> T createLoggerProxy(T service, Identity identity, ServiceManager<T> serviceManager) {
+    private <T> T createServiceProxy(T service, Identity identity, ServiceManager<T> serviceManager, LocalServicesManager servicesManager) {
         return (T) Proxy.newProxyInstance(
                 service.getClass().getClassLoader(),
                 service.getClass().getInterfaces(),
@@ -97,9 +98,19 @@ public final class LocalServicesManager {
         }
         Iterator<Service<?>> iterator = serviceRegistry.get(serviceType).iterator();
         if (!iterator.hasNext()) {
-            throw new IllegalStateException();
+            throw new DeployException("No such services registered: " + serviceType);
         }
-        return (Service<T>) iterator.next();
+        while (iterator.hasNext()) {
+            Service<?> service = iterator.next();
+            try {
+                if (service.getManager().getState() == LifecycleManager.State.ACTIVE) {
+                    return (Service<T>) service;
+                }
+            } catch (AccessDeniedException cause) {
+                throw new DeployException("Failed to lookup service: " + serviceType, cause);
+            }
+        }
+        throw new DeployException("No active services found for: " + serviceType);
     }
 
     public Set<Service<?>> getServices() {
