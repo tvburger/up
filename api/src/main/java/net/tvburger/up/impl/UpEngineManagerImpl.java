@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local.impl;
+package net.tvburger.up.impl;
 
 import net.tvburger.up.EndpointTechnology;
 import net.tvburger.up.EndpointTechnologyInfo;
@@ -8,40 +8,28 @@ import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.context.Locality;
 import net.tvburger.up.context.UpContext;
-import net.tvburger.up.topology.UpEngineDefinition;
 import net.tvburger.up.runtime.*;
-import net.tvburger.up.util.LocalJavaImplementation;
-import net.tvburger.up.impl.UpContextImpl;
-import net.tvburger.up.impl.UpEngineImpl;
-import net.tvburger.up.impl.UpEngineInfoImpl;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
+import net.tvburger.up.topology.UpEngineDefinition;
 import net.tvburger.up.util.EndpointTechnologyLoader;
-import net.tvburger.up.util.Identities;
+import net.tvburger.up.util.LocalJavaImplementation;
 
-import java.net.InetAddress;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
+import java.util.Objects;
+import java.util.Set;
 
-public final class LocalUpEngineManager implements UpEngineManager {
+public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngineManager {
 
     public static final class Factory {
 
-        public static LocalUpEngineManager create(UpRuntime runtime, UpEngineDefinition engineDefinition, Identity identity) throws UnknownHostException, LifecycleException {
-            LocalUpEngineManager manager = new LocalUpEngineManager(
-                    UpEngineInfoImpl.Factory.create(
-                            UUID.randomUUID(),
-                            InetAddress.getLocalHost(),
-                            -1,
-                            Identities.ANONYMOUS,
-                            LocalJavaImplementation.get().getSpecification()),
-                    engineDefinition,
-                    identity,
-                    runtime);
-            manager.init();
-            return manager;
+        public static UpEngineManagerImpl create(UpEngineInfo info, UpEngineDefinition engineDefinition, Identity identity, UpRuntime runtime) {
+            Objects.requireNonNull(info);
+            Objects.requireNonNull(engineDefinition);
+            Objects.requireNonNull(identity);
+            Objects.requireNonNull(runtime);
+            return new UpEngineManagerImpl(info, engineDefinition, identity, runtime);
         }
 
         private Factory() {
@@ -57,19 +45,36 @@ public final class LocalUpEngineManager implements UpEngineManager {
     private UpEngine engine;
     private UpRuntime runtime;
 
-    private LocalUpEngineManager(UpEngineInfo info, UpEngineDefinition engineDefinition, Identity identity, UpRuntime runtime) {
+    protected UpEngineManagerImpl(UpEngineInfo info, UpEngineDefinition engineDefinition, Identity identity, UpRuntime runtime) {
         this.info = info;
         this.engineDefinition = engineDefinition;
         this.identity = identity;
         this.runtime = runtime;
     }
 
-    Identity getIdentity() {
+    public UpEngine getEngine() {
+        return engine;
+    }
+
+    public void setEngine(UpEngine engine) {
+        this.engine = engine;
+    }
+
+    public Identity getIdentity() {
         return identity;
     }
 
-    public UpEngine getEngine() {
-        return engine;
+    public Set<EndpointTechnologyInfo<?>> getEndpointTechnologies() {
+        return endpointTechnologies.keySet();
+    }
+
+    public UpRuntime getRuntime() {
+        return runtime;
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) {
+        return (EndpointTechnology<T>) endpointTechnologies.get(info);
     }
 
     @Override
@@ -94,15 +99,15 @@ public final class LocalUpEngineManager implements UpEngineManager {
 
     @Override
     public void init() throws LifecycleException {
-        UpContext serviceContext = Up.getContext();
+        super.init();
+        UpContext context = Up.getContext();
         try {
             if (!implementation.equals(engineDefinition.getEngineImplementation())) {
                 throw new LifecycleException("Unsupported implementation: " + engineDefinition.getEngineImplementation());
             }
-            engine = UpEngineImpl.Factory.create(this, endpointTechnologies, runtime);
             UpContextImpl engineContext = new UpContextImpl();
             engineContext.setIdentity(identity);
-            engineContext.setLocality(Locality.Factory.create(engine));
+            engineContext.setLocality(Locality.Factory.create(runtime.getInfo(), info));
             Up.setContext(engineContext);
             endpointTechnologies.putAll(EndpointTechnologyLoader.load(engine, identity, engineDefinition.getEndpointImplementations()));
             for (EndpointTechnology<?> endpointTechnology : endpointTechnologies.values()) {
@@ -111,40 +116,64 @@ public final class LocalUpEngineManager implements UpEngineManager {
         } catch (DeployException | AccessDeniedException cause) {
             throw new LifecycleException(cause);
         } finally {
-            Up.setContext(serviceContext);
+            Up.setContext(context);
         }
     }
 
     @Override
     public void start() throws LifecycleException {
+        super.start();
+        UpContext context = Up.getContext();
         try {
+            UpContextImpl engineContext = new UpContextImpl();
+            engineContext.setIdentity(identity);
+            engineContext.setLocality(Locality.Factory.create(runtime.getInfo(), info));
+            Up.setContext(engineContext);
             for (EndpointTechnology<?> endpointTechnology : endpointTechnologies.values()) {
                 endpointTechnology.getManager().start();
             }
         } catch (AccessDeniedException cause) {
             throw new LifecycleException(cause);
+        } finally {
+            Up.setContext(context);
         }
     }
 
     @Override
     public void stop() throws LifecycleException {
+        super.stop();
+        UpContext context = Up.getContext();
         try {
+            UpContextImpl engineContext = new UpContextImpl();
+            engineContext.setIdentity(identity);
+            engineContext.setLocality(Locality.Factory.create(runtime.getInfo(), info));
+            Up.setContext(engineContext);
             for (EndpointTechnology<?> endpointTechnology : endpointTechnologies.values()) {
                 endpointTechnology.getManager().stop();
             }
         } catch (AccessDeniedException cause) {
             throw new LifecycleException(cause);
+        } finally {
+            Up.setContext(context);
         }
     }
 
     @Override
     public void destroy() throws LifecycleException {
+        super.destroy();
+        UpContext context = Up.getContext();
         try {
+            UpContextImpl engineContext = new UpContextImpl();
+            engineContext.setIdentity(identity);
+            engineContext.setLocality(Locality.Factory.create(runtime.getInfo(), info));
+            Up.setContext(engineContext);
             for (EndpointTechnology<?> endpointTechnology : endpointTechnologies.values()) {
                 endpointTechnology.getManager().destroy();
             }
         } catch (AccessDeniedException cause) {
             throw new LifecycleException(cause);
+        } finally {
+            Up.setContext(context);
         }
     }
 

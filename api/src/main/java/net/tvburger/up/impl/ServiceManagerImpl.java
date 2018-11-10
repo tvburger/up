@@ -10,7 +10,7 @@ import net.tvburger.up.security.Identity;
 import java.util.Objects;
 import java.util.UUID;
 
-public class ServiceManagerImpl<T> implements ServiceManager<T> {
+public class ServiceManagerImpl<T> extends LifecycleManagerImpl implements ServiceManager<T> {
 
     public static final class Factory {
 
@@ -36,7 +36,7 @@ public class ServiceManagerImpl<T> implements ServiceManager<T> {
 
     private final Implementation implementation;
     private final ServiceInfo<T> serviceInfo;
-    private boolean logged;
+    private volatile boolean logged;
 
     protected ServiceManagerImpl(Implementation implementation, ServiceInfo<T> serviceInfo) {
         this.implementation = implementation;
@@ -59,28 +59,12 @@ public class ServiceManagerImpl<T> implements ServiceManager<T> {
     }
 
     @Override
-    public void init() {
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-    }
-
-    @Override
-    public void destroy() {
-    }
-
-    @Override
-    public String getImplementationName() {
+    public synchronized String getImplementationName() {
         return implementation.getImplementationName();
     }
 
     @Override
-    public String getImplementationVersion() {
+    public synchronized String getImplementationVersion() {
         return implementation.getImplementationVersion();
     }
 

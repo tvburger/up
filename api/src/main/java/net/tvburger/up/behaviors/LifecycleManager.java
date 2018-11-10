@@ -5,6 +5,15 @@ package net.tvburger.up.behaviors;
  */
 public interface LifecycleManager {
 
+    enum State {
+
+        NEW,
+        READY,
+        ACTIVE,
+        RETIRED
+
+    }
+
     void init() throws LifecycleException;
 
     void start() throws LifecycleException;
@@ -12,5 +21,7 @@ public interface LifecycleManager {
     void stop() throws LifecycleException;
 
     void destroy() throws LifecycleException;
+
+    State getState();
 
 }

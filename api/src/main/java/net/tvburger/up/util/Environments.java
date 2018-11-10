@@ -1,12 +1,10 @@
 package net.tvburger.up.util;
 
-import net.tvburger.up.Endpoint;
-import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.Environment;
-import net.tvburger.up.Service;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.runtime.UpEngine;
+import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.util.LinkedHashSet;
@@ -16,22 +14,25 @@ public final class Environments {
 
     public static void printEnvironment(Environment environment) throws AccessDeniedException, DeployException {
         Set<Specification> endpointSpecifications = new LinkedHashSet<>();
-        System.out.println("Runtime: " + environment.getRuntime().getInfo());
+        UpRuntime runtime = environment.getRuntime();
+        System.out.println(String.format("[%-7s] Runtime: %s", runtime.getManager().getState(), runtime.getInfo()));
         for (UpEngine engine : environment.getRuntime().getEngines()) {
-            System.out.println("- Engine: " + engine.getInfo());
+            System.out.println(String.format("[%-7s]   Engine: %s", engine.getManager().getState(), engine.getInfo()));
             for (EndpointTechnologyInfo<?> endpointTechnologyInfo : engine.getEndpointTechnologies()) {
-                System.out.println("  - EndpointTechnology: " + endpointTechnologyInfo);
+                EndpointTechnology<?> technology = engine.getEndpointTechnology(endpointTechnologyInfo);
+                System.out.println(String.format("[%-7s]     EndpointTechnology: %s", technology.getManager().getState(), endpointTechnologyInfo));
                 endpointSpecifications.add(endpointTechnologyInfo);
             }
         }
-        System.out.println("Environment: " + environment.getInfo());
+        System.out.println(String.format("[%-7s] Environment: %s", environment.getManager().getState(), environment.getInfo()));
+        System.out.println(String.format("[%-7s]   Services:", "-"));
         for (Service<?> service : environment.getServices()) {
-            System.out.println(" - Service: " + service.getInfo());
+            System.out.println(String.format("[%-7s]     Service: %s", service.getManager().getState(), service.getInfo()));
         }
         for (Specification endpointSpecification : endpointSpecifications) {
-            System.out.println(" - EndpointTechnology: " + endpointSpecification);
+            System.out.println(String.format("[%-7s]   Endpoints: %s", "-", endpointSpecification));
             for (Endpoint<?, ?> endpoint : environment.getEndpoints(endpointSpecification)) {
-                System.out.println("   - Endpoint: " + endpoint.getInfo());
+                System.out.println(String.format("[%-7s]     Endpoint: %s", endpoint.getManager().getState(), endpoint.getInfo()));
             }
         }
     }

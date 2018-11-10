@@ -2,29 +2,165 @@ package net.tvburger.up.technology.jsr340;
 
 import net.tvburger.up.EndpointInfo;
 import net.tvburger.up.EndpointManager;
+import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.impl.EndpointTechnologyInfoImpl;
 import net.tvburger.up.impl.SpecificationImpl;
+import net.tvburger.up.topology.EndpointDefinition;
+import net.tvburger.up.topology.InstanceDefinition;
+
+import javax.servlet.Servlet;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 public interface Jsr340 {
 
     interface Endpoint extends net.tvburger.up.Endpoint<Endpoint.Manager, Endpoint.Info> {
 
+        final class Definition extends EndpointDefinition {
+
+            public static Definition parse(EndpointDefinition endpointDefinition) throws IllegalArgumentException {
+                if (endpointDefinition instanceof Definition) {
+                    return (Definition) endpointDefinition;
+                }
+                if (!Servlet.class.isAssignableFrom(endpointDefinition.getInstanceDefinition().getInstanceClass())) {
+                    throw new IllegalArgumentException("ServletClass does not implement Servlet!");
+                }
+                return new Definition(endpointDefinition.getInstanceDefinition(), endpointDefinition.getSettings());
+            }
+
+            private Definition(InstanceDefinition instanceDefinition, Map<String, String> settings) {
+                super(Specification.get(), instanceDefinition, settings);
+            }
+
+            public String getMapping() {
+                return getSettings().getOrDefault("mapping", "/*");
+            }
+
+            public Map<String, String> getInitParameters() {
+                Map<String, String> initParameters = new LinkedHashMap<>();
+                for (Map.Entry<String, String> entry : getSettings().entrySet()) {
+                    if (entry.getKey().startsWith("init.")) {
+                        initParameters.put(entry.getKey().substring("init.".length()), entry.getValue());
+                    }
+                }
+                return initParameters;
+            }
+
+            @SuppressWarnings("unchecked")
+            public Class<? extends Servlet> getServletClass() {
+                return (Class<? extends Servlet>) getInstanceDefinition().getInstanceClass();
+            }
+
+            public List<Object> getArguments() {
+                return getInstanceDefinition().getArguments();
+            }
+
+            final static class Builder {
+                private Class<? extends Servlet> servletClass;
+                private String mapping;
+                private final Map<String, String> initParameters = new LinkedHashMap<>();
+                private final List<Object> arguments = new LinkedList<>();
+
+                public Builder withServletClass(Class<? extends Servlet> servletClass) {
+                    this.servletClass = servletClass;
+                    return this;
+                }
+
+                public Builder withMapping(String mapping) {
+                    this.mapping = mapping;
+                    return this;
+                }
+
+                public Builder withInitParameter(String name, String value) {
+                    initParameters.put(name, value);
+                    return this;
+                }
+
+                public Builder withArgument(Object argument) {
+                    arguments.add(argument);
+                    return this;
+                }
+
+                public Definition build() {
+                    if (servletClass == null) {
+                        throw new IllegalStateException();
+                    }
+                    EndpointDefinition.Builder builder = new EndpointDefinition.Builder()
+                            .withEndpointTechnology(Specification.get())
+                            .withEndpointDefinition(InstanceDefinition.Factory.create(servletClass, arguments))
+                            .withSetting("mapping", mapping == null ? "/*" : mapping);
+                    Map<String, String> settings = new LinkedHashMap<>();
+                    for (Map.Entry<String, String> entry : initParameters.entrySet()) {
+                        builder.withSetting("init." + entry.getKey(), entry.getValue());
+                    }
+                    return Definition.parse(builder.build());
+                }
+            }
+
+        }
+
         interface Manager extends EndpointManager<Info> {
         }
 
-        interface Info extends EndpointInfo {
+        final class Info implements EndpointInfo {
 
-            String getUrl();
+            private final String url;
+            private final Class<? extends Servlet> servletClass;
+            private final int port;
+            private final String serverName;
+            private final String contextPath;
+            private final String mapping;
+            private final String name;
+            private final EnvironmentInfo environmentInfo;
 
-            int getPort();
+            public Info(String url, Class<? extends Servlet> servletClass, int port, String serverName, String contextPath, String mapping, String name, EnvironmentInfo environmentInfo) {
+                this.url = url;
+                this.servletClass = servletClass;
+                this.port = port;
+                this.serverName = serverName;
+                this.contextPath = contextPath;
+                this.mapping = mapping;
+                this.name = name;
+                this.environmentInfo = environmentInfo;
+            }
 
-            String getServerName();
+            public String getUrl() {
+                return url;
+            }
 
-            String getContextPath();
+            public Class<? extends Servlet> getServletClass() {
+                return servletClass;
+            }
 
-            String getMapping();
+            public int getPort() {
+                return port;
+            }
 
-            String getName();
+            public String getServerName() {
+                return serverName;
+            }
+
+            public String getContextPath() {
+                return contextPath;
+            }
+
+            public String getMapping() {
+                return mapping;
+            }
+
+            public String getName() {
+                return name;
+            }
+
+            public EnvironmentInfo getEnvironmentInfo() {
+                return environmentInfo;
+            }
+
+            public String toString() {
+                return String.format("Jsr340.Endpoint.Info{%s, %s}", name, url);
+            }
 
         }
 
@@ -57,4 +193,5 @@ public interface Jsr340 {
         }
 
     }
+
 }

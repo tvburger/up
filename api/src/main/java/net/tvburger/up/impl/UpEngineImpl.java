@@ -6,64 +6,32 @@ import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpEngineInfo;
 import net.tvburger.up.runtime.UpEngineManager;
 import net.tvburger.up.runtime.UpRuntime;
+import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
 
 public class UpEngineImpl implements UpEngine {
 
-    public static final class Factory {
+    private final UpEngineManagerImpl manager;
 
-        public static UpEngineImpl create(UpEngineManager manager, Map<EndpointTechnologyInfo<?>, EndpointTechnology<?>> endpointTechnologies, UpRuntime runtime) {
-            Objects.requireNonNull(manager);
-            Objects.requireNonNull(endpointTechnologies);
-            Objects.requireNonNull(runtime);
-            return new UpEngineImpl(manager, Collections.unmodifiableMap(endpointTechnologies), runtime);
-        }
-
-        private Factory() {
-        }
-
-    }
-
-    private final UpEngineManager manager;
-    private final Map<EndpointTechnologyInfo<?>, EndpointTechnology<?>> endpointTechnologies;
-    private final UpRuntime runtime;
-
-    protected UpEngineImpl(UpEngineManager manager, Map<EndpointTechnologyInfo<?>, EndpointTechnology<?>> endpointTechnologies, UpRuntime runtime) {
+    public UpEngineImpl(UpEngineManagerImpl manager) {
         this.manager = manager;
-        this.endpointTechnologies = endpointTechnologies;
-        this.runtime = runtime;
     }
 
     @Override
-    public UpEngineManager getManager() {
-        return manager;
+    public Set<EndpointTechnologyInfo<?>> getEndpointTechnologies() throws AccessDeniedException {
+        return manager.getEndpointTechnologies();
     }
 
     @Override
-    public UpEngineInfo getInfo() {
-        return manager.getInfo();
-    }
-
-    @Override
-    public Set<EndpointTechnologyInfo<?>> getEndpointTechnologies() {
-        return endpointTechnologies.keySet();
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) {
-        Objects.requireNonNull(info);
-        return (EndpointTechnology<T>) endpointTechnologies.get(info);
+    public <T> EndpointTechnology<T> getEndpointTechnology(EndpointTechnologyInfo<T> info) throws AccessDeniedException {
+        return manager.getEndpointTechnology(info);
     }
 
     @Override
     public UpRuntime getRuntime() {
-        return runtime;
+        return manager.getRuntime();
     }
 
     @Override
@@ -72,8 +40,13 @@ public class UpEngineImpl implements UpEngine {
     }
 
     @Override
-    public String toString() {
-        return String.format("UpEngine{%s}", getInfo());
+    public UpEngineManager getManager() throws AccessDeniedException {
+        return manager;
+    }
+
+    @Override
+    public UpEngineInfo getInfo() {
+        return manager.getInfo();
     }
 
 }

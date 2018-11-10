@@ -5,6 +5,7 @@ import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
+import net.tvburger.up.runtime.UpRuntimeInfo;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
@@ -16,10 +17,11 @@ public final class LocalEnvironment implements Environment {
 
     public static final class Factory {
 
-        public static LocalEnvironment create(UpEngine engine, LocalEnvironmentManager manager) {
+        public static LocalEnvironment create(UpEngine engine, String environmentName, UpRuntimeInfo runtimeInfo) {
             Objects.requireNonNull(engine);
-            Objects.requireNonNull(manager);
-            return new LocalEnvironment(engine, manager);
+            Objects.requireNonNull(environmentName);
+            Objects.requireNonNull(runtimeInfo);
+            return new LocalEnvironment(engine, LocalEnvironmentManager.Factory.create(engine, environmentName, runtimeInfo));
         }
 
         private Factory() {

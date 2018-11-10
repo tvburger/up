@@ -1,20 +1,22 @@
 package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.EnvironmentManager;
+import net.tvburger.up.Service;
+import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.topology.EndpointDefinition;
-import net.tvburger.up.topology.ServiceDefinition;
-import net.tvburger.up.topology.UpApplicationTopology;
+import net.tvburger.up.impl.EnvironmentInfoImpl;
+import net.tvburger.up.impl.LifecycleManagerImpl;
+import net.tvburger.up.logger.UpLogger;
+import net.tvburger.up.loggers.console.ConsoleLogger;
 import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntimeInfo;
-import net.tvburger.up.impl.EnvironmentInfoImpl;
-import net.tvburger.up.logger.UpLogger;
-import net.tvburger.up.loggers.console.ConsoleLogger;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.topology.EndpointDefinition;
+import net.tvburger.up.topology.ServiceDefinition;
+import net.tvburger.up.topology.UpApplicationTopology;
 import net.tvburger.up.util.Identities;
 
 import java.io.IOException;
@@ -22,7 +24,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 
-public final class LocalEnvironmentManager implements EnvironmentManager {
+// TODO: on destroy - remove from LocalUpRuntime
+public final class LocalEnvironmentManager extends LifecycleManagerImpl implements EnvironmentManager {
 
     public static final class Factory {
 
@@ -33,7 +36,6 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
             LocalEnvironmentManager manager = new LocalEnvironmentManager(
                     engine, info,
                     new LocalServicesManager(engine, info, logger));
-            manager.init();
             return manager;
         }
 
@@ -45,17 +47,12 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     private final UpEngine engine;
     private final EnvironmentInfo environmentInfo;
     private final LocalServicesManager localServicesManager;
-    private Environment environment;
     private boolean logged;
 
     public LocalEnvironmentManager(UpEngine engine, EnvironmentInfo environmentInfo, LocalServicesManager localServicesManager) {
         this.engine = engine;
         this.environmentInfo = environmentInfo;
         this.localServicesManager = localServicesManager;
-    }
-
-    public Environment getEnvironment() {
-        return environment;
     }
 
     public LocalServicesManager getLocalServicesManager() {
@@ -88,25 +85,6 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     }
 
     @Override
-    public void init() {
-        environment = LocalEnvironment.Factory.create(engine, this);
-    }
-
-    @Override
-    public void start() {
-    }
-
-    @Override
-    public void stop() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
-    public void destroy() {
-        throw new UnsupportedOperationException();
-    }
-
-    @Override
     public void deploy(UpApplicationTopology deploymentDefinition) throws AccessDeniedException, DeployException {
         for (ServiceDefinition serviceDefinition : deploymentDefinition.getServiceDefinitions()) {
             deploy(serviceDefinition);
@@ -119,11 +97,16 @@ public final class LocalEnvironmentManager implements EnvironmentManager {
     @SuppressWarnings("unchecked")
     @Override
     public void deploy(ServiceDefinition serviceDefinition) throws AccessDeniedException, DeployException {
-        getLocalServicesManager().addService(
-                (Class) serviceDefinition.getServiceType(),
-                (Class) serviceDefinition.getInstanceDefinition().getInstanceClass(),
-                new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
-
+        try {
+            Service<?> service = getLocalServicesManager().addService(
+                    (Class) serviceDefinition.getServiceType(),
+                    (Class) serviceDefinition.getInstanceDefinition().getInstanceClass(),
+                    new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
+            service.getManager().init();
+            service.getManager().start();
+        } catch (LifecycleException cause) {
+            throw new DeployException(cause);
+        }
     }
 
     @Override

@@ -1,23 +1,16 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jsr340.Jsr340;
-import org.eclipse.jetty.server.ServerConnector;
-import org.eclipse.jetty.servlet.ServletContextHandler;
-
-import javax.servlet.Servlet;
 
 public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     public static final class Factory {
 
-        public static Jetty9Endpoint create(Class<? extends Servlet> servletClass, ServletContextHandler context, ServerConnector http, String mapping) {
-            int port = http.getLocalPort();
-            String serverName = http.getHost();
-            String contextPath = context.getContextPath();
-            String name = servletClass.getName();
-            String url = "http://" + serverName + (port != 80 ? ":" + port : "") + contextPath + mapping;
-            return new Jetty9Endpoint(new Info(url, port, serverName, contextPath, mapping, name));
+        public static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager) {
+            return new Jetty9Endpoint(new Manager(endpointInfo, technologyManager));
         }
 
         private Factory() {
@@ -25,75 +18,66 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     }
 
-    public static final class Info implements Jsr340.Endpoint.Info {
+    static final class Manager extends LifecycleManagerImpl implements Jsr340.Endpoint.Manager {
 
-        private final String url;
-        private final int port;
-        private final String serverName;
-        private final String contextPath;
-        private final String mapping;
-        private final String name;
+        private final Info info;
+        private final Jetty9TechnologyManager manager;
+        private boolean logged;
 
-        public Info(String url, int port, String serverName, String contextPath, String mapping, String name) {
-            this.url = url;
-            this.port = port;
-            this.serverName = serverName;
-            this.contextPath = contextPath;
-            this.mapping = mapping;
-            this.name = name;
+        public Manager(Info info, Jetty9TechnologyManager manager) {
+            this.info = info;
+            this.manager = manager;
         }
 
         @Override
-        public String getUrl() {
-            return url;
+        public void start() throws LifecycleException {
+            super.start();
+            manager.restartIfNeeded();
         }
 
         @Override
-        public int getPort() {
-            return port;
+        public void stop() throws LifecycleException {
+            super.stop();
+            manager.restartIfNeeded();
         }
 
         @Override
-        public String getServerName() {
-            return serverName;
+        public void destroy() throws LifecycleException {
+            super.destroy();
+            manager.destroy(info);
         }
 
         @Override
-        public String getContextPath() {
-            return contextPath;
+        public boolean isLogged() {
+            return logged;
         }
 
         @Override
-        public String getMapping() {
-            return mapping;
+        public void setLogged(boolean logged) {
+            this.logged = logged;
         }
 
         @Override
-        public String getName() {
-            return name;
-        }
-
-        @Override
-        public String toString() {
-            return String.format("Jetty2Endpoint.Info{%s, %s}", name, url);
+        public Jsr340.Endpoint.Info getInfo() {
+            return info;
         }
 
     }
 
-    private final Info info;
+    private final Manager manager;
 
-    private Jetty9Endpoint(Info info) {
-        this.info = info;
+    public Jetty9Endpoint(Manager manager) {
+        this.manager = manager;
     }
 
     @Override
-    public Manager getManager() throws AccessDeniedException {
-        return null;
+    public Jsr340.Endpoint.Manager getManager() throws AccessDeniedException {
+        return manager;
     }
 
     @Override
-    public Info getInfo() {
-        return info;
+    public Jsr340.Endpoint.Info getInfo() {
+        return manager.getInfo();
     }
 
 }
