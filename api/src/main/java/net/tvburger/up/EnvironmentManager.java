@@ -3,9 +3,9 @@ package net.tvburger.up;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.behaviors.LogManager;
 import net.tvburger.up.behaviors.ManagedEntity;
-import net.tvburger.up.definitions.EndpointDefinition;
-import net.tvburger.up.definitions.ServiceDefinition;
-import net.tvburger.up.definitions.UpDeploymentDefinition;
+import net.tvburger.up.definition.EndpointDefinition;
+import net.tvburger.up.definition.ServiceDefinition;
+import net.tvburger.up.definition.UpDeploymentDefinition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.security.AccessDeniedException;
 

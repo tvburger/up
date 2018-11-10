@@ -11,23 +11,18 @@
 
     <packaging>jar</packaging>
 
-    <name>UP :: Example :: Deploy</name>
-    <artifactId>up-example-deploy</artifactId>
+    <name>UP :: Runtimes :: Local</name>
+    <artifactId>up-runtime-local</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-example-application</artifactId>
+            <artifactId>up-api</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-example-runtime</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>up-runtime-local</artifactId>
+            <artifactId>up-logger-console</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

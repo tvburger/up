@@ -6,12 +6,13 @@ import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.definitions.EndpointDefinition;
+import net.tvburger.up.definition.EndpointDefinition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import net.tvburger.up.util.Java8Specification;
 import net.tvburger.up.util.Services;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
@@ -25,7 +26,6 @@ import java.util.*;
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
 // TODO: add logging
 // TODO: add removal of servlet
-// TODO: handle environments (based on host headers)
 public final class Jetty9TechnologyManager implements EndpointTechnologyManager {
 
     private final Map<EnvironmentInfo, Set<Jsr340.Endpoint>> endpoints = new HashMap<>();
@@ -176,6 +176,11 @@ public final class Jetty9TechnologyManager implements EndpointTechnologyManager 
         } catch (LifecycleException cause) {
             throw new DeployException(cause);
         }
+    }
+
+    @Override
+    public Specification getEngineRequirement() {
+        return Java8Specification.get();
     }
 
 }

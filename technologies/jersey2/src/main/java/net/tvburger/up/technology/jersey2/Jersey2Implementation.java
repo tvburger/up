@@ -1,7 +1,7 @@
 package net.tvburger.up.technology.jersey2;
 
 import net.tvburger.up.impl.ImplementationImpl;
-import net.tvburger.up.technology.jsr370.Jsr370Specification;
+import net.tvburger.up.technology.jsr370.Jsr370;
 
 public final class Jersey2Implementation extends ImplementationImpl {
 
@@ -12,7 +12,7 @@ public final class Jersey2Implementation extends ImplementationImpl {
     }
 
     private Jersey2Implementation() {
-        super(Jsr370Specification.get(), "jersey", "2.27.0");
+        super(Jsr370.Specification.get(), "jersey", "2.27.0");
     }
 
 }

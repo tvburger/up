@@ -5,12 +5,13 @@ import net.tvburger.up.EndpointTechnologyManager;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.definitions.EndpointDefinition;
+import net.tvburger.up.definition.EndpointDefinition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr370.Jsr370;
+import net.tvburger.up.util.Java8Specification;
 
 public final class Jersey2TechnologyManager implements EndpointTechnologyManager<Jsr370.Endpoint> {
 
@@ -115,6 +116,11 @@ public final class Jersey2TechnologyManager implements EndpointTechnologyManager
 //        String mapping = (String) arguments.get(0);
 //        String envMapping = "/" + environmentInfo.getName() + (mapping.startsWith("/") ? "" : "/") + arguments.get(0);
 //        servletHandler.addServletWithMapping(new ServletHolder(new Jersey2ContextServlet(engine, identity, servlet)), envMapping);
+    }
+
+    @Override
+    public Specification getEngineRequirement() {
+        return Java8Specification.get();
     }
 
 }

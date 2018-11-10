@@ -1,7 +1,7 @@
 package net.tvburger.up.deploy;
 
 import net.tvburger.up.client.UpClientTarget;
-import net.tvburger.up.definitions.UpRuntimeDefinition;
+import net.tvburger.up.definition.UpRuntimeDefinition;
 
 public interface UpRuntimeFactory {
 

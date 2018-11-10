@@ -1,0 +1,36 @@
+<project>
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>net.tvburger.up</groupId>
+        <artifactId>up</artifactId>
+        <version>0.1.0</version>
+        <relativePath>../..</relativePath>
+    </parent>
+
+    <packaging>jar</packaging>
+
+    <name>UP :: Example :: Logic</name>
+    <artifactId>up-example-logic</artifactId>
+
+    <properties>
+        <slf4j.version>1.7.25</slf4j.version>
+        <servlet-api.version>3.1.0</servlet-api.version>
+        <inject.version>1</inject.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${slf4j.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet-api.version}</version>
+        </dependency>
+    </dependencies>
+
+</project>
