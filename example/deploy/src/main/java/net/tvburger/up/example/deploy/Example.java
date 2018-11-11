@@ -24,6 +24,7 @@ public final class Example {
     private UpRuntimeTopology runtimeTopology;
     private UpClientTarget target;
     private Environment environment;
+    private boolean debug = true;
 
     public Example(UpApplicationTopology applicationTopology) {
         this.applicationTopology = applicationTopology;
@@ -44,38 +45,65 @@ public final class Example {
         } else {
             environment = LocalUpRuntimeFactory.createEnvironment(Jetty9Implementation.get());
         }
+        debugEnvironment();
     }
 
-    public void run() throws UpException {
+    private void debugEnvironment() {
+        try {
+            if (debug) {
+                printEnvironment();
+            }
+        } catch (UpException cause) {
+        }
+    }
+
+    public void deploy() throws UpException {
         environment.getManager().deploy(applicationTopology);
-        Environments.printEnvironment(environment);
+        debugEnvironment();
+    }
 
+    public void start() throws UpException {
         environment.getManager().start();
+        debugEnvironment();
+    }
 
+    public void sayHi() throws UpException {
         Service<ExampleService> service = environment.getService(ExampleService.class);
         System.out.println(service.getInterface().sayHelloTo("Jordan"));
     }
 
-    public void destroy() throws UpException {
+    public void stop() throws UpException {
         environment.getManager().stop();
+        debugEnvironment();
+    }
+
+    public void destroy() throws UpException {
         environment.getManager().destroy();
         if (target != null) {
             LocalUpRuntimeFactory.destroy(target);
         } else {
             LocalUpRuntimeFactory.destroyEnvironment(environment);
         }
+        debugEnvironment();
+    }
+
+    public void printEnvironment() throws UpException {
+        Environments.printEnvironment(environment);
     }
 
     public static void main(String[] args) throws UpException {
         Example example = new Example(new MyApplicationTopology());
-
         example.setRuntimeTopology(new MyDevRuntimeTopology()); // this is optional
 
         example.init();
-        example.run();
+        example.deploy();
+        example.start();
+
+        example.sayHi();
 
         allowWebAccessFor60secs();
 
+        example.stop();
         example.destroy();
     }
 
