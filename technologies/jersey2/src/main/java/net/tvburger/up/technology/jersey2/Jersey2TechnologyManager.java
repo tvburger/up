@@ -1,9 +1,6 @@
 package net.tvburger.up.technology.jersey2;
 
-import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.EndpointTechnologyManager;
-import net.tvburger.up.Environment;
-import net.tvburger.up.EnvironmentInfo;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.impl.LifecycleManagerImpl;
@@ -11,22 +8,26 @@ import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
+import net.tvburger.up.technology.jsr340.Jsr340;
 import net.tvburger.up.technology.jsr370.Jsr370;
 import net.tvburger.up.topology.EndpointDefinition;
 import net.tvburger.up.util.Java8Specification;
-import net.tvburger.up.util.Services;
 import org.glassfish.jersey.server.ResourceConfig;
-import org.glassfish.jersey.servlet.init.JerseyServletContainerInitializer;
+import org.glassfish.jersey.servlet.ServletContainer;
 
 import javax.ws.rs.core.Application;
-import javax.ws.rs.ext.RuntimeDelegate;
-import javax.xml.ws.Endpoint;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Jersey2TechnologyManager extends LifecycleManagerImpl implements EndpointTechnologyManager<Jsr370.Endpoint> {
 
     private final UpEngine engine;
     private final Identity identity;
     private boolean logged;
+
+    private final Map<EnvironmentInfo, ServletContainer> servletContainers = new HashMap<>();
+    private final Map<EnvironmentInfo, ResourceConfig> resourceConfig = new HashMap<>();
+    private EndpointTechnology<Jsr340.Endpoint> servletTechnology;
 
     public Jersey2TechnologyManager(UpEngine engine, Identity identity) {
         this.engine = engine;
@@ -38,11 +39,29 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
     }
 
     @Override
-    public void init() throws LifecycleException {
-        super.init();
-        JerseyServletContainerInitializer initializer = new JerseyServletContainerInitializer();
-//        initializer.onStartup(jetty);
-        ResourceConfig resourceConfig = new ResourceConfig();
+    public synchronized void init() throws LifecycleException {
+        try {
+            super.init();
+            servletTechnology = engine.getEndpointTechnology(Jsr340.Endpoint.class);
+        } catch (DeployException | AccessDeniedException cause) {
+            fail();
+            throw new LifecycleException(cause);
+        }
+    }
+
+    @Override
+    public synchronized void start() throws LifecycleException {
+
+    }
+
+    @Override
+    public synchronized void stop() throws LifecycleException {
+
+    }
+
+    @Override
+    public synchronized void destroy() throws LifecycleException {
+
     }
 
     @Override
@@ -82,11 +101,10 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
         if (!Application.class.isAssignableFrom(instanceClass)) {
             throw new DeployException("Invalid application class: " + instanceClass);
         }
-        Class<? extends Application> applicationClass = (Class<? extends Application>) instanceClass;
+        Class<?> applicationClass = instanceClass;
         Environment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-        Application application = Services.instantiateService(environment, applicationClass, endpointDefinition.getInstanceDefinition().getArguments());
-        Endpoint endpoint = RuntimeDelegate.getInstance().createEndpoint(application, Endpoint.class); // implementation specific
-
+//        Application application = Services.instantiateService(environment, applicationClass, endpointDefinition.getInstanceDefinition().getArguments());
+//        Endpoint endpoint = RuntimeDelegate.getInstance().createEndpoint(application, Endpoint.class); // implementation specific
     }
 
     @Override

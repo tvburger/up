@@ -4,12 +4,17 @@ import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public final class Jetty9Endpoint implements Jsr340.Endpoint {
+
+    private static final Logger logger = LoggerFactory.getLogger(Jetty9Endpoint.class);
 
     public static final class Factory {
 
         public static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager) {
+            logger.info("Creating new endpoint: " + endpointInfo);
             return new Jetty9Endpoint(new Manager(endpointInfo, technologyManager));
         }
 
@@ -31,18 +36,21 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
         @Override
         public void start() throws LifecycleException {
+            logger.info("Starting");
             super.start();
             manager.restartIfNeeded();
         }
 
         @Override
         public void stop() throws LifecycleException {
+            logger.info("Stopping");
             super.stop();
             manager.restartIfNeeded();
         }
 
         @Override
         public void destroy() throws LifecycleException {
+            logger.info("Destroying");
             super.destroy();
             manager.destroy(info);
         }

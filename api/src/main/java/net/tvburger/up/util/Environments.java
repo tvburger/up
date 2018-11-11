@@ -12,6 +12,24 @@ import java.util.Set;
 
 public final class Environments {
 
+    public static Set<Endpoint<?, ?>> getEndpoints(Environment environment) throws AccessDeniedException, DeployException {
+        Set<Endpoint<?, ?>> endpoints = new LinkedHashSet<>();
+        for (Specification endpointSpecification : getEndpointSpecifications(environment)) {
+            for (Endpoint<?, ?> endpoint : environment.getEndpoints(endpointSpecification)) {
+                endpoints.add(endpoint);
+            }
+        }
+        return endpoints;
+    }
+
+    public static Set<Specification> getEndpointSpecifications(Environment environment) throws AccessDeniedException {
+        Set<Specification> endpointSpecifications = new LinkedHashSet<>();
+        for (UpEngine runtimeEngine : environment.getRuntime().getEngines()) {
+            endpointSpecifications.addAll(runtimeEngine.getEndpointTechnologies());
+        }
+        return endpointSpecifications;
+    }
+
     public static void printEnvironment(Environment environment) throws AccessDeniedException, DeployException {
         Set<Specification> endpointSpecifications = new LinkedHashSet<>();
         UpRuntime runtime = environment.getRuntime();

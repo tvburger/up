@@ -50,11 +50,15 @@ public final class Example {
         environment.getManager().deploy(applicationTopology);
         Environments.printEnvironment(environment);
 
+        environment.getManager().start();
+
         Service<ExampleService> service = environment.getService(ExampleService.class);
         System.out.println(service.getInterface().sayHelloTo("Jordan"));
     }
 
-    public void destroy() throws DeployException {
+    public void destroy() throws UpException {
+        environment.getManager().stop();
+        environment.getManager().destroy();
         if (target != null) {
             LocalUpRuntimeFactory.destroy(target);
         } else {

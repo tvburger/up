@@ -103,7 +103,8 @@ public final class LocalServicesManager {
         while (iterator.hasNext()) {
             Service<?> service = iterator.next();
             try {
-                if (service.getManager().getState() == LifecycleManager.State.ACTIVE) {
+                LifecycleManager.State state = service.getManager().getState();
+                if (state != LifecycleManager.State.RETIRED && state != LifecycleManager.State.FAILED) {
                     return (Service<T>) service;
                 }
             } catch (AccessDeniedException cause) {

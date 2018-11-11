@@ -28,13 +28,18 @@ public class LifecycleManagerImpl implements LifecycleManager {
     }
 
     @Override
+    public synchronized void fail() {
+        state = State.FAILED;
+    }
+
+    @Override
     public synchronized State getState() {
         return state;
     }
 
     private synchronized void transitionState(State from, State to) throws LifecycleException {
         if (state != from) {
-            throw new LifecycleException(String.format("We should be in state %s but are in %s!", state, from));
+            throw new LifecycleException(String.format("We should be in state %s but are in %s!", from, state));
         }
         state = to;
     }

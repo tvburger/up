@@ -20,6 +20,8 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.Servlet;
 import java.util.*;
@@ -27,6 +29,8 @@ import java.util.*;
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
 // TODO: add logging
 public final class Jetty9TechnologyManager extends LifecycleManagerImpl implements EndpointTechnologyManager {
+
+    private static final Logger logger = LoggerFactory.getLogger(Jetty9TechnologyManager.class);
 
     private final Map<EnvironmentInfo, Set<Jsr340.Endpoint>> endpoints = new HashMap<>();
     private final Map<Jsr340.Endpoint.Info, Jsr340.Endpoint.Definition> endpointDefinitions = new HashMap<>();
@@ -183,12 +187,12 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws
-            DeployException, AccessDeniedException {
+    public synchronized void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException {
         try {
             if (environmentInfo == null || endpointDefinition == null) {
                 throw new IllegalArgumentException();
             }
+            logger.info("Deploying endpoint in: " + environmentInfo.getName());
             if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
                 throw new DeployException("Unsupported specification!");
             }
@@ -208,15 +212,17 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             infoEndpointMapping.put(info, endpoint);
             endpoints.computeIfAbsent(info.getEnvironmentInfo(), k -> new HashSet<>()).add(endpoint);
             endpoint.getManager().init();
-            endpoint.getManager().start();
-            restartIfNeeded();
-        } catch (LifecycleException cause) {
-            throw new DeployException(cause);
+            logger.info("Endpoint deployed: " + info);
+        } catch (LifecycleException | AccessDeniedException cause) {
+            String message = "Failed to deploy endpoint: " + cause.getMessage();
+            logger.error(message, cause);
+            throw new DeployException(message, cause);
         }
     }
 
     public synchronized void restartIfNeeded() throws LifecycleException {
         if (getState() == State.ACTIVE) {
+            logger.info("Restarting server!");
             doStop();
             doStart();
         }
@@ -232,12 +238,14 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     void destroy(Jsr340.Endpoint.Info info) throws LifecycleException {
         try {
+            logger.info("Removing endpoint: " + info);
             Jsr340.Endpoint endpoint = infoEndpointMapping.remove(info);
             endpoints.get(info.getEnvironmentInfo()).remove(endpoint);
             endpointDefinitions.remove(info);
             ServletHolder servletHolder = endpointHolderMapping.remove(endpoint);
             servletHolder.destroyInstance(servletHolder.getServletInstance());
         } catch (Exception cause) {
+            logger.error("Failed to remove endpoint: " + cause.getMessage(), cause);
             throw new LifecycleException("Exception while destroying servlet: " + cause.getMessage(), cause);
         }
     }

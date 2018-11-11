@@ -10,7 +10,8 @@ public interface LifecycleManager {
         NEW,
         READY,
         ACTIVE,
-        RETIRED
+        RETIRED,
+        FAILED
 
     }
 
@@ -21,6 +22,8 @@ public interface LifecycleManager {
     void stop() throws LifecycleException;
 
     void destroy() throws LifecycleException;
+
+    void fail();
 
     State getState();
 
