@@ -1,9 +1,8 @@
 package my.company.example.application;
 
 import my.company.example.logic.*;
-import net.tvburger.up.topology.EndpointDefinition;
-import net.tvburger.up.topology.UpApplicationTopology;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import net.tvburger.up.topology.UpApplicationTopology;
 
 public final class MyApplicationTopology extends UpApplicationTopology {
 
@@ -12,10 +11,15 @@ public final class MyApplicationTopology extends UpApplicationTopology {
                 .withServiceDefinition(DependencyService.class, DependencyServiceImpl.class)
                 .withServiceDefinition(ExampleService.class, ExampleServiceImpl.class, "Howdy,", DependencyService.class)
                 .withEndpointDefinition(
-                        new EndpointDefinition.Builder()
-                                .withEndpointTechnology(Jsr340.Specification.get())
-                                .withEndpointDefinition(ExampleServlet.class, ExampleService.class)
-                                .withSetting("mapping", "/hello/*")
+                        new Jsr340.Endpoint.Definition.Builder()
+                                .withServletInstance(ExampleServlet.class, ExampleService.class)
+                                .withMapping("/example/*")
+                                .build())
+                .withEndpointDefinition(
+                        new Jsr340.Endpoint.Definition.Builder()
+                                .withServletClass(HelloServlet.class)
+                                .withMapping("/hello")
+                                .withInitParameter("message", "Hello World!")
                                 .build())
                 .build());
     }

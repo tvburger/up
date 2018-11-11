@@ -26,7 +26,6 @@ import java.util.*;
 
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
 // TODO: add logging
-// TODO: add removal of servlet
 public final class Jetty9TechnologyManager extends LifecycleManagerImpl implements EndpointTechnologyManager {
 
     private final Map<EnvironmentInfo, Set<Jsr340.Endpoint>> endpoints = new HashMap<>();
@@ -113,12 +112,12 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             Object[] arguments = new ArrayList<>(definition.getArguments()).toArray();
             Servlet servlet = Services.instantiateService(environment, definition.getServletClass(), arguments);
             holder = new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet));
+            handler.addServlet(holder, definition.getMapping());
         } else {
             holder = handler.addServlet(definition.getServletClass(), definition.getMapping());
         }
         holder.getRegistration().setInitParameters(definition.getInitParameters());
         endpointHolderMapping.put(endpoint, holder);
-        handler.addServlet(holder, definition.getMapping());
     }
 
     private Environment getEnvironment(Jsr340.Endpoint endpoint) throws AccessDeniedException {

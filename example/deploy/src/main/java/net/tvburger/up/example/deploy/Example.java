@@ -1,7 +1,6 @@
 package net.tvburger.up.example.deploy;
 
 import my.company.example.application.MyApplicationTopology;
-import my.company.example.logic.DependencyService;
 import my.company.example.logic.ExampleService;
 import my.company.example.runtime.MyDevRuntimeTopology;
 import net.tvburger.up.Environment;
@@ -52,12 +51,7 @@ public final class Example {
         Environments.printEnvironment(environment);
 
         Service<ExampleService> service = environment.getService(ExampleService.class);
-        System.out.println("> " + service.getInterface().sayHelloTo("Tom"));
-
-        Service<DependencyService> depService = environment.getService(DependencyService.class);
-        depService.getManager().stop();
-
-        System.out.println("> " + service.getInterface().sayHelloTo("Tom"));
+        System.out.println(service.getInterface().sayHelloTo("Jordan"));
     }
 
     public void destroy() throws DeployException {
@@ -79,13 +73,6 @@ public final class Example {
         allowWebAccessFor60secs();
 
         example.destroy();
-    }
-
-    private static void allowWebAccessFor10secs() {
-        try {
-            Thread.sleep(10_000);
-        } catch (InterruptedException cause) {
-        }
     }
 
     private static void allowWebAccessFor60secs() {

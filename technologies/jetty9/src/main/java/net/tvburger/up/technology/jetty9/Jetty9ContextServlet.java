@@ -1,11 +1,12 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.Environment;
 import net.tvburger.up.Up;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
 import net.tvburger.up.context.UpContext;
-import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.impl.UpContextImpl;
+import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 
@@ -25,21 +26,26 @@ public final class Jetty9ContextServlet implements Servlet {
         this.servlet = servlet;
     }
 
-    private UpContext createContext(ServletRequest servletRequest) throws IOException {
+    private UpContext createContext(ServletRequest servletRequest) throws ServletException {
         try {
-            String[] parts = ((HttpServletRequest) servletRequest).getPathInfo().split("/");
-            if (parts.length < 2 || !parts[0].equals("")) {
-                throw new IOException("Invalid request!");
+            String contextPath = ((HttpServletRequest) servletRequest).getContextPath();
+            String[] parts = contextPath.split("/");
+            if (parts.length != 2 || !parts[0].equals("")) {
+                throw new ServletException("Invalid context path: " + contextPath);
             }
             String environmentName = parts[1];
+            if (!engine.getRuntime().hasEnvironment(environmentName)) {
+                throw new ServletException("Unknown environment: " + environmentName);
+            }
+            Environment environment = engine.getRuntime().getEnvironment(environmentName);
             UpContextImpl context = new UpContextImpl();
             context.setCallerInfo(CallerInfo.Factory.create());
             context.setLocality(Locality.Factory.create(engine));
             context.setIdentity(identity);
-            context.setEnvironment(engine.getRuntime().getEnvironment(environmentName));
+            context.setEnvironment(environment);
             return context;
         } catch (AccessDeniedException cause) {
-            throw new IOException(cause);
+            throw new ServletException("Access denied");
         }
     }
 

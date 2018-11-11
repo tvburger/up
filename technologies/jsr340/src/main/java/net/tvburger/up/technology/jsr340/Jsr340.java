@@ -9,10 +9,7 @@ import net.tvburger.up.topology.EndpointDefinition;
 import net.tvburger.up.topology.InstanceDefinition;
 
 import javax.servlet.Servlet;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public interface Jsr340 {
 
@@ -57,14 +54,23 @@ public interface Jsr340 {
                 return getInstanceDefinition().getArguments();
             }
 
-            final static class Builder {
+            public final static class Builder {
                 private Class<? extends Servlet> servletClass;
                 private String mapping;
                 private final Map<String, String> initParameters = new LinkedHashMap<>();
-                private final List<Object> arguments = new LinkedList<>();
+                private final ArrayList<Object> arguments = new ArrayList<>();
+
+                public Builder withServletInstance(Class<? extends Servlet> servletClass, Object... arguments) {
+                    this.servletClass = servletClass;
+                    if (arguments != null) {
+                        this.arguments.addAll(Arrays.asList(arguments));
+                    }
+                    return this;
+                }
 
                 public Builder withServletClass(Class<? extends Servlet> servletClass) {
                     this.servletClass = servletClass;
+                    arguments.clear();
                     return this;
                 }
 
@@ -78,18 +84,13 @@ public interface Jsr340 {
                     return this;
                 }
 
-                public Builder withArgument(Object argument) {
-                    arguments.add(argument);
-                    return this;
-                }
-
                 public Definition build() {
                     if (servletClass == null) {
                         throw new IllegalStateException();
                     }
                     EndpointDefinition.Builder builder = new EndpointDefinition.Builder()
                             .withEndpointTechnology(Specification.get())
-                            .withEndpointDefinition(InstanceDefinition.Factory.create(servletClass, arguments))
+                            .withEndpointDefinition(InstanceDefinition.Factory.create(servletClass, arguments.toArray()))
                             .withSetting("mapping", mapping == null ? "/*" : mapping);
                     Map<String, String> settings = new LinkedHashMap<>();
                     for (Map.Entry<String, String> entry : initParameters.entrySet()) {

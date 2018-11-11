@@ -14,6 +14,7 @@ public class ExampleServlet extends HttpServlet {
         this.exampleService = exampleService;
     }
 
+    @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         resp.getOutputStream().print(exampleService.sayHelloTo(req.getPathInfo()));
         resp.getOutputStream().flush();
