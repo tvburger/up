@@ -3,9 +3,11 @@ package net.tvburger.up;
 import net.tvburger.up.client.UpClientBuilder;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.context.UpContext;
+import net.tvburger.up.logger.UpLogger;
 import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.spi.UpClientBuilderFactory;
 import net.tvburger.up.spi.UpContextProvider;
+import net.tvburger.up.spi.UpLoggerProvider;
 import net.tvburger.up.util.UpClientBuilderFactoryLoader;
 
 import java.util.ServiceLoader;
@@ -15,6 +17,7 @@ public final class Up {
 
     private static final Set<UpClientBuilderFactory> clientBuilderFactories = UpClientBuilderFactoryLoader.load();
     private static final UpContextProvider contextProvider = ServiceLoader.load(UpContextProvider.class).iterator().next();
+    private static final UpLoggerProvider loggerProvider = ServiceLoader.load(UpLoggerProvider.class).iterator().next();
 
     /**
      * Creates a new ClientBuilder for the specified target.
@@ -48,6 +51,10 @@ public final class Up {
      */
     public static void setContext(UpContext context) {
         contextProvider.setContext(context);
+    }
+
+    public static UpLogger getLogger(String loggerName) {
+        return loggerProvider.getLogger(loggerName);
     }
 
 }

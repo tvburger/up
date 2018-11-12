@@ -1,9 +1,9 @@
 package org.slf4j.impl;
 
+import net.tvburger.up.Up;
 import net.tvburger.up.logger.LogLevel;
 import net.tvburger.up.logger.LogStatement;
 import net.tvburger.up.logger.UpLogger;
-import net.tvburger.up.spi.UpLoggerProvider;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.helpers.FormattingTuple;
 import org.slf4j.helpers.MarkerIgnoringBase;
@@ -12,18 +12,15 @@ import org.slf4j.helpers.MessageFormatter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ServiceLoader;
 
 // TODO: implement log levels, now only INFO and more is logged
 public final class UpLoggerAdapter extends MarkerIgnoringBase implements org.slf4j.Logger {
 
     public static class Factory implements ILoggerFactory {
 
-        private final UpLoggerProvider provider = ServiceLoader.load(UpLoggerProvider.class).iterator().next();
-
         @Override
         public org.slf4j.Logger getLogger(String name) {
-            return new UpLoggerAdapter(provider.getLogger(name));
+            return new UpLoggerAdapter(Up.getLogger(name));
         }
 
     }
