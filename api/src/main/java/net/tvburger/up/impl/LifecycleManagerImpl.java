@@ -27,8 +27,7 @@ public class LifecycleManagerImpl implements LifecycleManager {
         transitionState(State.READY, State.RETIRED);
     }
 
-    @Override
-    public synchronized void fail() {
+    protected synchronized void fail() {
         state = State.FAILED;
     }
 

@@ -25,6 +25,11 @@
             <artifactId>up-technology-jsr340</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>up-technology-jsr370</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

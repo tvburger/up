@@ -7,7 +7,7 @@ import net.tvburger.up.security.AccessDeniedException;
 
 public interface EndpointTechnologyManager<T> extends Implementation, LogManager, LifecycleManager, ManagedObject.Manager<EndpointTechnologyInfo<T>> {
 
-    void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException, AccessDeniedException;
+    T deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException, AccessDeniedException;
 
     Specification getEngineRequirement();
 

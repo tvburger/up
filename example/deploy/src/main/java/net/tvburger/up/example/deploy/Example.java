@@ -12,6 +12,7 @@ import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.runtime.DeployException;
 import net.tvburger.up.runtimes.local.LocalUpRuntimeFactory;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.technology.jersey2.Jersey2Implementation;
 import net.tvburger.up.technology.jetty9.Jetty9Implementation;
 import net.tvburger.up.topology.UpApplicationTopology;
 import net.tvburger.up.topology.UpRuntimeTopology;
@@ -43,7 +44,9 @@ public final class Example {
                     .build();
             environment = client.getEnvironment();
         } else {
-            environment = LocalUpRuntimeFactory.createEnvironment(Jetty9Implementation.get());
+            environment = LocalUpRuntimeFactory.createEnvironment(
+                    Jetty9Implementation.get(),
+                    Jersey2Implementation.get());
         }
         debugEnvironment();
     }

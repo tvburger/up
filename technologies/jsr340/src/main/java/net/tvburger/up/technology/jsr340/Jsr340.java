@@ -1,8 +1,6 @@
 package net.tvburger.up.technology.jsr340;
 
-import net.tvburger.up.EndpointInfo;
-import net.tvburger.up.EndpointManager;
-import net.tvburger.up.EnvironmentInfo;
+import net.tvburger.up.*;
 import net.tvburger.up.impl.EndpointTechnologyInfoImpl;
 import net.tvburger.up.impl.SpecificationImpl;
 import net.tvburger.up.topology.EndpointDefinition;
@@ -11,7 +9,7 @@ import net.tvburger.up.topology.InstanceDefinition;
 import javax.servlet.Servlet;
 import java.util.*;
 
-public interface Jsr340 {
+public interface Jsr340 extends EndpointTechnology<Jsr340.Endpoint> {
 
     interface Endpoint extends net.tvburger.up.Endpoint<Endpoint.Manager, Endpoint.Info> {
 
@@ -181,18 +179,21 @@ public interface Jsr340 {
 
     }
 
-    final class TechnologyInfo extends EndpointTechnologyInfoImpl<Endpoint> {
+    final class Info extends EndpointTechnologyInfoImpl<Endpoint> {
 
-        private static final TechnologyInfo info = new TechnologyInfo();
+        private static final Info info = new Info();
 
-        public static TechnologyInfo get() {
+        public static Info get() {
             return info;
         }
 
-        private TechnologyInfo() {
+        private Info() {
             super(Endpoint.class, Specification.get());
         }
 
+    }
+
+    interface Manager extends EndpointTechnologyManager<Endpoint> {
     }
 
 }

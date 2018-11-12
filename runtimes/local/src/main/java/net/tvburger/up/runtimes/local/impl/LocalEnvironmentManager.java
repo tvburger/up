@@ -190,7 +190,7 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     public void deploy(EndpointDefinition endpointDefinition) throws DeployException {
         try {
             logger.info("Deploying endpoint: " + endpointDefinition.getEndpointTechnology());
-            EndpointTechnologyInfo<?> info = getEndpointReference(endpointDefinition.getEndpointTechnology());
+            EndpointTechnologyInfo<?> info = getEndpointTechnologyInfo(endpointDefinition.getEndpointTechnology());
             engine.getEndpointTechnology(info).getManager().deploy(getInfo(), endpointDefinition);
             logger.info("Deployed endpoint: " + info);
         } catch (AccessDeniedException | DeployException cause) {
@@ -201,14 +201,14 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     }
 
 
-    private EndpointTechnologyInfo<?> getEndpointReference(Specification endpointReference) throws DeployException, AccessDeniedException {
+    private EndpointTechnologyInfo<?> getEndpointTechnologyInfo(Specification endpointReference) throws DeployException, AccessDeniedException {
         for (EndpointTechnologyInfo<?> info : engine.getEndpointTechnologies()) {
             if (info.getSpecificationName().equals(endpointReference.getSpecificationName())
                     && info.getSpecificationVersion().equals(endpointReference.getSpecificationVersion())) {
                 return info;
             }
         }
-        throw new DeployException("No such endpoint: " + endpointReference);
+        throw new DeployException("No such endpoin technology: " + endpointReference);
     }
 
 }

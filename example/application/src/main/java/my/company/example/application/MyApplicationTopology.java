@@ -2,6 +2,7 @@ package my.company.example.application;
 
 import my.company.example.logic.*;
 import net.tvburger.up.technology.jsr340.Jsr340;
+import net.tvburger.up.technology.jsr370.Jsr370;
 import net.tvburger.up.topology.UpApplicationTopology;
 
 public final class MyApplicationTopology extends UpApplicationTopology {
@@ -21,6 +22,8 @@ public final class MyApplicationTopology extends UpApplicationTopology {
                                 .withMapping("/hello")
                                 .withInitParameter("message", "Hello World!")
                                 .build())
+                .withEndpointDefinition(
+                        Jsr370.Endpoint.Definition.Factory.create(HelloApplication.class))
                 .build());
     }
 

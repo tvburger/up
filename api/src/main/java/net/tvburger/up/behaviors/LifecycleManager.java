@@ -23,8 +23,6 @@ public interface LifecycleManager {
 
     void destroy() throws LifecycleException;
 
-    void fail();
-
     State getState();
 
 }

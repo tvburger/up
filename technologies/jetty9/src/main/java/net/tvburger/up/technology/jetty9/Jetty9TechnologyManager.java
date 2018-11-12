@@ -1,7 +1,5 @@
 package net.tvburger.up.technology.jetty9;
 
-import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.EndpointTechnologyManager;
 import net.tvburger.up.Environment;
 import net.tvburger.up.EnvironmentInfo;
 import net.tvburger.up.behaviors.LifecycleException;
@@ -24,11 +22,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.Servlet;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.*;
 
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
 // TODO: add logging
-public final class Jetty9TechnologyManager extends LifecycleManagerImpl implements EndpointTechnologyManager {
+public final class Jetty9TechnologyManager extends LifecycleManagerImpl implements Jsr340.Manager {
 
     private static final Logger logger = LoggerFactory.getLogger(Jetty9TechnologyManager.class);
 
@@ -60,14 +60,21 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     @Override
     public synchronized void init() throws LifecycleException {
-        super.init();
-        server = new Server();
-        http = new ServerConnector(server);
-        http.setHost("localhost");
-        http.setPort(0);
-        http.setIdleTimeout(30_000);
-        server.addConnector(http);
-        server.setStopAtShutdown(true);
+        try {
+            super.init();
+            server = new Server();
+            http = new ServerConnector(server);
+            http.setHost(InetAddress.getLocalHost().getHostName());
+            http.setPort(0);
+            http.setIdleTimeout(30_000);
+            server.addConnector(http);
+            server.setStopAtShutdown(true);
+        } catch (UnknownHostException cause) {
+            String message = "Failed to initialize endpoint technology: " + cause.getMessage();
+            logger.error(message, cause);
+            fail();
+            throw new LifecycleException(message, cause);
+        }
     }
 
     @Override
@@ -150,8 +157,8 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
     }
 
     @Override
-    public EndpointTechnologyInfo<Jsr340.Endpoint> getInfo() {
-        return Jsr340.TechnologyInfo.get();
+    public Jsr340.Info getInfo() {
+        return Jsr340.Info.get();
     }
 
     @Override
@@ -187,7 +194,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized void deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException {
+    public synchronized Jsr340.Endpoint deploy(EnvironmentInfo environmentInfo, EndpointDefinition endpointDefinition) throws DeployException {
         try {
             if (environmentInfo == null || endpointDefinition == null) {
                 throw new IllegalArgumentException();
@@ -213,6 +220,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             endpoints.computeIfAbsent(info.getEnvironmentInfo(), k -> new HashSet<>()).add(endpoint);
             endpoint.getManager().init();
             logger.info("Endpoint deployed: " + info);
+            return endpoint;
         } catch (LifecycleException | AccessDeniedException cause) {
             String message = "Failed to deploy endpoint: " + cause.getMessage();
             logger.error(message, cause);

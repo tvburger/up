@@ -25,20 +25,15 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>up-technology-jsr340</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet</artifactId>
+            <artifactId>jersey-container-grizzly2-http</artifactId>
             <version>${jersey.version}</version>
         </dependency>
-        <!--<dependency>-->
-        <!--<groupId>org.glassfish.jersey.core</groupId>-->
-        <!--<artifactId>jersey-server</artifactId>-->
-        <!--<version>${jersey.version}</version>-->
-        <!--</dependency>-->
+        <dependency>
+            <groupId>org.glassfish.jersey.inject</groupId>
+            <artifactId>jersey-hk2</artifactId>
+            <version>${jersey.version}</version>
+        </dependency>
     </dependencies>
 
 </project>

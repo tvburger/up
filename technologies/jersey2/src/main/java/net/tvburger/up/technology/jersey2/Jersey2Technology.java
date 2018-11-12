@@ -30,7 +30,7 @@ public final class Jersey2Technology implements EndpointTechnology<Jsr370.Endpoi
 
     @Override
     public Set<Jsr370.Endpoint> getEndpoints(EnvironmentInfo environmentInfo) throws AccessDeniedException {
-        return Collections.emptySet();
+        return technologyManager.getServices(environmentInfo);
     }
 
 }
