@@ -2,6 +2,7 @@ package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.Environment;
 import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.impl.*;
 import net.tvburger.up.runtime.*;
 import net.tvburger.up.security.AccessDeniedException;
@@ -24,10 +25,10 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
 
     public static final class Factory {
 
-        public static LocalUpRuntimeManager create(UpEngineDefinition engineDefinition) {
+        public static LocalUpRuntimeManager create(UpEngineDefinition engineDefinition, UpClientTarget target) {
             Identity identity = Identities.ANONYMOUS;
             UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, SpecificationImpl.Factory.create("Up", "0.1.0"));
-            LocalUpRuntimeManager manager = new LocalUpRuntimeManager(info, identity, engineDefinition);
+            LocalUpRuntimeManager manager = new LocalUpRuntimeManager(info, identity, engineDefinition, target);
             return manager;
         }
 
@@ -39,14 +40,16 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
     private final UpRuntimeInfo info;
     private final Identity identity;
     private final UpEngineDefinition engineDefinition;
+    private final UpClientTarget target;
     private final Map<String, Environment> environments = new ConcurrentHashMap<>();
     private UpRuntime runtime;
     private UpEngineManagerImpl engineManager;
 
-    private LocalUpRuntimeManager(UpRuntimeInfo info, Identity identity, UpEngineDefinition engineDefinition) {
+    private LocalUpRuntimeManager(UpRuntimeInfo info, Identity identity, UpEngineDefinition engineDefinition, UpClientTarget target) {
         this.info = info;
         this.identity = identity;
         this.engineDefinition = engineDefinition;
+        this.target = target;
     }
 
     public UpRuntime getRuntime() {
@@ -87,7 +90,7 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
         try {
             logger.info("Intializing...");
             Set<UpEngine> engines = new HashSet<>();
-            runtime = UpRuntimeImpl.Factory.create(this, engines, environments);
+            runtime = UpRuntimeImpl.Factory.create(this, engines, environments, target);
             engineManager = UpEngineManagerImpl.Factory.create(new LocalUpEngineInfo(identity), engineDefinition, identity, runtime);
             engineManager.setEngine(new UpEngineImpl(engineManager));
             engines.add(engineManager.getEngine());

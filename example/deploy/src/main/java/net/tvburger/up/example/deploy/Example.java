@@ -3,10 +3,8 @@ package net.tvburger.up.example.deploy;
 import my.company.example.application.MyApplicationTopology;
 import my.company.example.logic.ExampleService;
 import my.company.example.runtime.MyDevRuntimeTopology;
-import net.tvburger.up.Environment;
-import net.tvburger.up.Service;
-import net.tvburger.up.Up;
-import net.tvburger.up.UpException;
+import net.tvburger.up.*;
+import net.tvburger.up.applications.admin.AdminApplicationTopology;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.runtime.DeployException;
@@ -25,7 +23,7 @@ public final class Example {
     private UpRuntimeTopology runtimeTopology;
     private UpClientTarget target;
     private Environment environment;
-    private boolean debug = true;
+    private boolean debug = false;
 
     public Example(UpApplicationTopology applicationTopology) {
         this.applicationTopology = applicationTopology;
@@ -60,6 +58,17 @@ public final class Example {
         }
     }
 
+    private void adminApplication() throws UpException {
+        UpClient adminClient = Up.createClientBuilder(environment.getRuntime().getClientTarget())
+                .withEnvironment("admin")
+                .withIdentity(Identities.ANONYMOUS)
+                .build();
+        EnvironmentManager manager = adminClient.getEnvironment().getManager();
+        manager.deploy(new AdminApplicationTopology());
+        manager.start();
+        printEnvironment(adminClient.getEnvironment());
+    }
+
     public void deploy() throws UpException {
         environment.getManager().deploy(applicationTopology);
         debugEnvironment();
@@ -91,14 +100,20 @@ public final class Example {
     }
 
     public void printEnvironment() throws UpException {
+        printEnvironment(environment);
+    }
+
+    private void printEnvironment(Environment environment) throws UpException {
         Environments.printEnvironment(environment);
     }
 
     public static void main(String[] args) throws UpException {
         Example example = new Example(new MyApplicationTopology());
         example.setRuntimeTopology(new MyDevRuntimeTopology()); // this is optional
-
         example.init();
+
+        example.adminApplication();
+
         example.deploy();
         example.start();
 

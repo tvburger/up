@@ -26,6 +26,7 @@
         <module>technologies/jetty9</module>
         <module>technologies/jersey2</module>
         <module>runtimes/local</module>
+        <module>applications/admin</module>
         <module>example/logic</module>
         <module>example/application</module>
         <module>example/runtime</module>

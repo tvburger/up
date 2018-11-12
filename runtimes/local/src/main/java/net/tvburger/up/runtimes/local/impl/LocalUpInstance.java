@@ -17,7 +17,7 @@ public final class LocalUpInstance {
         if (runtimeDefinition.getEngineDefinitions().size() != 1) {
             throw new DeployException("Must contain exactly 1 engine definition!");
         }
-        runtimeManager = LocalUpRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next());
+        runtimeManager = LocalUpRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next(), new LocalUpClientTarget(this));
         runtimeManager.init();
     }
 

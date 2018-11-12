@@ -1,6 +1,7 @@
 package net.tvburger.up.impl;
 
 import net.tvburger.up.Environment;
+import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.UpRuntimeInfo;
@@ -16,11 +17,12 @@ public class UpRuntimeImpl implements UpRuntime {
 
     public static final class Factory {
 
-        public static UpRuntimeImpl create(UpRuntimeManager manager, Set<UpEngine> engines, Map<String, Environment> environments) {
+        public static UpRuntimeImpl create(UpRuntimeManager manager, Set<UpEngine> engines, Map<String, Environment> environments, UpClientTarget target) {
             Objects.requireNonNull(manager);
             Objects.requireNonNull(engines);
             Objects.requireNonNull(environments);
-            return new UpRuntimeImpl(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments));
+            Objects.requireNonNull(target);
+            return new UpRuntimeImpl(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments), target);
         }
 
         private Factory() {
@@ -31,11 +33,13 @@ public class UpRuntimeImpl implements UpRuntime {
     private final UpRuntimeManager manager;
     private final Set<UpEngine> engines;
     private final Map<String, Environment> environments;
+    private final UpClientTarget target;
 
-    protected UpRuntimeImpl(UpRuntimeManager manager, Set<UpEngine> engines, Map<String, Environment> environments) {
+    protected UpRuntimeImpl(UpRuntimeManager manager, Set<UpEngine> engines, Map<String, Environment> environments, UpClientTarget target) {
         this.manager = manager;
         this.engines = engines;
         this.environments = environments;
+        this.target = target;
     }
 
     @Override
@@ -66,6 +70,11 @@ public class UpRuntimeImpl implements UpRuntime {
     }
 
     @Override
+    public Set<String> getEnvironments() {
+        return environments.keySet();
+    }
+
+    @Override
     public Identification getIdentification() {
         return manager.getInfo().getIdentification();
     }
@@ -73,6 +82,11 @@ public class UpRuntimeImpl implements UpRuntime {
     @Override
     public String toString() {
         return String.format("UpEngine{%s}", getInfo());
+    }
+
+    @Override
+    public UpClientTarget getClientTarget() {
+        return target;
     }
 
 }

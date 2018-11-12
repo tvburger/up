@@ -2,6 +2,7 @@ package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.Up;
 import net.tvburger.up.client.UpClient;
+import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
 import net.tvburger.up.context.UpContext;
@@ -43,7 +44,10 @@ public final class LocalClientProxy<T> implements InvocationHandler {
         }
 
         private static Class<?> getInterfaceType(Object instance) {
-            if (instance.getClass().isPrimitive() || instance.getClass().getName().startsWith("java.") || instance.getClass().getName().startsWith("javax.")) {
+            if (instance.getClass().isPrimitive()
+                    || instance.getClass().getName().startsWith("java.")
+                    || instance.getClass().getName().startsWith("javax.")
+                    || instance instanceof UpClientTarget) {
                 return null;
             }
             for (Class<?> interfaze : instance.getClass().getInterfaces()) {
