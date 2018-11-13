@@ -15,6 +15,21 @@ public interface Jsr340 extends EndpointTechnology<Jsr340.Endpoint> {
 
         final class Definition extends EndpointDefinition {
 
+            public static final class Factory {
+
+                public static Definition createStatic(String mapping, String resourcePath) {
+                    return new Builder()
+                            .withMapping(mapping)
+                            .withServletClass(ResourcesServlet.class)
+                            .withInitParameter("resourcePath", resourcePath)
+                            .build();
+                }
+
+                private Factory() {
+                }
+
+            }
+
             public static Definition parse(EndpointDefinition endpointDefinition) throws IllegalArgumentException {
                 if (endpointDefinition instanceof Definition) {
                     return (Definition) endpointDefinition;
