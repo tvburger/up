@@ -1,6 +1,7 @@
 package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.Environment;
+import net.tvburger.up.EnvironmentManager;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.impl.*;
@@ -124,10 +125,10 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
         try {
             logger.info("Stopping...");
             for (Environment environment : environments.values()) {
-                System.out.println(environment.getInfo());
-                System.out.println(environment.getManager().getState());
-                environment.getManager().stop();
-                System.out.println(environment.getManager().getState());
+                EnvironmentManager manager = environment.getManager();
+                if (manager.getState() == State.ACTIVE) {
+                    environment.getManager().stop();
+                }
             }
             engineManager.stop();
             logger.info("Stopped");
@@ -141,10 +142,20 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
     public void destroy() throws LifecycleException {
         super.destroy();
         try {
+            logger.info("Destroying...");
             for (Environment environment : environments.values()) {
-                environment.getManager().destroy();
+                EnvironmentManager manager = environment.getManager();
+                switch (manager.getState()) {
+                    case ACTIVE:
+                        throw new LifecycleException("Environment is running: " + environment.getInfo().getName());
+                    case READY:
+                        manager.destroy();
+                    default:
+                        break;
+                }
             }
             engineManager.destroy();
+            logger.info("Destroyed");
         } catch (AccessDeniedException cause) {
             logger.error("Failed to destroy: " + cause.getMessage(), cause);
             throw new LifecycleException(cause);

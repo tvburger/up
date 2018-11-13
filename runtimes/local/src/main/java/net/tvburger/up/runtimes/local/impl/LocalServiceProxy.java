@@ -58,6 +58,7 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
 
     private UpContext createContext(UpContext callerContext) {
         UpContextImpl context = new UpContextImpl();
+        context.setTransactionInfo(callerContext.getTransactionInfo());
         context.setCallerInfo(CallerInfo.Factory.create(callerContext));
         context.setServiceInfo(service.getInfo());
         context.setIdentity(serviceIdentity);

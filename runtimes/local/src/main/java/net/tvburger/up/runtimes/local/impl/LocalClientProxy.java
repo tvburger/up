@@ -5,6 +5,7 @@ import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
+import net.tvburger.up.context.TransactionInfo;
 import net.tvburger.up.context.UpContext;
 import net.tvburger.up.impl.UpContextImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -13,6 +14,7 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
+import java.net.URI;
 import java.util.Objects;
 
 /**
@@ -75,7 +77,7 @@ public final class LocalClientProxy<T> implements InvocationHandler {
     public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
         UpContext context = Up.getContext();
         try {
-            Up.setContext(createContext());
+            Up.setContext(createContext(method));
             Object object = method.invoke(instance, args);
             return object != null && !object.getClass().isPrimitive()
                     ? Factory.create(target, callerInfo, object)
@@ -87,14 +89,21 @@ public final class LocalClientProxy<T> implements InvocationHandler {
         }
     }
 
-    private UpContext createContext() throws AccessDeniedException {
+    private UpContext createContext(Method method) throws AccessDeniedException {
         LocalUpInstance instance = target.getInstance();
         UpContextImpl context = new UpContextImpl();
+        context.setTransactionInfo(createTransactionInfo(method));
         context.setCallerInfo(callerInfo);
         context.setIdentity(instance.getEngineIdentity());
         context.setEnvironment(instance.getRuntime().getEnvironment(callerInfo.getClientInfo().getEnvironmentInfo().getName()));
         context.setLocality(Locality.Factory.create(instance.getEngine()));
         return context;
+    }
+
+    private TransactionInfo createTransactionInfo(Method method) {
+        return TransactionInfo.Factory.create(
+                callerInfo.getClientInfo().getIdentification().getPrincipal(),
+                URI.create("client:" + method.getName()));
     }
 
 }

@@ -7,6 +7,13 @@ import net.tvburger.up.security.Identity;
 public interface UpContext {
 
     /**
+     * Returns the information of the transaction, if any
+     *
+     * @return
+     */
+    TransactionInfo getTransactionInfo();
+
+    /**
      * Returns the information of the caller, if any
      *
      * @return

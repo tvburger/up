@@ -122,7 +122,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             Environment environment = getEnvironment(endpoint);
             Object[] arguments = new ArrayList<>(definition.getArguments()).toArray();
             Servlet servlet = Services.instantiateService(environment, definition.getServletClass(), arguments);
-            holder = new ServletHolder(new Jetty9ContextServlet(engine, identity, servlet));
+            holder = new ServletHolder(new Jetty9ContextServlet(engine, identity, endpoint.getInfo(), servlet));
             handler.addServlet(holder, definition.getMapping());
         } else {
             holder = handler.addServlet(definition.getServletClass(), definition.getMapping());

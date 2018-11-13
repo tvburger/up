@@ -5,16 +5,27 @@ import net.tvburger.up.ServiceInfo;
 import net.tvburger.up.behaviors.MutableComposition;
 import net.tvburger.up.context.CallerInfo;
 import net.tvburger.up.context.Locality;
+import net.tvburger.up.context.TransactionInfo;
 import net.tvburger.up.context.UpContext;
 import net.tvburger.up.security.Identity;
 
 public class UpContextImpl implements UpContext, MutableComposition {
 
+    private TransactionInfo transactionInfo;
     private CallerInfo callerInfo;
     private ServiceInfo<?> serviceInfo;
     private Identity identity;
     private Environment environment;
     private Locality locality;
+
+    @Override
+    public TransactionInfo getTransactionInfo() {
+        return transactionInfo;
+    }
+
+    public void setTransactionInfo(TransactionInfo transactionInfo) {
+        this.transactionInfo = transactionInfo;
+    }
 
     @Override
     public CallerInfo getCallerInfo() {

@@ -1,9 +1,7 @@
 package net.tvburger.up.applications.admin;
 
-import net.tvburger.up.Endpoint;
-import net.tvburger.up.Environment;
-import net.tvburger.up.Service;
-import net.tvburger.up.UpException;
+import net.tvburger.up.*;
+import net.tvburger.up.context.UpContext;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.util.Environments;
@@ -75,6 +73,16 @@ public final class RuntimeResource {
         result.put("name", name);
         result.put("services", services);
         result.put("endpoints", endpoints);
+        return result;
+    }
+
+    @GET
+    @Path("/context")
+    public Map<String, Object> getContext() {
+        UpContext context = Up.getContext();
+        Map<String, Object> result = new LinkedHashMap<>();
+        result.put("transaction", context.getTransactionInfo());
+        result.put("caller", context.getCallerInfo());
         return result;
     }
 
