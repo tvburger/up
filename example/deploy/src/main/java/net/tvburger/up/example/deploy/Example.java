@@ -23,7 +23,6 @@ public final class Example {
     private UpRuntimeTopology runtimeTopology;
     private UpClientTarget target;
     private Environment environment;
-    private boolean debug = false;
 
     public Example(UpApplicationTopology applicationTopology) {
         this.applicationTopology = applicationTopology;
@@ -46,16 +45,6 @@ public final class Example {
                     Jetty9Implementation.get(),
                     Jersey2Implementation.get());
         }
-        debugEnvironment();
-    }
-
-    private void debugEnvironment() {
-        try {
-            if (debug) {
-                printEnvironment();
-            }
-        } catch (UpException cause) {
-        }
     }
 
     private void adminApplication() throws UpException {
@@ -66,17 +55,14 @@ public final class Example {
         EnvironmentManager manager = adminClient.getEnvironment().getManager();
         manager.deploy(new AdminApplicationTopology());
         manager.start();
-        printEnvironment(adminClient.getEnvironment());
     }
 
     public void deploy() throws UpException {
         environment.getManager().deploy(applicationTopology);
-        debugEnvironment();
     }
 
     public void start() throws UpException {
         environment.getManager().start();
-        debugEnvironment();
     }
 
     public void sayHi() throws UpException {
@@ -86,7 +72,6 @@ public final class Example {
 
     public void stop() throws UpException {
         environment.getManager().stop();
-        debugEnvironment();
     }
 
     public void destroy() throws UpException {
@@ -96,15 +81,20 @@ public final class Example {
         } else {
             LocalUpRuntimeFactory.destroyEnvironment(environment);
         }
-        debugEnvironment();
     }
 
     public void printEnvironment() throws UpException {
         printEnvironment(environment);
     }
 
+    public void printAdmin() throws UpException {
+        printEnvironment(environment.getRuntime().getEnvironment("admin"));
+    }
+
     private void printEnvironment(Environment environment) throws UpException {
+        System.out.println("_________ Environment: " + environment.getInfo().getName() + " ___________________");
         Environments.printEnvironment(environment);
+        System.out.println("---------------------------------------------");
     }
 
     public static void main(String[] args) throws UpException {
@@ -118,6 +108,8 @@ public final class Example {
         example.start();
 
         example.sayHi();
+        example.printEnvironment();
+        example.printAdmin();
 
         allowWebAccessFor60secs();
 
