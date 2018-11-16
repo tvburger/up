@@ -27,6 +27,7 @@
         <module>log-bindings</module>
 
         <module>loggers/console</module>
+        <module>loggers/elastic</module>
 
         <module>technologies/jsr340</module>
         <module>technologies/jsr370</module>
@@ -34,11 +35,13 @@
         <module>technologies/jersey2</module>
 
         <module>runtimes/local</module>
-
-        <module>clients/javascript</module>
+        <module>runtimes/distributed</module>
 
         <module>applications/admin</module>
-        <module>applications/client</module>
+        <module>applications/api</module>
+
+        <module>clients/java</module>
+        <module>clients/javascript</module>
 
         <module>example/logic</module>
         <module>example/application</module>

@@ -15,26 +15,31 @@
     <artifactId>up-example-deploy</artifactId>
 
     <dependencies>
+        <!-- Depend on our example application -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>up-example-application</artifactId>
             <version>${project.version}</version>
         </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>up-application-client</artifactId>
-            <version>${project.version}</version>
-        </dependency>
+        <!-- Depend on the admin application -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>up-application-admin</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Depend on the api application -->
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>up-application-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <!-- Depend on our example runtime definition -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>up-example-runtime</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <!-- Use the local runtime implementation to execute -->
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>up-runtime-local</artifactId>

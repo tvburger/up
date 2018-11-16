@@ -15,9 +15,8 @@ import java.net.URI;
 import java.util.Set;
 
 @Path("/")
-public final class ClientResource {
+public final class ApiResource {
 
-    @Path("/")
     @GET
     public Response get() {
         return Response.seeOther(URI.create("client/index.html")).build();

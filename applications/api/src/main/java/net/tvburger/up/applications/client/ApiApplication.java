@@ -6,10 +6,10 @@ import java.util.Collections;
 import java.util.Set;
 
 @ApplicationPath("/javascript")
-public final class ClientApplication extends Application {
+public final class ApiApplication extends Application {
 
     public Set<Class<?>> getClasses() {
-        return Collections.singleton(ClientResource.class);
+        return Collections.singleton(ApiResource.class);
     }
 
 }

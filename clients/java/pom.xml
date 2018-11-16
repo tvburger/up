@@ -11,18 +11,13 @@
 
     <packaging>jar</packaging>
 
-    <name>UP :: Runtimes :: Remote</name>
-    <artifactId>up-runtime-remote</artifactId>
+    <name>UP :: Clients :: Java</name>
+    <artifactId>up-client-java</artifactId>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-api</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>up-logger-console</artifactId>
+            <artifactId>up-client-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>
