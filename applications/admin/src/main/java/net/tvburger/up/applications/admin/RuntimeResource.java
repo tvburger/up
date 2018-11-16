@@ -1,11 +1,10 @@
 package net.tvburger.up.applications.admin;
 
-import net.tvburger.up.*;
-import net.tvburger.up.context.UpContext;
+import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpException;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
-import net.tvburger.up.util.Environments;
-import net.tvburger.up.util.UpRuntimes;
+import net.tvburger.up.runtime.context.UpContext;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
@@ -28,17 +27,17 @@ public final class RuntimeResource {
     @GET
     public Map<String, Object> get() throws UpException {
         List<Object> environments = new LinkedList<>();
-        for (String environmentName : runtime.getEnvironments()) {
+        for (String environmentName : runtime.listEnvironments()) {
             environments.add(environmentName);
         }
         Map<Object, String> engines = new LinkedHashMap<>();
-        for (UpEngine engine : runtime.getEngines()) {
-            engines.put(engine.getInfo().getUuid(), engine.getInfo().getSpecificationName());
+        for (UpEngine.Info engineInfo : runtime.listEngines()) {
+            engines.put(engineInfo.getUuid(), engineInfo.getSpecificationName());
         }
         Map<String, Object> result = new HashMap<>();
         result.put("info", runtime.getInfo());
         result.put("environments", environments);
-        result.put("technologies", UpRuntimes.getEndpointSpecifications(runtime));
+        result.put("technologies", runtime.listEndpointTechnologies());
         result.put("engines", engines);
         return result;
     }
@@ -47,11 +46,11 @@ public final class RuntimeResource {
     @Path("/endpoints")
     public Map<String, Object> getEndpoints() throws UpException {
         Map<String, Object> endpoints = new LinkedHashMap<>();
-        for (String environmentName : runtime.getEnvironments()) {
+        for (String environmentName : runtime.listEnvironments()) {
             Map<Object, Object> managers = new LinkedHashMap<>();
-            for (Endpoint<?, ?> endpoint : Environments.getEndpoints(runtime.getEnvironment(environmentName))) {
-                managers.put(endpoint.getInfo().toString(), endpoint.getManager().getState());
-            }
+//            for (UpEndpoint<?, ?> endpoint : Environments.getEndpoints(runtime.getEnvironment(environmentName))) {
+//                managers.put(endpoint.getInfo().toString(), endpoint.getManager().getState());
+//            }
             endpoints.put(environmentName, managers);
         }
         return endpoints;
@@ -60,26 +59,26 @@ public final class RuntimeResource {
     @GET
     @Path("/environment/{name}")
     public Map<String, Object> getEnvironment(@PathParam("name") String name) throws UpException {
-        Environment environment = runtime.getEnvironment(name);
+        UpEnvironment environment = runtime.getEnvironment(name);
         Map<Object, Object> services = new LinkedHashMap<>();
-        for (Service<?> service : environment.getServices()) {
-            services.put(service.getInfo().toString(), service.getManager().getState());
-        }
-        Map<Object, Object> endpoints = new LinkedHashMap<>();
-        for (Endpoint<?, ?> endpoint : Environments.getEndpoints(environment)) {
-            endpoints.put(endpoint.getInfo().toString(), endpoint.getManager().getState());
-        }
+//        for (UpService<?> service : environment.getServices()) {
+//            services.put(service.getInfo().toString(), service.getManager().getState());
+//        }
+//        Map<Object, Object> endpoints = new LinkedHashMap<>();
+//        for (UpEndpoint<?, ?> endpoint : Environments.getEndpoints(environment)) {
+//            endpoints.put(endpoint.getInfo().toString(), endpoint.getManager().getState());
+//        }
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("name", name);
         result.put("services", services);
-        result.put("endpoints", endpoints);
+//        result.put("endpoints", endpoints);
         return result;
     }
 
     @GET
     @Path("/context")
     public Map<String, Object> getContext() {
-        UpContext context = Up.getContext();
+        UpContext context = UpContext.getContext();
         Map<String, Object> result = new LinkedHashMap<>();
         result.put("transaction", context.getTransactionInfo());
         result.put("caller", context.getCallerInfo());

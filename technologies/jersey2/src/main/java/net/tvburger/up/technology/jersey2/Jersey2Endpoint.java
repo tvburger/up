@@ -1,8 +1,9 @@
 package net.tvburger.up.technology.jersey2;
 
 import net.tvburger.up.behaviors.LifecycleException;
-import net.tvburger.up.impl.LifecycleManagerImpl;
+import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identification;
 import net.tvburger.up.technology.jsr370.Jsr370;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,7 +16,7 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
 
         public static Jersey2Endpoint create(Jsr370.Endpoint.Info endpointInfo, Jersey2TechnologyManager technologyManager) {
             logger.info("Creating new endpoint: " + endpointInfo);
-            return new Jersey2Endpoint(new Manager(endpointInfo, technologyManager));
+            return new Jersey2Endpoint(new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
         }
 
         private Factory() {
@@ -73,9 +74,11 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
     }
 
     private final Manager manager;
+    private final Identification identification;
 
-    public Jersey2Endpoint(Manager manager) {
+    public Jersey2Endpoint(Manager manager, Identification identification) {
         this.manager = manager;
+        this.identification = identification;
     }
 
     @Override
@@ -86,6 +89,11 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
     @Override
     public Jsr370.Endpoint.Info getInfo() {
         return manager.getInfo();
+    }
+
+    @Override
+    public Identification getIdentification() {
+        return identification;
     }
 
 }

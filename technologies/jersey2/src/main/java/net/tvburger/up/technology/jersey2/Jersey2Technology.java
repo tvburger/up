@@ -1,16 +1,15 @@
 package net.tvburger.up.technology.jersey2;
 
-import net.tvburger.up.EndpointTechnology;
-import net.tvburger.up.EndpointTechnologyInfo;
-import net.tvburger.up.EndpointTechnologyManager;
-import net.tvburger.up.EnvironmentInfo;
+import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jsr370.Jsr370;
+import net.tvburger.up.util.Java8Specification;
 
-import java.util.Collections;
 import java.util.Set;
 
-public final class Jersey2Technology implements EndpointTechnology<Jsr370.Endpoint> {
+public final class Jersey2Technology implements UpEndpointTechnology<Jsr370.Endpoint, Jsr370.Endpoint.Info> {
 
     private final Jersey2TechnologyManager technologyManager;
 
@@ -19,18 +18,28 @@ public final class Jersey2Technology implements EndpointTechnology<Jsr370.Endpoi
     }
 
     @Override
-    public EndpointTechnologyManager<Jsr370.Endpoint> getManager() {
+    public Jersey2TechnologyManager getManager() {
         return technologyManager;
     }
 
     @Override
-    public EndpointTechnologyInfo<Jsr370.Endpoint> getInfo() {
+    public Info getInfo() {
         return technologyManager.getInfo();
     }
 
     @Override
-    public Set<Jsr370.Endpoint> getEndpoints(EnvironmentInfo environmentInfo) throws AccessDeniedException {
-        return technologyManager.getServices(environmentInfo);
+    public net.tvburger.up.behaviors.Specification getEngineRequirement() {
+        return Java8Specification.get();
+    }
+
+    @Override
+    public Set<Jsr370.Endpoint.Info> listEndpoints(UpEnvironment.Info environmentInfo) {
+        return technologyManager.listServices(environmentInfo);
+    }
+
+    @Override
+    public UpEndpoint.Manager<Jsr370.Endpoint.Info> getEndpointManager(Jsr370.Endpoint.Info endpointInfo) throws AccessDeniedException {
+        return technologyManager.getEndpointManager(endpointInfo);
     }
 
 }

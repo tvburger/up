@@ -1,6 +1,6 @@
 package net.tvburger.up.technology.jersey2;
 
-import net.tvburger.up.impl.ImplementationImpl;
+import net.tvburger.up.behaviors.impl.ImplementationImpl;
 import net.tvburger.up.technology.jsr370.Jsr370;
 
 public final class Jersey2Implementation extends ImplementationImpl {

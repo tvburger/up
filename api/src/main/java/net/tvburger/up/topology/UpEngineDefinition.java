@@ -1,8 +1,8 @@
 package net.tvburger.up.topology;
 
 import net.tvburger.up.behaviors.Implementation;
-import net.tvburger.up.impl.ImplementationImpl;
-import net.tvburger.up.impl.SpecificationImpl;
+import net.tvburger.up.behaviors.impl.ImplementationImpl;
+import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;

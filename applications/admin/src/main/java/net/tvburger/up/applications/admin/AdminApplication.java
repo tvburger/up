@@ -1,7 +1,6 @@
 package net.tvburger.up.applications.admin;
 
-import net.tvburger.up.Up;
-import net.tvburger.up.UpException;
+import net.tvburger.up.runtime.context.UpContext;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -13,11 +12,7 @@ public final class AdminApplication extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        try {
-            return Collections.singleton(new RuntimeResource(Up.getContext().getEnvironment().getRuntime()));
-        } catch (UpException cause) {
-            throw new ExceptionInInitializerError(cause);
-        }
+        return Collections.singleton(new RuntimeResource(UpContext.getContext().getRuntime()));
     }
 
 }

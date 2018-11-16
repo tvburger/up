@@ -1,6 +1,6 @@
 package net.tvburger.up.technology.jetty9;
 
-import net.tvburger.up.impl.ImplementationImpl;
+import net.tvburger.up.behaviors.impl.ImplementationImpl;
 import net.tvburger.up.technology.jsr340.Jsr340;
 
 public final class Jetty9Implementation extends ImplementationImpl {

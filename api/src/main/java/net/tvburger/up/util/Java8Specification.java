@@ -1,6 +1,6 @@
 package net.tvburger.up.util;
 
-import net.tvburger.up.impl.SpecificationImpl;
+import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
 public final class Java8Specification extends SpecificationImpl {
 

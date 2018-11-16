@@ -1,23 +1,27 @@
 package net.tvburger.up.technology.jsr370;
 
-import net.tvburger.up.*;
-import net.tvburger.up.impl.EndpointTechnologyInfoImpl;
-import net.tvburger.up.impl.SpecificationImpl;
-import net.tvburger.up.topology.EndpointDefinition;
+import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.behaviors.impl.SpecificationImpl;
+import net.tvburger.up.runtime.UpEndpointTechnology;
+import net.tvburger.up.runtime.impl.UpEndpointTechnologyInfoImpl;
+import net.tvburger.up.security.Identification;
 import net.tvburger.up.topology.InstanceDefinition;
+import net.tvburger.up.topology.UpEndpointDefinition;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import java.net.URI;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
+public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.Endpoint.Info> {
 
-    interface Endpoint extends net.tvburger.up.Endpoint<Endpoint.Manager, Endpoint.Info> {
+    interface Endpoint extends UpEndpoint<Endpoint.Manager, Endpoint.Info> {
 
-        class Definition extends EndpointDefinition {
+        class Definition extends UpEndpointDefinition {
 
             public static final class Factory {
 
@@ -45,7 +49,7 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
 
             }
 
-            public static Definition parse(EndpointDefinition endpointDefinition) throws IllegalArgumentException {
+            public static Definition parse(UpEndpointDefinition endpointDefinition) throws IllegalArgumentException {
                 if (endpointDefinition instanceof Definition) {
                     return (Definition) endpointDefinition;
                 }
@@ -73,22 +77,24 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
 
         }
 
-        interface Manager extends EndpointManager<Info> {
+        interface Manager extends UpEndpoint.Manager<Info> {
         }
 
-        final class Info implements EndpointInfo {
+        final class Info implements UpEndpoint.Info {
 
-            private final String url;
+            private final URI endpointUri;
+            private final Identification identification;
             private final Class<? extends Application> applicationClass;
             private final int port;
             private final String serverName;
             private final String contextPath;
             private final String mapping;
             private final String name;
-            private final EnvironmentInfo environmentInfo;
+            private final UpEnvironment.Info environmentInfo;
 
-            public Info(String url, Class<? extends Application> applicationClass, int port, String serverName, String contextPath, String mapping, String name, EnvironmentInfo environmentInfo) {
-                this.url = url;
+            public Info(URI endpointUri, Identification identification, Class<? extends Application> applicationClass, int port, String serverName, String contextPath, String mapping, String name, UpEnvironment.Info environmentInfo) {
+                this.endpointUri = endpointUri;
+                this.identification = identification;
                 this.applicationClass = applicationClass;
                 this.port = port;
                 this.serverName = serverName;
@@ -98,8 +104,14 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
                 this.environmentInfo = environmentInfo;
             }
 
-            public String getUrl() {
-                return url;
+            @Override
+            public URI getEndpointUri() {
+                return endpointUri;
+            }
+
+            @Override
+            public Identification getIdentification() {
+                return identification;
             }
 
             public Class<? extends Application> getApplicationClass() {
@@ -126,12 +138,12 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
                 return name;
             }
 
-            public EnvironmentInfo getEnvironmentInfo() {
+            public UpEnvironment.Info getEnvironmentInfo() {
                 return environmentInfo;
             }
 
             public String toString() {
-                return String.format("Jsr340.Endpoint.Info{%s, %s}", name, url);
+                return String.format("Jsr340.UpEndpoint.Info{%s, %s}", name, endpointUri);
             }
 
         }
@@ -152,7 +164,7 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
 
     }
 
-    final class Info extends EndpointTechnologyInfoImpl<Endpoint> {
+    final class Info extends UpEndpointTechnologyInfoImpl<Endpoint> {
 
         private static final Info info = new Info();
 
@@ -166,7 +178,7 @@ public interface Jsr370 extends EndpointTechnology<Jsr370.Endpoint> {
 
     }
 
-    interface Manager extends EndpointTechnologyManager<Endpoint> {
+    interface Manager extends UpEndpointTechnology.Manager<Endpoint> {
     }
 
 }

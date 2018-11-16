@@ -1,7 +1,7 @@
 package net.tvburger.up.topology;
 
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.impl.SpecificationImpl;
+import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
@@ -13,8 +13,8 @@ public class UpApplicationTopology {
 
         private Set<Class<?>> serviceImplementations = new LinkedHashSet<>();
         private Set<Specification> endpointTechnologies = new LinkedHashSet<>();
-        private Set<EndpointDefinition> endpointDefinitions = new LinkedHashSet<>();
-        private Set<ServiceDefinition> serviceDefinitions = new LinkedHashSet<>();
+        private Set<UpEndpointDefinition> endpointDefinitions = new LinkedHashSet<>();
+        private Set<UpServiceDefinition> serviceDefinitions = new LinkedHashSet<>();
 
         public Builder withServiceImplementation(Class<?> serviceClass) {
             serviceImplementations.add(serviceClass);
@@ -30,17 +30,17 @@ public class UpApplicationTopology {
             return this;
         }
 
-        public Builder withEndpointDefinition(EndpointDefinition endpointDefinition) {
+        public Builder withEndpointDefinition(UpEndpointDefinition endpointDefinition) {
             endpointDefinitions.add(endpointDefinition);
             endpointTechnologies.add(endpointDefinition.getEndpointTechnology());
             return this;
         }
 
         public Builder withServiceDefinition(Class<?> serviceType, Class<?> serviceImplementation, Object... arguments) {
-            return withServiceDefinition(ServiceDefinition.Factory.create(serviceType, serviceImplementation, arguments));
+            return withServiceDefinition(UpServiceDefinition.Factory.create(serviceType, serviceImplementation, arguments));
         }
 
-        public Builder withServiceDefinition(ServiceDefinition serviceDefinition) {
+        public Builder withServiceDefinition(UpServiceDefinition serviceDefinition) {
             serviceDefinitions.add(serviceDefinition);
             serviceImplementations.add(serviceDefinition.getInstanceDefinition().getInstanceClass());
             return this;
@@ -58,8 +58,8 @@ public class UpApplicationTopology {
 
     private final Set<Class<?>> serviceImplementations;
     private final Set<Specification> endpointTechnologies;
-    private final Set<EndpointDefinition> endpointDefinitions;
-    private final Set<ServiceDefinition> serviceDefinitions;
+    private final Set<UpEndpointDefinition> endpointDefinitions;
+    private final Set<UpServiceDefinition> serviceDefinitions;
 
     protected UpApplicationTopology(UpApplicationTopology deploymentDefinition) {
         serviceImplementations = deploymentDefinition.serviceImplementations;
@@ -68,7 +68,7 @@ public class UpApplicationTopology {
         endpointDefinitions = deploymentDefinition.endpointDefinitions;
     }
 
-    private UpApplicationTopology(Set<Class<?>> serviceImplementations, Set<Specification> endpointTechnologies, Set<EndpointDefinition> endpointDefinitions, Set<ServiceDefinition> serviceDefinitions) {
+    private UpApplicationTopology(Set<Class<?>> serviceImplementations, Set<Specification> endpointTechnologies, Set<UpEndpointDefinition> endpointDefinitions, Set<UpServiceDefinition> serviceDefinitions) {
         this.serviceImplementations = serviceImplementations;
         this.endpointTechnologies = endpointTechnologies;
         this.endpointDefinitions = endpointDefinitions;
@@ -83,11 +83,11 @@ public class UpApplicationTopology {
         return endpointTechnologies;
     }
 
-    public Set<EndpointDefinition> getEndpointDefinitions() {
+    public Set<UpEndpointDefinition> getEndpointDefinitions() {
         return endpointDefinitions;
     }
 
-    public Set<ServiceDefinition> getServiceDefinitions() {
+    public Set<UpServiceDefinition> getServiceDefinitions() {
         return serviceDefinitions;
     }
 

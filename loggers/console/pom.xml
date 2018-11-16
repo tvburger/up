@@ -17,7 +17,7 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-api</artifactId>
+            <artifactId>up-runtime-api</artifactId>
             <version>${project.version}</version>
         </dependency>
     </dependencies>

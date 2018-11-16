@@ -2,8 +2,8 @@ package net.tvburger.up.util;
 
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.impl.ImplementationImpl;
-import net.tvburger.up.impl.SpecificationImpl;
+import net.tvburger.up.behaviors.impl.ImplementationImpl;
+import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
 public final class LocalJavaImplementation extends ImplementationImpl {
 

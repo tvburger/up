@@ -1,7 +1,7 @@
 package net.tvburger.up.loggers.console;
 
-import net.tvburger.up.logger.UpLogger;
-import net.tvburger.up.spi.UpLoggerProvider;
+import net.tvburger.up.runtime.logger.UpLogger;
+import net.tvburger.up.runtime.spi.UpLoggerProvider;
 
 public final class ConsoleLoggerProvider implements UpLoggerProvider {
 
