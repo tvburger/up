@@ -94,7 +94,9 @@ public final class LocalClientProxy<T> implements InvocationHandler {
     private UpContext createContext(Method method) throws AccessDeniedException {
         LocalUpInstance localUpInstance = target.getInstance();
         UpContextImpl context = new UpContextImpl();
-        context.setTransactionInfo(createTransactionInfo(method));
+        TransactionInfo transactionInfo = createTransactionInfo(method);
+        context.setOperationId(transactionInfo.getId());
+        context.setTransactionInfo(transactionInfo);
         context.setCallerInfo(CallerInfo.Factory.create(context));
         context.setEnvironment(localUpInstance.getRuntime().getEnvironment(clientInfo.getEnvironmentInfo().getName()));
         context.setIdentity(localUpInstance.getEngineIdentity());

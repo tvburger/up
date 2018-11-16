@@ -27,15 +27,17 @@ public final class ConsoleLogger implements UpLogger {
         Principal requester = transactionInfo != null ? transactionInfo.getRequester() : null;
         CallerInfo callerInfo = logStatement.getCallerInfo();
         System.out.println(String.format(
-                "%s [%s] <%s> %s {%s%s} (%s@%s@%s) [%s@%s] : %s",
+                " %s (%s->%s) [%s] <%s> %s {%s%s} (%s@%s@%s) [%s@%s] : %s",
                 new Date(logStatement.getTimestamp()),
+                callerInfo != null ? callerInfo.getOperationId() : null,
+                logStatement.getOperationId(),
                 logStatement.getLogLevel().name(),
                 loggerName,
                 entityInfo == null ? "?" : entityInfo.getClass().getSimpleName() + ":" + entityInfo.getIdentification().getPrincipal().getName(),
                 transactionInfo == null ? "-" : transactionInfo.getId() + ", " + (requester == null ? "-" : requester.getName()) + ", " + transactionInfo.getRequestUri(),
                 callerInfo == null ? "" : ", " + callerInfo.getOperationId()
                         + (callerInfo.getServiceInfo() != null ? ", " + callerInfo.getServiceInfo().getServiceType().getSimpleName() + ":" + callerInfo.getServiceInfo().getServiceInstanceId() : "")
-                        + (callerInfo.getEndpointInfo() != null ? callerInfo.getEndpointInfo().getEndpointUri() : ""),
+                        + (callerInfo.getEndpointInfo() != null ? ", " + callerInfo.getEndpointInfo().getEndpointUri() : ""),
                 locality == null ? "?" : locality.getRuntimeInfo().getClass().getSimpleName(),
                 locality == null ? "?" : locality.getEngineInfo().getHost(),
                 locality == null ? Thread.currentThread().getName() : locality.getThreadName(),

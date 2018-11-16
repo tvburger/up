@@ -15,6 +15,7 @@ import net.tvburger.up.security.Identity;
 import net.tvburger.up.topology.TopologyException;
 
 import java.util.Objects;
+import java.util.UUID;
 
 public class UpContextImpl implements UpContext, MutableComposition {
 
@@ -25,8 +26,10 @@ public class UpContextImpl implements UpContext, MutableComposition {
             Objects.requireNonNull(identity);
             Objects.requireNonNull(engineContext);
             UpContextImpl endpointContext = createEnvironmentContext(endpoint.getInfo().getEnvironmentInfo().getName(), identity, engineContext);
-            endpointContext.setTransactionInfo(TransactionInfo.Factory.create(endpoint.getInfo().getEndpointUri()));
-            endpointContext.setCallerInfo(CallerInfo.Factory.create(endpoint.getInfo()));
+            TransactionInfo transactionInfo = TransactionInfo.Factory.create(endpoint.getInfo().getEndpointUri());
+            endpointContext.setOperationId(transactionInfo.getId());
+            endpointContext.setTransactionInfo(transactionInfo);
+            endpointContext.setCallerInfo(CallerInfo.Factory.create(endpoint.getInfo(), transactionInfo.getId()));
             endpointContext.setEndpoint(endpoint);
             return endpointContext;
         }
@@ -36,6 +39,7 @@ public class UpContextImpl implements UpContext, MutableComposition {
             Objects.requireNonNull(identity);
             Objects.requireNonNull(callerContext);
             UpContextImpl serviceContext = createEnvironmentContext(service.getInfo().getEnvironmentInfo().getName(), identity, callerContext);
+            serviceContext.setOperationId(UUID.randomUUID());
             serviceContext.setTransactionInfo(callerContext.getTransactionInfo());
             serviceContext.setCallerInfo(CallerInfo.Factory.create(callerContext));
             serviceContext.setService(service);
@@ -65,7 +69,10 @@ public class UpContextImpl implements UpContext, MutableComposition {
         public static UpContextImpl createEngineContext(UpEngine engine, Identity engineIdentity) {
             Objects.requireNonNull(engine);
             Objects.requireNonNull(engineIdentity);
+            CallerInfo callerInfo = CallerInfo.Factory.create();
             UpContextImpl context = new UpContextImpl();
+            context.setOperationId(callerInfo.getOperationId());
+            context.setCallerInfo(callerInfo);
             context.setIdentity(engineIdentity);
             context.setEngine(engine);
             context.setRuntime(engine.getRuntime());
@@ -78,6 +85,7 @@ public class UpContextImpl implements UpContext, MutableComposition {
 
     }
 
+    private UUID operationId;
     private TransactionInfo transactionInfo;
     private CallerInfo callerInfo;
     private UpEnvironment environment;
@@ -87,6 +95,15 @@ public class UpContextImpl implements UpContext, MutableComposition {
     private UpEngine engine;
     private UpRuntime runtime;
     private Locality locality;
+
+    @Override
+    public UUID getOperationId() {
+        return operationId;
+    }
+
+    public void setOperationId(UUID operationId) {
+        this.operationId = operationId;
+    }
 
     @Override
     public TransactionInfo getTransactionInfo() {

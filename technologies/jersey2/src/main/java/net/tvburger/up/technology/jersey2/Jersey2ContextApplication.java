@@ -27,10 +27,10 @@ public final class Jersey2ContextApplication extends Application {
         @Override
         public void filter(ContainerRequestContext containerRequestContext) throws IOException {
             try {
-                logger.info("Entering before filter for: " + containerRequestContext.getUriInfo().getRequestUri());
                 UpContext engineContext = UpContextHolder.getContext();
                 contexts.set(engineContext);
                 UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, identity, engineContext));
+                logger.info("Serving URI: " + containerRequestContext.getUriInfo().getRequestUri());
             } catch (TopologyException | AccessDeniedException cause) {
                 logger.error("Failed to set context: " + cause.getMessage(), cause);
                 throw new IOException("Failed to process request");
@@ -44,7 +44,7 @@ public final class Jersey2ContextApplication extends Application {
 
         @Override
         public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
-            logger.info("Entering after filter for: " + containerRequestContext.getUriInfo().getRequestUri());
+            logger.info("Returning from: " + containerRequestContext.getUriInfo().getRequestUri());
             UpContextHolder.setContext(contexts.get());
         }
 

@@ -8,7 +8,16 @@ import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.security.Identity;
 
+import java.util.UUID;
+
 public interface UpContext {
+
+    /**
+     * Returns the current operation id
+     *
+     * @return
+     */
+    UUID getOperationId();
 
     /**
      * Returns the information of the transaction

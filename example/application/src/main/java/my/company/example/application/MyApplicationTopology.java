@@ -23,7 +23,7 @@ public final class MyApplicationTopology extends UpApplicationTopology {
                                 .withInitParameter("message", "Hello World!")
                                 .build())
                 .withEndpointDefinition(
-                        Jsr340.Endpoint.Definition.Factory.createStatic("/static/*", "/www2"))
+                        Jsr340.Endpoint.Definition.Factory.createStatic("/static/*", "/www"))
                 .withEndpointDefinition(
                         Jsr370.Endpoint.Definition.Factory.create(HelloApplication.class))
                 .build());

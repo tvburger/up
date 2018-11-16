@@ -7,11 +7,13 @@ import net.tvburger.up.runtime.context.TransactionInfo;
 import net.tvburger.up.runtime.context.UpContext;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 public class LogStatement implements Serializable {
 
     public static class Builder {
 
+        private UUID operationId;
         private TransactionInfo transactionInfo;
         private CallerInfo callerInfo;
         private StackTraceElement source;
@@ -20,6 +22,11 @@ public class LogStatement implements Serializable {
         private Long timestamp;
         private LogLevel logLevel;
         private String message;
+
+        public Builder withOperationId(UUID operationId) {
+            this.operationId = operationId;
+            return this;
+        }
 
         public Builder withTransactionInfo(TransactionInfo transactionInfo) {
             this.transactionInfo = transactionInfo;
@@ -63,12 +70,13 @@ public class LogStatement implements Serializable {
 
         public LogStatement build() {
             UpContext context;
-            if (transactionInfo == null || callerInfo == null || entityInfo == null || locality == null) {
+            if (operationId == null || transactionInfo == null || callerInfo == null || entityInfo == null || locality == null) {
                 context = UpContext.getContext();
             } else {
                 context = null;
             }
             return new LogStatement(
+                    operationId == null ? context.getOperationId() : null,
                     transactionInfo == null ? context.getTransactionInfo() : transactionInfo,
                     callerInfo == null ? context.getCallerInfo() : callerInfo,
                     source == null ? getStackTraceElement() : source,
@@ -97,6 +105,7 @@ public class LogStatement implements Serializable {
 
     }
 
+    private final UUID operationId;
     private final TransactionInfo transactionInfo;
     private final CallerInfo callerInfo;
     private final StackTraceElement source;
@@ -106,7 +115,8 @@ public class LogStatement implements Serializable {
     private final LogLevel logLevel;
     private final String message;
 
-    public LogStatement(TransactionInfo transactionInfo, CallerInfo callerInfo, StackTraceElement source, Locality locality, ManagedEntity.Info entityInfo, long timestamp, LogLevel logLevel, String message) {
+    public LogStatement(UUID operationId, TransactionInfo transactionInfo, CallerInfo callerInfo, StackTraceElement source, Locality locality, ManagedEntity.Info entityInfo, long timestamp, LogLevel logLevel, String message) {
+        this.operationId = operationId;
         this.transactionInfo = transactionInfo;
         this.callerInfo = callerInfo;
         this.source = source;
@@ -115,6 +125,10 @@ public class LogStatement implements Serializable {
         this.timestamp = timestamp;
         this.logLevel = logLevel;
         this.message = message;
+    }
+
+    public UUID getOperationId() {
+        return operationId;
     }
 
     public TransactionInfo getTransactionInfo() {

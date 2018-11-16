@@ -11,6 +11,14 @@ public final class CallerInfo implements Serializable {
 
     public static final class Factory {
 
+        public static CallerInfo create() {
+            return new CallerInfo(
+                    null,
+                    null,
+                    UUID.randomUUID(),
+                    System.currentTimeMillis());
+        }
+
         public static CallerInfo create(UpContext context) {
             Objects.requireNonNull(context);
             UpService<?> service = context.getService();
@@ -18,18 +26,20 @@ public final class CallerInfo implements Serializable {
             return new CallerInfo(
                     service == null ? null : service.getInfo(),
                     endpoint == null ? null : endpoint.getInfo(),
-                    UUID.randomUUID(),
+                    context.getOperationId(),
                     System.currentTimeMillis());
         }
 
-        public static CallerInfo create(UpEndpoint.Info endpointInfo) {
+        public static CallerInfo create(UpEndpoint.Info endpointInfo, UUID operationId) {
             Objects.requireNonNull(endpointInfo);
-            return new CallerInfo(null, endpointInfo, UUID.randomUUID(), System.currentTimeMillis());
+            Objects.requireNonNull(operationId);
+            return new CallerInfo(null, endpointInfo, operationId, System.currentTimeMillis());
         }
 
-        public static CallerInfo create(UpService.Info<?> serviceInfo) {
+        public static CallerInfo create(UpService.Info<?> serviceInfo, UUID operationId) {
             Objects.requireNonNull(serviceInfo);
-            return new CallerInfo(serviceInfo, null, UUID.randomUUID(), System.currentTimeMillis());
+            Objects.requireNonNull(operationId);
+            return new CallerInfo(serviceInfo, null, operationId, System.currentTimeMillis());
         }
 
         private Factory() {

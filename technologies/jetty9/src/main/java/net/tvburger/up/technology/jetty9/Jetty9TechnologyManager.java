@@ -17,11 +17,13 @@ import net.tvburger.up.util.Identities;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
+import org.eclipse.jetty.servlet.FilterHolder;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.servlet.DispatcherType;
 import javax.servlet.Servlet;
 import java.net.InetAddress;
 import java.net.URI;
@@ -113,7 +115,11 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             for (Jsr340.Endpoint.Info endpointInfo : entry.getValue()) {
                 Jsr340.Endpoint endpoint = infoEndpointMapping.get(endpointInfo);
                 if (endpoint.getManager().getState() == State.ACTIVE) {
-                    addEndpointToHandler(handler, endpoint);
+                    String mapping = addEndpointToHandler(handler, endpoint);
+                    handler.addFilter(
+                            new FilterHolder(new Jetty9ContextFilter(identity, endpoint)),
+                            mapping,
+                            EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
                 }
             }
             handlers.add(handler);
@@ -123,20 +129,21 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         return contexts;
     }
 
-    private void addEndpointToHandler(ServletContextHandler handler, Jsr340.Endpoint endpoint) throws AccessDeniedException, TopologyException {
+    private String addEndpointToHandler(ServletContextHandler handler, Jsr340.Endpoint endpoint) throws AccessDeniedException, TopologyException {
         Jsr340.Endpoint.Definition definition = endpointDefinitions.get(endpoint.getInfo());
         ServletHolder holder;
         if (!definition.getInstanceDefinition().getArguments().isEmpty()) {
             UpEnvironment environment = getEnvironment(endpoint);
             Object[] arguments = new ArrayList<>(definition.getArguments()).toArray();
             Servlet servlet = UpServices.instantiateService(environment, definition.getServletClass(), arguments);
-            holder = new ServletHolder(new Jetty9ContextServlet(identity, endpoint, servlet));
+            holder = new ServletHolder(servlet);
             handler.addServlet(holder, definition.getMapping());
         } else {
             holder = handler.addServlet(definition.getServletClass(), definition.getMapping());
         }
         holder.getRegistration().setInitParameters(definition.getInitParameters());
         endpointHolderMapping.put(endpoint, holder);
+        return definition.getMapping();
     }
 
     private UpEnvironment getEnvironment(Jsr340.Endpoint endpoint) throws AccessDeniedException {
