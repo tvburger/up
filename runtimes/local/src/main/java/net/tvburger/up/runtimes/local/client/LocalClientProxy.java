@@ -107,7 +107,7 @@ public final class LocalClientProxy<T> implements InvocationHandler {
     private TransactionInfo createTransactionInfo(Method method) {
         return TransactionInfo.Factory.create(
                 clientInfo.getIdentification().getPrincipal(),
-                URI.create("exec://" + getClassName() + "/" + method.getName()));
+                URI.create("java://" + getClassName() + "/" + method.getName()));
     }
 
     private String getClassName() {

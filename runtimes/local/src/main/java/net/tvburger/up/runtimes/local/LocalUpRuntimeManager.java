@@ -91,7 +91,7 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
         super.init();
         try {
             Set<UpEngine.Info> engineInfos = new HashSet<>();
-            runtime = UpRuntimeImpl.Factory.create(this, engineInfos, environments);
+            runtime = LocalRuntimeImpl.Factory.create(this, engineInfos, environments);
             engineManager = UpEngineManagerImpl.Factory.create(new LocalUpEngineInfo(identity), engineDefinition, identity, runtime);
             engineManager.setEngine(new UpEngineImpl(engineManager));
             UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));

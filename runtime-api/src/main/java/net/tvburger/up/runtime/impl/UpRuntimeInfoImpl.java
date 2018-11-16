@@ -46,7 +46,7 @@ public class UpRuntimeInfoImpl implements UpRuntimeInfo {
 
     @Override
     public String toString() {
-        return String.format("UpRuntime.Info{%s, %s}", identification, specification);
+        return String.format("UpRuntimeInfo{%s, %s}", identification, specification);
     }
 
     @Override

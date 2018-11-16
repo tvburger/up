@@ -1,9 +1,6 @@
 package net.tvburger.up.runtimes.local;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpRuntimeInfo;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
@@ -114,11 +111,11 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
             UpEnvironment environment = getEnvironment();
             logger.info("Destroying...");
             for (UpService.Info<?> serviceInfo : environment.listServices()) {
-                environment.getServiceManager(serviceInfo).stop();
+                environment.getServiceManager(serviceInfo).destroy();
             }
             for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : environment.listEndpoints().entrySet()) {
                 for (UpEndpoint.Info endpointInfo : entry.getValue()) {
-                    environment.getEndpointManager(endpointInfo).stop();
+                    environment.getEndpointManager(endpointInfo).destroy();
                 }
             }
             ((LocalUpRuntimeManager) engine.getRuntime().getManager()).removeEnvironment(environment.getInfo().getName());
@@ -189,7 +186,7 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     public void deploy(UpEndpointDefinition endpointDefinition) throws TopologyException {
         try {
             logger.info("Deploying endpoint: " + endpointDefinition.getEndpointTechnology());
-            UpEndpointTechnology.Info<?> info = getEndpointTechnologyInfo(endpointDefinition.getEndpointTechnology());
+            UpEndpointTechnologyInfo info = getEndpointTechnologyInfo(endpointDefinition.getEndpointTechnology());
             engine.getEndpointTechnology(info.getEndpointType()).getManager().deploy(getInfo(), endpointDefinition);
             logger.info("Deployed endpoint: " + info);
         } catch (AccessDeniedException | TopologyException | UpRuntimeException cause) {
@@ -200,10 +197,10 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     }
 
 
-    private UpEndpointTechnology.Info<?> getEndpointTechnologyInfo(Specification endpointReference) throws TopologyException {
+    private UpEndpointTechnologyInfo getEndpointTechnologyInfo(Specification endpointReference) throws TopologyException {
         for (Class<?> endpointType : engine.listEndpointTypes()) {
             UpEndpointTechnology<?, ?> endpointTechnology = engine.getEndpointTechnology(endpointType);
-            UpEndpointTechnology.Info<?> info = endpointTechnology.getInfo();
+            UpEndpointTechnologyInfo info = endpointTechnology.getInfo();
             if (info.getSpecificationName().equals(endpointReference.getSpecificationName())
                     && info.getSpecificationVersion().equals(endpointReference.getSpecificationVersion())) {
                 return info;

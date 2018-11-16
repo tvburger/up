@@ -16,7 +16,7 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
         public static <T> UpServiceInfoImpl<T> create(Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpEnvironment.Info environmentInfo) {
             Objects.requireNonNull(serviceType);
             return create(
-                    SpecificationImpl.Factory.create(serviceType.getName(), "unversioned"),
+                    SpecificationImpl.Factory.create(serviceType.getCanonicalName(), "unversioned"),
                     serviceType, identification, serviceInstanceId, environmentInfo);
         }
 
@@ -82,7 +82,7 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
     public String toString() {
         return String.format("UpService.Info{%s, %s, %s, %s, %s}",
                 specification,
-                serviceType,
+                serviceType.getCanonicalName(),
                 identification,
                 serviceInstanceId,
                 environmentInfo);

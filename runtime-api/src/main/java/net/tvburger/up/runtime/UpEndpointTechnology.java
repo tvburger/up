@@ -1,6 +1,7 @@
 package net.tvburger.up.runtime;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.*;
 import net.tvburger.up.security.AccessDeniedException;
@@ -9,15 +10,9 @@ import net.tvburger.up.topology.UpEndpointDefinition;
 
 import java.util.Set;
 
-public interface UpEndpointTechnology<T, I extends UpEndpoint.Info> extends ManagedObject<UpEndpointTechnology.Manager<T>, UpEndpointTechnology.Info<T>> {
+public interface UpEndpointTechnology<T, I extends UpEndpoint.Info> extends ManagedObject<UpEndpointTechnology.Manager<T>, UpEndpointTechnologyInfo> {
 
-    interface Info<T> extends Specification, ManagedObject.Info {
-
-        Class<T> getEndpointType();
-
-    }
-
-    interface Manager<T> extends Implementation, LogManager, LifecycleManager, ManagedObject.Manager<Info<T>> {
+    interface Manager<T> extends Implementation, LogManager, LifecycleManager, ManagedObject.Manager<UpEndpointTechnologyInfo> {
 
         T deploy(UpEnvironment.Info environmentInfo, UpEndpointDefinition endpointDefinition) throws TopologyException, UpRuntimeException;
 

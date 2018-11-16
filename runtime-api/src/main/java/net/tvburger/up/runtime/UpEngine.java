@@ -1,6 +1,7 @@
 package net.tvburger.up.runtime;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.behaviors.ManagedEntity;
@@ -27,7 +28,11 @@ public interface UpEngine extends ManagedEntity<UpEngine.Manager, UpEngine.Info>
 
     Set<Class<?>> listEndpointTypes();
 
+    Set<UpEndpointTechnologyInfo> listEndpointTechnologies();
+
     <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(Class<T> endpointType);
+
+    <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(UpEndpointTechnologyInfo technologyInfo);
 
     UpRuntime getRuntime();
 

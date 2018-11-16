@@ -1,6 +1,7 @@
 package net.tvburger.up.runtime.impl;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
@@ -19,12 +20,22 @@ public class UpEngineImpl implements UpEngine {
 
     @Override
     public Set<Class<?>> listEndpointTypes() {
-        return manager.getEndpointTechnologies();
+        return manager.listEndpointTypes();
+    }
+
+    @Override
+    public Set<UpEndpointTechnologyInfo> listEndpointTechnologies() {
+        return manager.listEndpointTechnologies();
     }
 
     @Override
     public <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(Class<T> endpointType) {
         return manager.getEndpointTechnology(endpointType);
+    }
+
+    @Override
+    public <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(UpEndpointTechnologyInfo technologyInfo) {
+        return manager.getEndpointTechnology(technologyInfo);
     }
 
     @Override

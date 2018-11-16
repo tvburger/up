@@ -2,11 +2,12 @@ package net.tvburger.up.topology;
 
 import net.tvburger.up.behaviors.Specification;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-public class UpEndpointDefinition {
+public class UpEndpointDefinition implements Serializable {
 
     public static final class Builder {
 

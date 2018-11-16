@@ -1,10 +1,11 @@
 package net.tvburger.up.topology;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UpRuntimeTopology {
+public class UpRuntimeTopology implements Serializable {
 
     public static final class Factory {
 

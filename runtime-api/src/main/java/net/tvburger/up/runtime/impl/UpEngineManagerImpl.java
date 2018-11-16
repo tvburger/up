@@ -1,6 +1,7 @@
 package net.tvburger.up.runtime.impl;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
@@ -37,13 +38,16 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
 
     }
 
+    private final Map<Class<?>, UpEndpointTechnology<?, ?>> typeIndex = new HashMap<>();
+    private final Map<UpEndpointTechnologyInfo, UpEndpointTechnology<?, ?>> infoIndex = new HashMap<>();
+    private final Implementation implementation = LocalJavaImplementation.get();
+
     private final UpEngine.Info info;
     private final UpEngineDefinition engineDefinition;
     private final Identity identity;
-    private final Map<Class<?>, UpEndpointTechnology<?, ?>> endpointTechnologies = new HashMap<>();
-    private final Implementation implementation = LocalJavaImplementation.get();
+    private final UpRuntime runtime;
+
     private UpEngine engine;
-    private UpRuntime runtime;
 
     protected UpEngineManagerImpl(UpEngine.Info info, UpEngineDefinition engineDefinition, Identity identity, UpRuntime runtime) {
         this.info = info;
@@ -64,8 +68,12 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
         return identity;
     }
 
-    public Set<Class<?>> getEndpointTechnologies() {
-        return endpointTechnologies.keySet();
+    public Set<Class<?>> listEndpointTypes() {
+        return typeIndex.keySet();
+    }
+
+    public Set<UpEndpointTechnologyInfo> listEndpointTechnologies() {
+        return infoIndex.keySet();
     }
 
     public UpRuntime getRuntime() {
@@ -74,7 +82,12 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
 
     @SuppressWarnings("unchecked")
     public <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(Class<T> endpointType) {
-        return (UpEndpointTechnology<T, I>) endpointTechnologies.get(endpointType);
+        return (UpEndpointTechnology<T, I>) typeIndex.get(endpointType);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(UpEndpointTechnologyInfo technologyInfo) {
+        return (UpEndpointTechnology<T, I>) infoIndex.get(technologyInfo);
     }
 
     @Override
@@ -104,11 +117,12 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
             if (!implementation.equals(engineDefinition.getEngineImplementation())) {
                 throw new LifecycleException("Unsupported implementation: " + engineDefinition.getEngineImplementation());
             }
-            endpointTechnologies.putAll(UpEndpointTechnologies.load(engineDefinition.getEndpointImplementations()));
-            for (UpEndpointTechnology<?, ?> endpointTechnology : endpointTechnologies.values()) {
+            typeIndex.putAll(UpEndpointTechnologies.load(engineDefinition.getEndpointImplementations()));
+            for (UpEndpointTechnology<?, ?> endpointTechnology : typeIndex.values()) {
                 if (!implementation.getSpecification().equals(endpointTechnology.getEngineRequirement())) {
                     throw new TopologyException("Unsupported UpEndpointTechnology: " + endpointTechnology.getInfo());
                 }
+                infoIndex.put(endpointTechnology.getInfo(), endpointTechnology);
                 endpointTechnology.getManager().init();
             }
         } catch (TopologyException | AccessDeniedException cause) {
@@ -120,7 +134,7 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
     public void start() throws LifecycleException {
         super.start();
         try {
-            for (UpEndpointTechnology<?, ?> endpointTechnology : endpointTechnologies.values()) {
+            for (UpEndpointTechnology<?, ?> endpointTechnology : typeIndex.values()) {
                 endpointTechnology.getManager().start();
             }
         } catch (AccessDeniedException cause) {
@@ -132,7 +146,7 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
     public void stop() throws LifecycleException {
         super.stop();
         try {
-            for (UpEndpointTechnology<?, ?> endpointTechnology : endpointTechnologies.values()) {
+            for (UpEndpointTechnology<?, ?> endpointTechnology : typeIndex.values()) {
                 endpointTechnology.getManager().stop();
             }
         } catch (AccessDeniedException cause) {
@@ -144,7 +158,7 @@ public class UpEngineManagerImpl extends LifecycleManagerImpl implements UpEngin
     public void destroy() throws LifecycleException {
         super.destroy();
         try {
-            for (UpEndpointTechnology<?, ?> endpointTechnology : endpointTechnologies.values()) {
+            for (UpEndpointTechnology<?, ?> endpointTechnology : typeIndex.values()) {
                 endpointTechnology.getManager().destroy();
             }
         } catch (AccessDeniedException cause) {

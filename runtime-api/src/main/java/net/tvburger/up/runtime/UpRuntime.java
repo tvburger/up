@@ -1,5 +1,6 @@
 package net.tvburger.up.runtime;
 
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpRuntimeInfo;
 import net.tvburger.up.behaviors.LifecycleManager;
@@ -26,8 +27,8 @@ public interface UpRuntime extends ManagedEntity<UpRuntime.Manager, UpRuntimeInf
 
     UpEnvironment getEnvironment(String environmentName) throws AccessDeniedException;
 
-    Set<UpEndpointTechnology.Info<?>> listEndpointTechnologies();
+    Set<UpEndpointTechnologyInfo> listEndpointTechnologies();
 
-    <I> UpEndpointTechnology.Manager<I> getEndpointTechnologyManager(UpEndpointTechnology.Info<I> endpointInfo) throws AccessDeniedException;
+    UpEndpointTechnology.Manager<?> getEndpointTechnologyManager(UpEndpointTechnologyInfo endpointInfo) throws AccessDeniedException;
 
 }

@@ -23,7 +23,7 @@ public final class Jersey2Technology implements UpEndpointTechnology<Jsr370.Endp
     }
 
     @Override
-    public Info getInfo() {
+    public Jsr370.Info getInfo() {
         return technologyManager.getInfo();
     }
 

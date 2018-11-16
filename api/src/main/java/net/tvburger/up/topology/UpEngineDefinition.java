@@ -4,11 +4,12 @@ import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.impl.ImplementationImpl;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UpEngineDefinition {
+public class UpEngineDefinition implements Serializable {
 
     public static final class Builder {
 

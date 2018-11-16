@@ -1,5 +1,6 @@
 package net.tvburger.up.runtime.util;
 
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
@@ -11,7 +12,7 @@ public final class UpRuntimes {
         System.out.println(String.format("[%-7s] Runtime: %s", runtime.getManager().getState(), runtime.getInfo()));
         for (UpEngine.Info engineInfo : runtime.listEngines()) {
             System.out.println(String.format("[%-7s]   Engine: %s", runtime.getManager().getState(), engineInfo));
-            for (UpEndpointTechnology.Info<?> technologyInfo : runtime.listEndpointTechnologies()) {
+            for (UpEndpointTechnologyInfo technologyInfo : runtime.listEndpointTechnologies()) {
                 UpEndpointTechnology.Manager<?> technologyManager = runtime.getEndpointTechnologyManager(technologyInfo);
                 System.out.println(String.format("[%-7s]     UpEndpointTechnology: %s", technologyManager.getState(), technologyInfo));
             }

@@ -13,6 +13,8 @@ public interface UpEndpoint<M extends UpEndpoint.Manager<I>, I extends UpEndpoin
 
         URI getEndpointUri();
 
+        UpEndpointTechnologyInfo getEndpointTechnologyInfo();
+
         UpEnvironment.Info getEnvironmentInfo();
 
     }

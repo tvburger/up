@@ -3,11 +3,12 @@ package net.tvburger.up.topology;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
 
+import java.io.Serializable;
 import java.util.Collections;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
-public class UpApplicationTopology {
+public class UpApplicationTopology implements Serializable {
 
     public static final class Builder {
 

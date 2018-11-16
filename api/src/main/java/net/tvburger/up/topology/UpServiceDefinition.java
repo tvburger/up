@@ -1,8 +1,9 @@
 package net.tvburger.up.topology;
 
+import java.io.Serializable;
 import java.util.*;
 
-public class UpServiceDefinition {
+public class UpServiceDefinition implements Serializable {
 
     public static final class Factory {
 

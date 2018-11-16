@@ -1,6 +1,7 @@
 package net.tvburger.up.technology.jsr340;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
 import net.tvburger.up.runtime.UpEndpointTechnology;
@@ -180,10 +181,17 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                 return name;
             }
 
+            @Override
+            public UpEndpointTechnologyInfo getEndpointTechnologyInfo() {
+                return Jsr340.Info.get();
+            }
+
+            @Override
             public UpEnvironment.Info getEnvironmentInfo() {
                 return environmentInfo;
             }
 
+            @Override
             public String toString() {
                 return String.format("Jsr340.UpEndpoint.Info{%s, %s}", name, endpointUri);
             }
@@ -206,7 +214,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
 
     }
 
-    final class Info extends UpEndpointTechnologyInfoImpl<Endpoint> {
+    final class Info extends UpEndpointTechnologyInfoImpl {
 
         private static final Info info = new Info();
 

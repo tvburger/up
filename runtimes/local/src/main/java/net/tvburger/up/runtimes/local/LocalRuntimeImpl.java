@@ -1,5 +1,6 @@
-package net.tvburger.up.runtime.impl;
+package net.tvburger.up.runtimes.local;
 
+import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpRuntimeInfo;
 import net.tvburger.up.runtime.UpEndpointTechnology;
@@ -13,15 +14,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class UpRuntimeImpl implements UpRuntime {
+public class LocalRuntimeImpl implements UpRuntime {
 
     public static final class Factory {
 
-        public static UpRuntimeImpl create(UpRuntime.Manager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+        public static LocalRuntimeImpl create(LocalUpRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
             Objects.requireNonNull(manager);
             Objects.requireNonNull(engines);
             Objects.requireNonNull(environments);
-            return new UpRuntimeImpl(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments));
+            return new LocalRuntimeImpl(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments));
         }
 
         private Factory() {
@@ -29,11 +30,11 @@ public class UpRuntimeImpl implements UpRuntime {
 
     }
 
-    private final UpRuntime.Manager manager;
+    private final LocalUpRuntimeManager manager;
     private final Set<UpEngine.Info> engines;
     private final Map<String, UpEnvironment> environments;
 
-    protected UpRuntimeImpl(UpRuntime.Manager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+    protected LocalRuntimeImpl(LocalUpRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
         this.manager = manager;
         this.engines = engines;
         this.environments = environments;
@@ -77,13 +78,13 @@ public class UpRuntimeImpl implements UpRuntime {
     }
 
     @Override
-    public Set<UpEndpointTechnology.Info<?>> listEndpointTechnologies() {
-        return null;
+    public Set<UpEndpointTechnologyInfo> listEndpointTechnologies() {
+        return manager.getEngine().listEndpointTechnologies();
     }
 
     @Override
-    public <I> UpEndpointTechnology.Manager<I> getEndpointTechnologyManager(UpEndpointTechnology.Info<I> endpointInfo) throws AccessDeniedException {
-        return null;
+    public UpEndpointTechnology.Manager<?> getEndpointTechnologyManager(UpEndpointTechnologyInfo endpointInfo) throws AccessDeniedException {
+        return manager.getEngine().getEndpointTechnology(endpointInfo).getManager();
     }
 
     @Override
