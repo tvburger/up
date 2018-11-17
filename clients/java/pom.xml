@@ -55,9 +55,10 @@
             <scope>runtime</scope>
         </dependency>
 
+        <!-- TODO: will be removed after ApiClassProvider is properly implemented -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>up-example-deploy</artifactId>
+            <artifactId>up-example-application</artifactId>
             <version>${project.version}</version>
             <scope>runtime</scope>
         </dependency>

@@ -5,7 +5,7 @@ import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.clients.java.ApiRequester;
+import net.tvburger.up.clients.java.impl.ApiRequester;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 

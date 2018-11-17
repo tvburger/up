@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java;
+package net.tvburger.up.clients.java.impl;
 
 import net.tvburger.up.client.UpClient;
 

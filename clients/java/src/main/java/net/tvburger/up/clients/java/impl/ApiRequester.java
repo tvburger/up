@@ -1,6 +1,7 @@
-package net.tvburger.up.clients.java;
+package net.tvburger.up.clients.java.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import net.tvburger.up.clients.java.ApiException;
 import net.tvburger.up.security.Identity;
 
 import javax.ws.rs.ProcessingException;
@@ -8,17 +9,18 @@ import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.util.*;
 
 public abstract class ApiRequester {
 
     public static final class Factory {
 
-        public static ApiRequester create(Client client, String target, Identity identity) {
+        public static ApiRequester create(Client client, String target, Identity identity) throws MalformedURLException {
             Objects.requireNonNull(client);
             Objects.requireNonNull(target);
             Objects.requireNonNull(identity);
-            return new ApiRequester(client, new TargetFactory(target), identity) {
+            return new ApiRequester(client, new TargetFactory(target), identity, ApiClassProvider.Factory.create(target)) {
             };
         }
 
@@ -140,19 +142,21 @@ public abstract class ApiRequester {
     private final Client client;
     private final TargetFactory factory;
     private final Identity identity;
+    private final ApiClassProvider provider;
 
     protected ApiRequester(ApiRequester requester) {
-        this(requester.client, requester.factory, requester.identity);
+        this(requester.client, requester.factory, requester.identity, requester.provider);
     }
 
     protected ApiRequester(ApiRequester requester, String target) {
-        this(requester.client, requester.factory.createSub(target), requester.identity);
+        this(requester.client, requester.factory.createSub(target), requester.identity, requester.provider);
     }
 
-    private ApiRequester(Client client, TargetFactory factory, Identity identity) {
+    private ApiRequester(Client client, TargetFactory factory, Identity identity, ApiClassProvider provider) {
         this.client = client;
         this.factory = factory;
         this.identity = identity;
+        this.provider = provider;
     }
 
     protected <T> T request(String path, Class<T> responseType) throws ApiException {
@@ -187,7 +191,7 @@ public abstract class ApiRequester {
             Object response;
             if (responseType instanceof ResponseType.Value) {
                 if (Class.class.isAssignableFrom(responseType.getType())) {
-                    response = loadClass(stringResponse);
+                    response = provider.getClass(stringResponse);
                 } else {
                     response = mapper.readValue(stringResponse, responseType.getType());
                 }
@@ -219,14 +223,6 @@ public abstract class ApiRequester {
             return response;
         } catch (IOException cause) {
             throw new ApiException("Failed to parse response: " + cause.getMessage(), cause);
-        }
-    }
-
-    private Class<?> loadClass(String className) {
-        try {
-            return Class.forName(className);
-        } catch (ClassNotFoundException cause) {
-            throw new ApiException("Failed to load class: " + className);
         }
     }
 
