@@ -8,7 +8,7 @@ import net.tvburger.up.runtime.context.TransactionInfo;
 import net.tvburger.up.runtime.context.UpContext;
 import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.runtime.impl.UpContextImpl;
-import net.tvburger.up.runtimes.local.LocalUpInstance;
+import net.tvburger.up.runtimes.local.LocalInstance;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.lang.reflect.InvocationHandler;
@@ -27,14 +27,14 @@ public final class LocalClientProxy<T> implements InvocationHandler {
 
     public static final class Factory {
 
-        public static UpClient create(LocalUpClientTarget target, UpClient client) {
+        public static UpClient create(LocalClientTarget target, UpClient client) {
             Objects.requireNonNull(target);
             Objects.requireNonNull(client);
             return create(target, client.getInfo(), client);
         }
 
         @SuppressWarnings("unchecked")
-        public static <T> T create(LocalUpClientTarget target, UpClient.Info clientInfo, T instance) {
+        public static <T> T create(LocalClientTarget target, UpClient.Info clientInfo, T instance) {
             Objects.requireNonNull(target);
             Objects.requireNonNull(clientInfo);
             Objects.requireNonNull(instance);
@@ -65,11 +65,11 @@ public final class LocalClientProxy<T> implements InvocationHandler {
 
     }
 
-    private final LocalUpClientTarget target;
+    private final LocalClientTarget target;
     private final UpClient.Info clientInfo;
     private final T instance;
 
-    private LocalClientProxy(LocalUpClientTarget target, UpClient.Info clientInfo, T instance) {
+    private LocalClientProxy(LocalClientTarget target, UpClient.Info clientInfo, T instance) {
         this.target = target;
         this.clientInfo = clientInfo;
         this.instance = instance;
@@ -92,17 +92,17 @@ public final class LocalClientProxy<T> implements InvocationHandler {
     }
 
     private UpContext createContext(Method method) throws AccessDeniedException {
-        LocalUpInstance localUpInstance = target.getInstance();
+        LocalInstance localInstance = target.getInstance();
         UpContextImpl context = new UpContextImpl();
         TransactionInfo transactionInfo = createTransactionInfo(method);
         context.setOperationId(transactionInfo.getId());
         context.setTransactionInfo(transactionInfo);
         context.setCallerInfo(CallerInfo.Factory.create(context));
-        context.setEnvironment(localUpInstance.getRuntime().getEnvironment(clientInfo.getEnvironmentInfo().getName()));
-        context.setIdentity(localUpInstance.getEngineIdentity());
-        context.setEngine(localUpInstance.getEngine());
-        context.setRuntime(localUpInstance.getRuntime());
-        context.setLocality(Locality.Factory.create(localUpInstance.getEngine()));
+        context.setEnvironment(localInstance.getRuntime().getEnvironment(clientInfo.getEnvironmentInfo().getName()));
+        context.setIdentity(localInstance.getEngineIdentity());
+        context.setEngine(localInstance.getEngine());
+        context.setRuntime(localInstance.getRuntime());
+        context.setLocality(Locality.Factory.create(localInstance.getEngine()));
         return context;
     }
 

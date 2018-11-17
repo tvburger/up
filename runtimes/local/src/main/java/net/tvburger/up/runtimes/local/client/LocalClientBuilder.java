@@ -11,13 +11,13 @@ import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;
 
-public final class LocalUpClientBuilder implements UpClientBuilder {
+public final class LocalClientBuilder implements UpClientBuilder {
 
-    private final LocalUpClientTarget target;
+    private final LocalClientTarget target;
     private String environmentName = "default";
     private Identity identity = Identities.ANONYMOUS;
 
-    public LocalUpClientBuilder(LocalUpClientTarget target) {
+    public LocalClientBuilder(LocalClientTarget target) {
         this.target = target;
     }
 
@@ -65,8 +65,8 @@ public final class LocalUpClientBuilder implements UpClientBuilder {
                 environment = runtime.getEnvironment(environmentName);
             }
             UpClient.Info clientInfo = UpClientInfoImpl.Factory.create(environment.getInfo(), Identities.getSafeIdentification(identity));
-            LocalUpClientManager clientManager = new LocalUpClientManager(clientInfo);
-            LocalUpClient client = new LocalUpClient(target, clientManager, identity, environment);
+            LocalClientManager clientManager = new LocalClientManager(clientInfo);
+            LocalClient client = new LocalClient(target, clientManager, identity, environment);
             return LocalClientProxy.Factory.create(target, client);
         } catch (UpRuntimeException cause) {
             throw new UpClientException(cause);

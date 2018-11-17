@@ -14,6 +14,10 @@
     <name>UP :: Applications :: API</name>
     <artifactId>up-application-api</artifactId>
 
+    <properties>
+        <jackson.version>2.9.7</jackson.version>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -24,6 +28,11 @@
             <groupId>${project.groupId}</groupId>
             <artifactId>up-technology-jsr370</artifactId>
             <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>${jackson.version}</version>
         </dependency>
     </dependencies>
 

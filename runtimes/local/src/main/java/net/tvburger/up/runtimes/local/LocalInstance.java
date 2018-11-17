@@ -9,15 +9,15 @@ import net.tvburger.up.security.Identity;
 import net.tvburger.up.topology.TopologyException;
 import net.tvburger.up.topology.UpRuntimeTopology;
 
-public final class LocalUpInstance {
+public final class LocalInstance {
 
-    private LocalUpRuntimeManager runtimeManager;
+    private LocalRuntimeManager runtimeManager;
 
     public void init(UpRuntimeTopology runtimeDefinition) throws TopologyException, LifecycleException {
         if (runtimeDefinition.getEngineDefinitions().size() != 1) {
             throw new TopologyException("Must contain exactly 1 engine definition!");
         }
-        runtimeManager = LocalUpRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next());
+        runtimeManager = LocalRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next());
         runtimeManager.init();
     }
 

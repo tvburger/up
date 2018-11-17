@@ -118,7 +118,7 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
                     environment.getEndpointManager(endpointInfo).destroy();
                 }
             }
-            ((LocalUpRuntimeManager) engine.getRuntime().getManager()).removeEnvironment(environment.getInfo().getName());
+            ((LocalRuntimeManager) engine.getRuntime().getManager()).removeEnvironment(environment.getInfo().getName());
             logger.info("Destroyed");
         } catch (LifecycleException | AccessDeniedException cause) {
             logger.error("Failed to start: " + cause.getMessage(), cause);

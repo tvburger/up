@@ -18,7 +18,7 @@ public class LocalRuntimeImpl implements UpRuntime {
 
     public static final class Factory {
 
-        public static LocalRuntimeImpl create(LocalUpRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+        public static LocalRuntimeImpl create(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
             Objects.requireNonNull(manager);
             Objects.requireNonNull(engines);
             Objects.requireNonNull(environments);
@@ -30,11 +30,11 @@ public class LocalRuntimeImpl implements UpRuntime {
 
     }
 
-    private final LocalUpRuntimeManager manager;
+    private final LocalRuntimeManager manager;
     private final Set<UpEngine.Info> engines;
     private final Map<String, UpEnvironment> environments;
 
-    protected LocalRuntimeImpl(LocalUpRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+    protected LocalRuntimeImpl(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
         this.manager = manager;
         this.engines = engines;
         this.environments = environments;

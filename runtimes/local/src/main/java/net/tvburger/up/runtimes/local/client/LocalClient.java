@@ -6,14 +6,14 @@ import net.tvburger.up.security.Identification;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;
 
-public final class LocalUpClient implements UpClient {
+public final class LocalClient implements UpClient {
 
-    private final LocalUpClientTarget target;
-    private final LocalUpClientManager manager;
+    private final LocalClientTarget target;
+    private final LocalClientManager manager;
     private final Identity identity;
     private final UpEnvironment environment;
 
-    public LocalUpClient(LocalUpClientTarget target, LocalUpClientManager manager, Identity identity, UpEnvironment environment) {
+    public LocalClient(LocalClientTarget target, LocalClientManager manager, Identity identity, UpEnvironment environment) {
         this.target = target;
         this.manager = manager;
         this.identity = identity;
@@ -21,7 +21,7 @@ public final class LocalUpClient implements UpClient {
     }
 
     @Override
-    public LocalUpClientManager getManager() {
+    public LocalClientManager getManager() {
         return manager;
     }
 

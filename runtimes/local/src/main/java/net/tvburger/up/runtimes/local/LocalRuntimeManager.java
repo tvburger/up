@@ -23,16 +23,16 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
-public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements UpRuntime.Manager {
+public final class LocalRuntimeManager extends LifecycleManagerImpl implements UpRuntime.Manager {
 
-    private static final Logger logger = LoggerFactory.getLogger(LocalUpRuntimeManager.class);
+    private static final Logger logger = LoggerFactory.getLogger(LocalRuntimeManager.class);
 
     public static final class Factory {
 
-        public static LocalUpRuntimeManager create(UpEngineDefinition engineDefinition) {
+        public static LocalRuntimeManager create(UpEngineDefinition engineDefinition) {
             Identity identity = Identities.ANONYMOUS;
             UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, SpecificationImpl.Factory.create("Up", "0.1.0"));
-            LocalUpRuntimeManager manager = new LocalUpRuntimeManager(info, identity, engineDefinition);
+            LocalRuntimeManager manager = new LocalRuntimeManager(info, identity, engineDefinition);
             return manager;
         }
 
@@ -48,7 +48,7 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
     private UpRuntime runtime;
     private UpEngineManagerImpl engineManager;
 
-    private LocalUpRuntimeManager(UpRuntimeInfo info, Identity identity, UpEngineDefinition engineDefinition) {
+    private LocalRuntimeManager(UpRuntimeInfo info, Identity identity, UpEngineDefinition engineDefinition) {
         this.info = info;
         this.identity = identity;
         this.engineDefinition = engineDefinition;
@@ -92,7 +92,7 @@ public final class LocalUpRuntimeManager extends LifecycleManagerImpl implements
         try {
             Set<UpEngine.Info> engineInfos = new HashSet<>();
             runtime = LocalRuntimeImpl.Factory.create(this, engineInfos, environments);
-            engineManager = UpEngineManagerImpl.Factory.create(new LocalUpEngineInfo(identity), engineDefinition, identity, runtime);
+            engineManager = UpEngineManagerImpl.Factory.create(new LocalEngineInfo(identity), engineDefinition, identity, runtime);
             engineManager.setEngine(new UpEngineImpl(engineManager));
             UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
             logger.info("Intializing...");

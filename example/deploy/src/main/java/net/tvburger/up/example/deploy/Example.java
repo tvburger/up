@@ -6,7 +6,7 @@ import my.company.example.runtime.MyDevRuntimeTopology;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpException;
 import net.tvburger.up.applications.admin.AdminApplicationTopology;
-import net.tvburger.up.applications.client.ApiApplicationTopology;
+import net.tvburger.up.applications.api.ApiApplicationTopology;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.UpClientTarget;

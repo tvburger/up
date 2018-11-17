@@ -10,13 +10,13 @@ import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.UUID;
 
-public final class LocalUpEngineInfo extends UpEngineInfoImpl {
+public final class LocalEngineInfo extends UpEngineInfoImpl {
 
     static {
         LogBindings.init();
     }
 
-    public LocalUpEngineInfo(Identity identity) throws UnknownHostException {
+    public LocalEngineInfo(Identity identity) throws UnknownHostException {
         super(UUID.randomUUID(), InetAddress.getLocalHost(), -1, Identities.getSafeIdentification(identity), LocalJavaImplementation.get().getSpecification());
     }
 

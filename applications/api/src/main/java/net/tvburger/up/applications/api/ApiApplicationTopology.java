@@ -1,4 +1,4 @@
-package net.tvburger.up.applications.client;
+package net.tvburger.up.applications.api;
 
 import net.tvburger.up.technology.jsr370.Jsr370;
 import net.tvburger.up.topology.UpApplicationTopology;

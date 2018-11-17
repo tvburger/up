@@ -11,8 +11,15 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.annotation.Priority;
-import javax.ws.rs.container.*;
+import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.container.ContainerRequestContext;
+import javax.ws.rs.container.ContainerRequestFilter;
+import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Application;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.UriInfo;
+import javax.ws.rs.ext.WriterInterceptor;
+import javax.ws.rs.ext.WriterInterceptorContext;
 import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.Map;
@@ -40,12 +47,19 @@ public final class Jersey2ContextApplication extends Application {
     }
 
     @Priority(Integer.MAX_VALUE)
-    public final class AfterFilter implements ContainerResponseFilter {
+    public final class AfterFilter implements WriterInterceptor {
+
+        @Context
+        private UriInfo uriInfo;
 
         @Override
-        public void filter(ContainerRequestContext containerRequestContext, ContainerResponseContext containerResponseContext) throws IOException {
-            logger.info("Returning from: " + containerRequestContext.getUriInfo().getRequestUri());
-            UpContextHolder.setContext(contexts.get());
+        public void aroundWriteTo(WriterInterceptorContext context) throws IOException, WebApplicationException {
+            try {
+                context.proceed();
+            } finally {
+                logger.info("Returning from: " + uriInfo.getRequestUri());
+                UpContextHolder.setContext(contexts.get());
+            }
         }
 
     }

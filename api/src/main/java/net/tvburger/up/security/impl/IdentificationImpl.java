@@ -37,6 +37,11 @@ public class IdentificationImpl implements Identification {
     }
 
     @Override
+    public String toString() {
+        return String.format("Identification{%s, %s}", principal, publicKey);
+    }
+
+    @Override
     public boolean equals(Object object) {
         return object == this
                 || null != object &&
