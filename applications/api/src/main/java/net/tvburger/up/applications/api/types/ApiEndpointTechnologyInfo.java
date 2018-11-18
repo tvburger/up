@@ -1,11 +1,11 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 
 import java.util.Objects;
 
-public final class ClientEndpointTechnologyInfo implements UpEndpointTechnologyInfo {
+public final class ApiEndpointTechnologyInfo implements UpEndpointTechnologyInfo {
 
     private Class<?> endpointType;
     private String specificationName;
@@ -28,7 +28,7 @@ public final class ClientEndpointTechnologyInfo implements UpEndpointTechnologyI
 
     @Override
     public String toString() {
-        return String.format("ClientEndpointTechnologyInfo{%s, %s, %s}", endpointType.getCanonicalName(), specificationName, specificationVersion);
+        return String.format("ApiEndpointTechnologyInfo{%s, %s, %s}", endpointType.getCanonicalName(), specificationName, specificationVersion);
     }
 
     @Override

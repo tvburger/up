@@ -4,7 +4,6 @@ import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.behaviors.impl.ImplementationImpl;
-import net.tvburger.up.behaviors.impl.SpecificationImpl;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.impl.UpServiceImpl;
 import net.tvburger.up.runtime.impl.UpServiceInfoImpl;
@@ -15,8 +14,6 @@ import net.tvburger.up.security.Identity;
 import net.tvburger.up.topology.TopologyException;
 import net.tvburger.up.util.Identities;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.util.*;
 
 public final class LocalServicesManager {
@@ -52,29 +49,12 @@ public final class LocalServicesManager {
 
     private <T, S extends T> UpService.Manager<T> createServiceManager(Class<T> serviceType, Class<S> serviceClass, Identity identity) {
         return UpServiceManagerImpl.Factory.create(
-                ImplementationImpl.Factory.create(
-                        SpecificationImpl.Factory.create(serviceType.getName(), getVersion(serviceType)),
-                        serviceClass.getName(),
-                        getVersion(serviceClass)
-                ),
+                ImplementationImpl.Factory.create(serviceType, serviceClass),
                 UpServiceInfoImpl.Factory.create(
                         serviceType,
                         Identities.getSafeIdentification(identity),
                         UUID.randomUUID(),
                         environmentInfo));
-    }
-
-    private String getVersion(Class<?> clazz) {
-        try {
-            for (Field field : clazz.getDeclaredFields()) {
-                if ("serialVersionUID".equals(field.getName()) && Modifier.isStatic(field.getModifiers())) {
-                    return Objects.toString(field.get(null));
-                }
-            }
-            return "unversioned";
-        } catch (IllegalAccessException cause) {
-            throw new IllegalStateException(cause);
-        }
     }
 
     public <T> void removeService(UpService<T> service) {

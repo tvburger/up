@@ -71,9 +71,7 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     private boolean isLevelEnabled(LogLevel level) {
-        return level == LogLevel.ERROR
-                || level == LogLevel.WARN
-                || level == LogLevel.INFO;
+        return true;
     }
 
     public boolean isTraceEnabled() {

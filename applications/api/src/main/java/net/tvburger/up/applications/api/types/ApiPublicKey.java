@@ -1,11 +1,11 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.security.PublicKey;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientPublicKey implements PublicKey {
+public final class ApiPublicKey implements PublicKey {
 
     private String algorithm;
     private String format;
@@ -28,7 +28,7 @@ public final class ClientPublicKey implements PublicKey {
 
     @Override
     public String toString() {
-        return String.format("ClientPublicKey{%s, %s}", algorithm, format);
+        return String.format("ApiPublicKey{%s, %s}", algorithm, format);
     }
 
 }

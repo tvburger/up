@@ -2,6 +2,7 @@ package net.tvburger.up.topology;
 
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
+import net.tvburger.up.util.Specifications;
 
 import java.io.Serializable;
 import java.util.Collections;
@@ -12,13 +13,17 @@ public class UpApplicationTopology implements Serializable {
 
     public static final class Builder {
 
-        private Set<Class<?>> serviceImplementations = new LinkedHashSet<>();
+        private Set<Specification> serviceImplementations = new LinkedHashSet<>();
         private Set<Specification> endpointTechnologies = new LinkedHashSet<>();
         private Set<UpEndpointDefinition> endpointDefinitions = new LinkedHashSet<>();
         private Set<UpServiceDefinition> serviceDefinitions = new LinkedHashSet<>();
 
         public Builder withServiceImplementation(Class<?> serviceClass) {
-            serviceImplementations.add(serviceClass);
+            return withServiceImplementation(Specifications.forClass(serviceClass));
+        }
+
+        public Builder withServiceImplementation(Specification serviceClassSpecification) {
+            serviceImplementations.add(serviceClassSpecification);
             return this;
         }
 
@@ -43,7 +48,7 @@ public class UpApplicationTopology implements Serializable {
 
         public Builder withServiceDefinition(UpServiceDefinition serviceDefinition) {
             serviceDefinitions.add(serviceDefinition);
-            serviceImplementations.add(serviceDefinition.getInstanceDefinition().getInstanceClass());
+            serviceImplementations.add(serviceDefinition.getInstanceDefinition().getInstanceSpecification());
             return this;
         }
 
@@ -57,7 +62,7 @@ public class UpApplicationTopology implements Serializable {
 
     }
 
-    private final Set<Class<?>> serviceImplementations;
+    private final Set<Specification> serviceImplementations;
     private final Set<Specification> endpointTechnologies;
     private final Set<UpEndpointDefinition> endpointDefinitions;
     private final Set<UpServiceDefinition> serviceDefinitions;
@@ -69,14 +74,14 @@ public class UpApplicationTopology implements Serializable {
         endpointDefinitions = deploymentDefinition.endpointDefinitions;
     }
 
-    private UpApplicationTopology(Set<Class<?>> serviceImplementations, Set<Specification> endpointTechnologies, Set<UpEndpointDefinition> endpointDefinitions, Set<UpServiceDefinition> serviceDefinitions) {
+    private UpApplicationTopology(Set<Specification> serviceImplementations, Set<Specification> endpointTechnologies, Set<UpEndpointDefinition> endpointDefinitions, Set<UpServiceDefinition> serviceDefinitions) {
         this.serviceImplementations = serviceImplementations;
         this.endpointTechnologies = endpointTechnologies;
         this.endpointDefinitions = endpointDefinitions;
         this.serviceDefinitions = serviceDefinitions;
     }
 
-    public Set<Class<?>> getServiceImplementations() {
+    public Set<Specification> getServiceImplementations() {
         return serviceImplementations;
     }
 

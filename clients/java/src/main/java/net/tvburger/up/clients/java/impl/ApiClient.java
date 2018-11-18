@@ -2,7 +2,6 @@ package net.tvburger.up.clients.java.impl;
 
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.client.UpClient;
-import net.tvburger.up.clients.java.types.ClientEnvironment;
 import net.tvburger.up.security.Identification;
 import net.tvburger.up.security.Identity;
 

@@ -3,12 +3,24 @@ package net.tvburger.up.behaviors.impl;
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.ValueObject;
+import net.tvburger.up.util.Specifications;
 
 import java.util.Objects;
 
 public class ImplementationImpl implements Implementation, ValueObject {
 
     public static final class Factory {
+
+        public static ImplementationImpl create(Class<?> serviceType, Class<?> serviceClass) {
+            Objects.requireNonNull(serviceType);
+            Objects.requireNonNull(serviceClass);
+            Specification classSpecification = Specifications.forClass(serviceClass);
+            Specification typeSpecification = Specifications.forClass(serviceType);
+            return new ImplementationImpl(
+                    typeSpecification,
+                    classSpecification.getSpecificationName(),
+                    classSpecification.getSpecificationVersion());
+        }
 
         public static ImplementationImpl create(Specification specification, String name, String version) {
             Objects.requireNonNull(specification);

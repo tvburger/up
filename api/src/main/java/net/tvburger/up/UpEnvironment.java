@@ -25,7 +25,7 @@ public interface UpEnvironment extends ManagedEntity<UpEnvironment.Manager, UpEn
 
     interface Manager extends LogManager, LifecycleManager, ManagedEntity.Manager<Info> {
 
-        void deploy(UpApplicationTopology deploymentDefinition) throws TopologyException;
+        void deploy(UpApplicationTopology applicationTopology) throws TopologyException;
 
         void deploy(UpServiceDefinition serviceDefinition) throws TopologyException;
 

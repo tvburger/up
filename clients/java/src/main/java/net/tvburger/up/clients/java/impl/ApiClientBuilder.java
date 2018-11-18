@@ -1,13 +1,14 @@
 package net.tvburger.up.clients.java.impl;
 
 import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpException;
+import net.tvburger.up.applications.api.types.ApiEnvironmentInfo;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientBuilder;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.impl.UpClientInfoImpl;
 import net.tvburger.up.clients.java.ApiClientTarget;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.clients.java.types.ClientEnvironmentInfo;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 
@@ -59,10 +60,12 @@ public final class ApiClientBuilder implements UpClientBuilder {
         try {
             Client client = ClientBuilder.newClient();
             ApiRequester requester = ApiRequester.Factory.create(client, target.getUrl() + "/" + environmentName, identity);
-            UpEnvironment.Info environmentInfo = requester.request("info", ClientEnvironmentInfo.class);
+            UpEnvironment.Info environmentInfo = requester.apiRead("info", ApiEnvironmentInfo.class);
             UpClient.Info clientInfo = UpClientInfoImpl.Factory.create(environmentInfo, identity);
             return new ApiClient(requester, identity, new ApiClientManager(clientInfo, client));
-        } catch (ApiException | MalformedURLException cause) {
+        } catch (AccessDeniedException cause) {
+            throw cause;
+        } catch (ApiException | UpException | MalformedURLException cause) {
             throw new UpClientException("Failed to connect to api: " + cause.getMessage(), cause);
         }
     }

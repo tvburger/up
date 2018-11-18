@@ -21,12 +21,12 @@ import java.util.Set;
 @ApplicationPath("/")
 public final class ApiApplication extends Application {
 
+    private final ObjectMapper mapper = new ObjectMapper();
+
     @Override
     public Set<Object> getSingletons() {
         Set<Object> singletons = new HashSet<>();
         singletons.add(new MessageBodyReader<Object>() {
-
-            private final ObjectMapper mapper = new ObjectMapper();
 
             @Override
             public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
@@ -40,8 +40,6 @@ public final class ApiApplication extends Application {
         });
         singletons.add(new MessageBodyWriter<Object>() {
 
-            private final ObjectMapper mapper = new ObjectMapper();
-
             @Override
             public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
                 return true;
@@ -52,12 +50,13 @@ public final class ApiApplication extends Application {
                 mapper.writeValue(entityStream, o);
             }
         });
+        singletons.add(new ApiExceptionMapper());
         return singletons;
     }
 
     @Override
     public Set<Class<?>> getClasses() {
-        return Collections.singleton(ApiEnvironment.class);
+        return Collections.singleton(ApiRoot.class);
     }
 
 }

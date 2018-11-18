@@ -14,7 +14,6 @@ import javax.annotation.Priority;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ContainerRequestFilter;
-import javax.ws.rs.container.PreMatching;
 import javax.ws.rs.core.Application;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -27,7 +26,6 @@ import java.util.Set;
 
 public final class Jersey2ContextApplication extends Application {
 
-    @PreMatching
     @Priority(Integer.MIN_VALUE)
     public final class BeforeFilter implements ContainerRequestFilter {
 

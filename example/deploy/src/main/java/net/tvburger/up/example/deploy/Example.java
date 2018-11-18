@@ -6,7 +6,7 @@ import my.company.example.runtime.MyDevRuntimeTopology;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpException;
 import net.tvburger.up.applications.admin.AdminApplicationTopology;
-import net.tvburger.up.applications.api.ApiApplicationTopology;
+import net.tvburger.up.applications.api.ApiTopology;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.UpClientTarget;
@@ -68,7 +68,7 @@ public final class Example {
                 .withIdentity(Identities.ANONYMOUS)
                 .build();
         UpEnvironment.Manager manager = apiClient.getEnvironment().getManager();
-        manager.deploy(new ApiApplicationTopology());
+        manager.deploy(new ApiTopology());
         manager.start();
     }
 

@@ -1,5 +1,7 @@
 package net.tvburger.up.topology;
 
+import net.tvburger.up.util.Specifications;
+
 import java.io.Serializable;
 import java.util.*;
 
@@ -7,13 +9,23 @@ public class UpServiceDefinition implements Serializable {
 
     public static final class Factory {
 
+        public static UpServiceDefinition create(Class<?> serviceType, InstanceDefinition instanceDefinition) {
+            Objects.requireNonNull(serviceType);
+            Objects.requireNonNull(instanceDefinition);
+            return new UpServiceDefinition(serviceType, instanceDefinition);
+        }
+
         public static UpServiceDefinition create(Class<?> serviceType, Class<?> serviceImplementation, Object... arguments) {
             Objects.requireNonNull(serviceType);
             List<Object> argumentList = new ArrayList<>();
             if (arguments != null) {
                 argumentList.addAll(Arrays.asList(arguments));
             }
-            return new UpServiceDefinition(serviceType, new InstanceDefinition(serviceImplementation, Collections.unmodifiableList(new ArrayList<>(argumentList))));
+            return new UpServiceDefinition(
+                    serviceType,
+                    new InstanceDefinition(
+                            Specifications.forClass(serviceImplementation),
+                            Collections.unmodifiableList(new ArrayList<>(argumentList))));
         }
 
         private Factory() {
@@ -46,7 +58,11 @@ public class UpServiceDefinition implements Serializable {
             if (serviceType == null || serviceImplementation == null || !serviceType.isAssignableFrom(serviceImplementation)) {
                 throw new IllegalStateException();
             }
-            return new UpServiceDefinition(serviceType, new InstanceDefinition(serviceImplementation, Collections.unmodifiableList(new ArrayList<>(arguments))));
+            return new UpServiceDefinition(
+                    serviceType,
+                    new InstanceDefinition(
+                            Specifications.forClass(serviceImplementation),
+                            Collections.unmodifiableList(new ArrayList<>(arguments))));
         }
 
     }

@@ -14,6 +14,7 @@ import net.tvburger.up.topology.UpApplicationTopology;
 import net.tvburger.up.topology.UpEndpointDefinition;
 import net.tvburger.up.topology.UpServiceDefinition;
 import net.tvburger.up.util.Identities;
+import net.tvburger.up.util.UpClassProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -147,13 +148,13 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     }
 
     @Override
-    public void deploy(UpApplicationTopology deploymentDefinition) throws TopologyException {
+    public void deploy(UpApplicationTopology applicationTopology) throws TopologyException {
         try {
             logger.info("Deploying application...");
-            for (UpServiceDefinition serviceDefinition : deploymentDefinition.getServiceDefinitions()) {
+            for (UpServiceDefinition serviceDefinition : applicationTopology.getServiceDefinitions()) {
                 deploy(serviceDefinition);
             }
-            for (UpEndpointDefinition endpointDefinition : deploymentDefinition.getEndpointDefinitions()) {
+            for (UpEndpointDefinition endpointDefinition : applicationTopology.getEndpointDefinitions()) {
                 deploy(endpointDefinition);
             }
             logger.info("Application deployed");
@@ -171,7 +172,7 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
             logger.info("Deploying service: " + serviceDefinition.getServiceType());
             UpService<?> service = getLocalServicesManager().addService(
                     (Class) serviceDefinition.getServiceType(),
-                    (Class) serviceDefinition.getInstanceDefinition().getInstanceClass(),
+                    UpClassProvider.getClass(serviceDefinition.getInstanceDefinition().getInstanceSpecification()),
                     new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
             service.getManager().init();
             logger.info("UpService deployed: " + service.getInfo());

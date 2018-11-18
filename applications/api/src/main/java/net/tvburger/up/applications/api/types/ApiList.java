@@ -1,4 +1,4 @@
-package net.tvburger.up.applications.api;
+package net.tvburger.up.applications.api.types;
 
 import java.util.LinkedList;
 import java.util.Map;
@@ -28,10 +28,17 @@ public final class ApiList<K, V> extends LinkedList<ApiList.Entry<K, V>> {
 
     }
 
+    public ApiList() {
+    }
+
     public ApiList(Map<K, V> map) {
         for (Map.Entry<K, V> entry : map.entrySet()) {
             add(new Entry<>(entry.getKey(), entry.getValue()));
         }
+    }
+
+    public void add(K key, V value) {
+        add(new Entry<>(key, value));
     }
 
 }

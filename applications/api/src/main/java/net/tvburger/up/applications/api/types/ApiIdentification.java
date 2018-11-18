@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.security.Identification;
@@ -8,10 +8,10 @@ import java.security.PublicKey;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientIdentification implements Identification {
+public final class ApiIdentification implements Identification {
 
-    private ClientPrincipal principal;
-    private ClientPublicKey publicKey;
+    private ApiPrincipal principal;
+    private ApiPublicKey publicKey;
 
     @Override
     public Principal getPrincipal() {
@@ -25,7 +25,7 @@ public final class ClientIdentification implements Identification {
 
     @Override
     public String toString() {
-        return String.format("ClientIdentification{%s, %s}", principal, publicKey);
+        return String.format("ApiIdentification{%s, %s}", principal, publicKey);
     }
 
     @Override

@@ -20,18 +20,18 @@ public class UpEndpointDefinition implements Serializable {
             return this;
         }
 
-        public Builder withEndpointDefinition(Class<?> endpointClass, Object... arguments) {
+        public Builder withInstanceDefinition(Class<?> endpointClass, Object... arguments) {
             InstanceDefinition.Builder builder = new InstanceDefinition.Builder()
-                    .withInstanceClass(endpointClass);
+                    .withInstanceSpecification(endpointClass);
             if (arguments != null) {
                 for (Object argument : arguments) {
                     builder.withArgument(argument);
                 }
             }
-            return withEndpointDefinition(builder.build());
+            return withInstanceDefinition(builder.build());
         }
 
-        public Builder withEndpointDefinition(InstanceDefinition instanceDefinition) {
+        public Builder withInstanceDefinition(InstanceDefinition instanceDefinition) {
             this.instanceDefinition = instanceDefinition;
             return this;
         }

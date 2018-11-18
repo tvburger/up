@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpEnvironment;
@@ -8,11 +8,11 @@ import net.tvburger.up.security.Identification;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientEnvironmentInfo implements UpEnvironment.Info {
+public final class ApiEnvironmentInfo implements UpEnvironment.Info {
 
     private String name;
-    private ClientRuntimeInfo runtimeInfo;
-    private ClientIdentification identification;
+    private ApiRuntimeInfo runtimeInfo;
+    private ApiIdentification identification;
 
     @Override
     public String getName() {
@@ -31,7 +31,7 @@ public final class ClientEnvironmentInfo implements UpEnvironment.Info {
 
     @Override
     public String toString() {
-        return String.format("ClientEnvironmentInfo{%s, %s, %s}", name, runtimeInfo, identification);
+        return String.format("ApiEnvironmentInfo{%s, %s, %s}", name, runtimeInfo, identification);
     }
 
     @Override

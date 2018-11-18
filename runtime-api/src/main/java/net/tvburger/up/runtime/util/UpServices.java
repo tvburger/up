@@ -5,12 +5,14 @@ import net.tvburger.up.topology.TopologyException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 
 public final class UpServices {
 
     public static <T> T instantiateService(UpEnvironment environment, Class<T> serviceClass, Object... arguments) throws TopologyException {
         try {
             Constructor<T> constructor = getConstructor(serviceClass, arguments);
+            System.out.println(Arrays.toString(constructor.getParameterTypes()));
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < arguments.length; i++) {
                 if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {

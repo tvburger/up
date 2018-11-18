@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpEnvironment;
@@ -9,12 +9,12 @@ import java.util.Objects;
 import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientServiceInfo<T> implements UpService.Info<T> {
+public final class ApiServiceInfo<T> implements UpService.Info<T> {
 
     private Class<T> serviceType;
     private UUID serviceInstanceId;
-    private ClientEnvironmentInfo environmentInfo;
-    private ClientIdentification identification;
+    private ApiEnvironmentInfo environmentInfo;
+    private ApiIdentification identification;
     private String specificationName;
     private String specificationVersion;
 
@@ -50,7 +50,7 @@ public final class ClientServiceInfo<T> implements UpService.Info<T> {
 
     @Override
     public String toString() {
-        return String.format("ClientServiceInfo{%s, %s, %s, %s, %s, %s}",
+        return String.format("ApiServiceInfo{%s, %s, %s, %s, %s, %s}",
                 specificationName,
                 specificationVersion,
                 serviceType.getCanonicalName(),

@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.behaviors.Specification;
@@ -6,7 +6,18 @@ import net.tvburger.up.behaviors.Specification;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientSpecification implements Specification {
+public final class ApiSpecification implements Specification {
+
+    public static ApiSpecification fromUp(Specification up) {
+        ApiSpecification api = new ApiSpecification();
+        api.specificationName = up.getSpecificationName();
+        api.specificationVersion = up.getSpecificationVersion();
+        return api;
+    }
+
+    public Specification toUp() {
+        return this;
+    }
 
     private String specificationName;
     private String specificationVersion;
@@ -23,7 +34,7 @@ public final class ClientSpecification implements Specification {
 
     @Override
     public String toString() {
-        return String.format("ClientSpecification{%s, %s}", specificationName, specificationVersion);
+        return String.format("ApiSpecification{%s, %s}", specificationName, specificationVersion);
     }
 
     @Override

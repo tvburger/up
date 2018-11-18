@@ -1,11 +1,11 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.security.Principal;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientPrincipal implements Principal {
+public final class ApiPrincipal implements Principal {
 
     private String name;
 
@@ -16,7 +16,7 @@ public final class ClientPrincipal implements Principal {
 
     @Override
     public String toString() {
-        return String.format("ClientPrincipal{%s}", name);
+        return String.format("ApiPrincipal{%s}", name);
     }
 
 }

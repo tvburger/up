@@ -14,6 +14,7 @@ import net.tvburger.up.technology.jsr340.Jsr340;
 import net.tvburger.up.topology.TopologyException;
 import net.tvburger.up.topology.UpEndpointDefinition;
 import net.tvburger.up.util.Identities;
+import net.tvburger.up.util.UpClassProvider;
 import org.eclipse.jetty.server.Server;
 import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.server.handler.ContextHandlerCollection;
@@ -135,11 +136,11 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         if (!definition.getInstanceDefinition().getArguments().isEmpty()) {
             UpEnvironment environment = getEnvironment(endpoint);
             Object[] arguments = new ArrayList<>(definition.getArguments()).toArray();
-            Servlet servlet = UpServices.instantiateService(environment, definition.getServletClass(), arguments);
+            Servlet servlet = UpServices.instantiateService(environment, UpClassProvider.getClass(definition.getServletSpecification(), Servlet.class), arguments);
             holder = new ServletHolder(servlet);
             handler.addServlet(holder, definition.getMapping());
         } else {
-            holder = handler.addServlet(definition.getServletClass(), definition.getMapping());
+            holder = handler.addServlet(UpClassProvider.getClass(definition.getServletSpecification(), Servlet.class), definition.getMapping());
         }
         holder.getRegistration().setInitParameters(definition.getInitParameters());
         endpointHolderMapping.put(endpoint, holder);
@@ -218,11 +219,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
                 throw new TopologyException("Unsupported specification!");
             }
-            Class<?> serviceClass = endpointDefinition.getInstanceDefinition().getInstanceClass();
-            if (!Servlet.class.isAssignableFrom(serviceClass)) {
-                throw new TopologyException("Illegal service class, not a Servlet: " + serviceClass.getName());
-            }
-            Class<? extends Servlet> servletClass = (Class<? extends Servlet>) serviceClass;
+            Class<? extends Servlet> servletClass = UpClassProvider.getClass(endpointDefinition.getInstanceDefinition().getInstanceSpecification(), Servlet.class);
             Map<String, String> settings = endpointDefinition.getSettings();
             if (!settings.containsKey("mapping")) {
                 throw new TopologyException("Invalid endpoint definition: no mapping specified in settings!");

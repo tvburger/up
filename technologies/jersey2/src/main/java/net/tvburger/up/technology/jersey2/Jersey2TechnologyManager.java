@@ -12,6 +12,7 @@ import net.tvburger.up.technology.jsr370.Jsr370;
 import net.tvburger.up.topology.TopologyException;
 import net.tvburger.up.topology.UpEndpointDefinition;
 import net.tvburger.up.util.Identities;
+import net.tvburger.up.util.UpClassProvider;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -145,17 +146,18 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
             String mapping = definition.getMapping();
             String mappingWithoutSlash = mapping.startsWith("/") ? mapping.substring(1) : mapping;
             URI uri = UriBuilder.fromPath("/" + environmentInfo.getName() + "/" + mappingWithoutSlash).scheme("http").host(hostname).port(findFreePort()).build();
+            Class<? extends Application> applicationClass = UpClassProvider.getClass(definition.getApplicationSpecification(), Application.class);
             Jsr370.Endpoint.Info info = new Jsr370.Endpoint.Info(uri,
                     Identities.ANONYMOUS,
-                    definition.getApplicationClass(),
+                    applicationClass,
                     uri.getPort(),
                     uri.getHost(),
                     environmentInfo.getName(),
                     mapping,
-                    definition.getApplicationClass().getName() + "@" + uri.getPort(),
+                    applicationClass.getCanonicalName() + "@" + uri.getPort(),
                     environmentInfo);
             Jersey2Endpoint endpoint = Jersey2Endpoint.Factory.create(info, this);
-            Application application = new Jersey2ContextApplication(definition.getApplicationClass().newInstance(), endpoint, identity);
+            Application application = new Jersey2ContextApplication(applicationClass.newInstance(), endpoint, identity);
             ResourceConfig resourceConfig = ResourceConfig.forApplication(application);
             HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig);
             environments.computeIfAbsent(info.getEnvironmentInfo(), k -> new HashSet<>()).add(endpoint.getInfo());

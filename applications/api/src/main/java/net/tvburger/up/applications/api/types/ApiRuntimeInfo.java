@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpRuntimeInfo;
@@ -7,9 +7,9 @@ import net.tvburger.up.security.Identification;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientRuntimeInfo implements UpRuntimeInfo {
+public final class ApiRuntimeInfo implements UpRuntimeInfo {
 
-    private ClientIdentification identification;
+    private ApiIdentification identification;
     private String specificationName;
     private String specificationVersion;
 
@@ -30,7 +30,7 @@ public final class ClientRuntimeInfo implements UpRuntimeInfo {
 
     @Override
     public String toString() {
-        return String.format("ClientRuntimeInfo{%s, %s, %s}", identification, specificationName, specificationVersion);
+        return String.format("ApiRuntimeInfo{%s, %s, %s}", identification, specificationName, specificationVersion);
     }
 
     @Override

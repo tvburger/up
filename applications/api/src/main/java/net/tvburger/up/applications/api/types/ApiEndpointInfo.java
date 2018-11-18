@@ -1,4 +1,4 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpEndpoint;
@@ -10,12 +10,12 @@ import java.net.URI;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public final class ClientEndpointInfo implements UpEndpoint.Info {
+public final class ApiEndpointInfo implements UpEndpoint.Info {
 
     private URI endpointUri;
-    private ClientEndpointTechnologyInfo endpointTechnologyInfo;
-    private ClientEnvironmentInfo environmentInfo;
-    private ClientIdentification identification;
+    private ApiEndpointTechnologyInfo endpointTechnologyInfo;
+    private ApiEnvironmentInfo environmentInfo;
+    private ApiIdentification identification;
 
     @Override
     public URI getEndpointUri() {
@@ -39,7 +39,7 @@ public final class ClientEndpointInfo implements UpEndpoint.Info {
 
     @Override
     public String toString() {
-        return String.format("ClientEndpointInfo{%s, %s, %s, %s}", endpointUri, endpointTechnologyInfo, environmentInfo, identification);
+        return String.format("ApiEndpointInfo{%s, %s, %s, %s}", endpointUri, endpointTechnologyInfo, environmentInfo, identification);
     }
 
     @Override

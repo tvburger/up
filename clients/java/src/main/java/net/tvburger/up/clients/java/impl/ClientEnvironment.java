@@ -1,11 +1,12 @@
-package net.tvburger.up.clients.java.types;
+package net.tvburger.up.clients.java.impl;
 
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpException;
 import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.*;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.clients.java.impl.ApiRequester;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
@@ -14,18 +15,18 @@ import java.util.Set;
 
 public final class ClientEnvironment extends ApiRequester implements UpEnvironment {
 
-    private static final ResponseType listServiceTypesResponseType =
-            new ResponseType.Set(
-                    new ResponseType.Value(Class.class));
+    private static final ApiResponseType listServiceTypesResponseType =
+            new ApiResponseType.Set(
+                    new ApiResponseType.Value(Class.class));
 
-    private static final ResponseType listServicesResponseType =
-            new ResponseType.Set(
-                    new ResponseType.Value(ClientServiceInfo.class));
+    private static final ApiResponseType listServicesResponseType =
+            new ApiResponseType.Set(
+                    new ApiResponseType.Value(ApiServiceInfo.class));
 
-    private static final ResponseType listEndpointsResponseType =
-            new ResponseType.MapList(
-                    new ResponseType.Value(ClientSpecification.class),
-                    new ResponseType.Set(new ResponseType.Value(ClientEndpointInfo.class)));
+    private static final ApiResponseType listEndpointsResponseType =
+            new ApiResponseType.MapList(
+                    new ApiResponseType.Value(ApiSpecification.class),
+                    new ApiResponseType.Set(new ApiResponseType.Value(ApiEndpointInfo.class)));
 
     public ClientEnvironment(ApiRequester requester) {
         super(requester);
@@ -35,8 +36,8 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Set<Class<?>> listServiceTypes() {
         try {
-            return request("service_type", listServiceTypesResponseType);
-        } catch (ApiException cause) {
+            return apiRead("service_type", listServiceTypesResponseType);
+        } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read list service types: " + cause.getMessage(), cause);
         }
     }
@@ -51,8 +52,8 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Set<UpService.Info<?>> listServices() {
         try {
-            return request("service", listServicesResponseType);
-        } catch (ApiException cause) {
+            return apiRead("service", listServicesResponseType);
+        } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read list services: " + cause.getMessage(), cause);
         }
     }
@@ -73,8 +74,8 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Map<Specification, Set<? extends UpEndpoint.Info>> listEndpoints() {
         try {
-            return request("endpoint", listEndpointsResponseType);
-        } catch (ApiException cause) {
+            return apiRead("endpoint", listEndpointsResponseType);
+        } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read list endpoints: " + cause.getMessage(), cause);
         }
     }
@@ -88,23 +89,29 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Identification getIdentification() {
         try {
-            return request("identification", ClientIdentification.class);
-        } catch (ApiException cause) {
+            return apiRead("identification", ApiIdentification.class);
+        } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read identification: " + cause.getMessage(), cause);
         }
     }
 
     @Override
     public Manager getManager() throws AccessDeniedException {
-        // TODO: return API service proxy
-        return null;
+//        try {
+//            apiRead("manager/info");
+        return new ClientEnvironmentManager(this);
+//        } catch (AccessDeniedException cause) {
+//            throw cause;
+//        } catch (UpException | ApiException cause) {
+//            throw new ApiException("Failed to read manager: " + cause.getMessage(), cause);
+//        }
     }
 
     @Override
     public Info getInfo() {
         try {
-            return request("info", ClientEnvironmentInfo.class);
-        } catch (ApiException cause) {
+            return apiRead("info", ApiEnvironmentInfo.class);
+        } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read environment info: " + cause.getMessage(), cause);
         }
     }

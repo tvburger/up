@@ -39,9 +39,6 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                 if (endpointDefinition instanceof Definition) {
                     return (Definition) endpointDefinition;
                 }
-                if (!Servlet.class.isAssignableFrom(endpointDefinition.getInstanceDefinition().getInstanceClass())) {
-                    throw new IllegalArgumentException("ServletClass does not implement Servlet!");
-                }
                 return new Definition(endpointDefinition.getInstanceDefinition(), endpointDefinition.getSettings());
             }
 
@@ -63,9 +60,8 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                 return initParameters;
             }
 
-            @SuppressWarnings("unchecked")
-            public Class<? extends Servlet> getServletClass() {
-                return (Class<? extends Servlet>) getInstanceDefinition().getInstanceClass();
+            public net.tvburger.up.behaviors.Specification getServletSpecification() {
+                return getInstanceDefinition().getInstanceSpecification();
             }
 
             public List<Object> getArguments() {
@@ -108,7 +104,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                     }
                     UpEndpointDefinition.Builder builder = new UpEndpointDefinition.Builder()
                             .withEndpointTechnology(Specification.get())
-                            .withEndpointDefinition(InstanceDefinition.Factory.create(servletClass, arguments.toArray()))
+                            .withInstanceDefinition(InstanceDefinition.Factory.create(servletClass, arguments.toArray()))
                             .withSetting("mapping", mapping == null ? "/*" : mapping);
                     Map<String, String> settings = new LinkedHashMap<>();
                     for (Map.Entry<String, String> entry : initParameters.entrySet()) {

@@ -3,34 +3,26 @@ package net.tvburger.up.applications.api;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
-import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.runtime.util.UpEnvironments;
+import net.tvburger.up.applications.api.types.ApiList;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
-import javax.ws.rs.PathParam;
 import java.util.Set;
 
-@Path("/{environmentName}")
 public final class ApiEnvironment {
 
-    @PathParam("environmentName")
-    private String environmentName;
+    private final UpEnvironment environment;
 
-    private UpEnvironment getEnvironment() {
-        try {
-            return UpEnvironments.get(environmentName);
-        } catch (Throwable b) {
-            throw new RuntimeException(b);
-        }
+    public ApiEnvironment(UpEnvironment environment) {
+        this.environment = environment;
     }
 
     @Path("/service_type")
     @GET
-    public Set<Class<?>> listServiceTypes() {
-        return getEnvironment().listServiceTypes();
+    public Set listServiceTypes() {
+        return environment.listServiceTypes();
     }
 
     public <T> T lookupService(Class<T> serviceType) {
@@ -39,8 +31,8 @@ public final class ApiEnvironment {
 
     @Path("/service")
     @GET
-    public Set<UpService.Info<?>> listServices() {
-        return getEnvironment().listServices();
+    public Set listServices() {
+        return environment.listServices();
     }
 
     public <T> T getService(UpService.Info<T> serviceInfo) throws AccessDeniedException {
@@ -51,30 +43,32 @@ public final class ApiEnvironment {
         return null;
     }
 
+    @SuppressWarnings("unchecked")
     @Path("/endpoint")
     @GET
-    public ApiList<Specification, Set<? extends UpEndpoint.Info>> listEndpoints() {
-        return new ApiList<>(getEnvironment().listEndpoints());
+    public ApiList listEndpoints() {
+        return new ApiList(environment.listEndpoints());
     }
 
-    public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
+    public <I extends UpEndpoint.Info> UpEndpoint.Manager getEndpointManager(I endpointInfo) throws AccessDeniedException {
         return null;
     }
 
-    public UpEnvironment.Manager getManager() throws AccessDeniedException {
-        return null;
+    @Path("/manager")
+    public ApiEnvironmentManager getManager() throws AccessDeniedException {
+        return new ApiEnvironmentManager(environment.getManager());
     }
 
     @Path("/info")
     @GET
     public UpEnvironment.Info getInfo() {
-        return getEnvironment().getInfo();
+        return environment.getInfo();
     }
 
     @Path("/identification")
     @GET
     public Identification getIdentification() {
-        return getEnvironment().getIdentification();
+        return environment.getIdentification();
     }
 
 }

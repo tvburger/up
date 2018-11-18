@@ -17,7 +17,11 @@ public final class ApiClientManager implements UpClient.Manager {
 
     @Override
     public void close() throws IOException {
-        client.close();
+        try {
+            client.close();
+        } catch (IllegalStateException cause) {
+            throw new IOException("Failed to close the clent: " + cause, cause);
+        }
     }
 
     @Override

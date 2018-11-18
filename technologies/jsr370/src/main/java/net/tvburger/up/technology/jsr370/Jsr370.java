@@ -57,9 +57,6 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
                 if (!"application".equals(endpointDefinition.getSettings().get("type"))) {
                     throw new IllegalArgumentException("Type is not application!");
                 }
-                if (!Application.class.isAssignableFrom(endpointDefinition.getInstanceDefinition().getInstanceClass())) {
-                    throw new IllegalArgumentException("InstanceClass does not extend Application!");
-                }
                 return new Definition(endpointDefinition.getInstanceDefinition(), endpointDefinition.getSettings());
             }
 
@@ -67,9 +64,8 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
                 super(Specification.get(), instanceDefinition, settings);
             }
 
-            @SuppressWarnings("unchecked")
-            public Class<? extends Application> getApplicationClass() {
-                return (Class<? extends Application>) getInstanceDefinition().getInstanceClass();
+            public net.tvburger.up.behaviors.Specification getApplicationSpecification() {
+                return getInstanceDefinition().getInstanceSpecification();
             }
 
             public String getMapping() {
