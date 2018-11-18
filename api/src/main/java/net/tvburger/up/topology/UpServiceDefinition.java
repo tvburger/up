@@ -1,5 +1,6 @@
 package net.tvburger.up.topology;
 
+import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.util.Specifications;
 
 import java.io.Serializable;
@@ -9,10 +10,16 @@ public class UpServiceDefinition implements Serializable {
 
     public static final class Factory {
 
-        public static UpServiceDefinition create(Class<?> serviceType, InstanceDefinition instanceDefinition) {
+        public static UpServiceDefinition create(Specification serviceType, InstanceDefinition instanceDefinition) {
             Objects.requireNonNull(serviceType);
             Objects.requireNonNull(instanceDefinition);
             return new UpServiceDefinition(serviceType, instanceDefinition);
+        }
+
+        public static UpServiceDefinition create(Class<?> serviceType, InstanceDefinition instanceDefinition) {
+            Objects.requireNonNull(serviceType);
+            Objects.requireNonNull(instanceDefinition);
+            return new UpServiceDefinition(Specifications.forClass(serviceType), instanceDefinition);
         }
 
         public static UpServiceDefinition create(Class<?> serviceType, Class<?> serviceImplementation, Object... arguments) {
@@ -22,7 +29,7 @@ public class UpServiceDefinition implements Serializable {
                 argumentList.addAll(Arrays.asList(arguments));
             }
             return new UpServiceDefinition(
-                    serviceType,
+                    Specifications.forClass(serviceType),
                     new InstanceDefinition(
                             Specifications.forClass(serviceImplementation),
                             Collections.unmodifiableList(new ArrayList<>(argumentList))));
@@ -59,7 +66,7 @@ public class UpServiceDefinition implements Serializable {
                 throw new IllegalStateException();
             }
             return new UpServiceDefinition(
-                    serviceType,
+                    Specifications.forClass(serviceType),
                     new InstanceDefinition(
                             Specifications.forClass(serviceImplementation),
                             Collections.unmodifiableList(new ArrayList<>(arguments))));
@@ -67,15 +74,15 @@ public class UpServiceDefinition implements Serializable {
 
     }
 
-    private final Class<?> serviceType;
+    private final Specification serviceType;
     private final InstanceDefinition instanceDefinition;
 
-    protected UpServiceDefinition(Class<?> serviceType, InstanceDefinition instanceDefinition) {
+    protected UpServiceDefinition(Specification serviceType, InstanceDefinition instanceDefinition) {
         this.serviceType = serviceType;
         this.instanceDefinition = instanceDefinition;
     }
 
-    public Class<?> getServiceType() {
+    public Specification getServiceType() {
         return serviceType;
     }
 

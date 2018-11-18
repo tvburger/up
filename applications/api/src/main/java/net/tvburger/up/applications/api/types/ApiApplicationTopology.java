@@ -15,11 +15,11 @@ public final class ApiApplicationTopology {
 
     public static ApiApplicationTopology fromUp(UpApplicationTopology up) {
         ApiApplicationTopology api = new ApiApplicationTopology();
-        for (Specification specification : up.getServiceImplementations()) {
-            api.serviceImplementations.add(ApiSpecification.fromUp(specification));
+        for (Specification specification : up.getRequiredClasses()) {
+            api.requiredClasses.add(ApiSpecification.fromUp(specification));
         }
-        for (Specification specification : up.getEndpointTechnologies()) {
-            api.endpointTechnologies.add(ApiSpecification.fromUp(specification));
+        for (Specification specification : up.getRequiredTechnologies()) {
+            api.requiredTechnologies.add(ApiSpecification.fromUp(specification));
         }
         for (UpEndpointDefinition definition : up.getEndpointDefinitions()) {
             api.endpointDefinitions.add(ApiEndpointDefinition.fromUp(definition));
@@ -30,13 +30,13 @@ public final class ApiApplicationTopology {
         return api;
     }
 
-    public UpApplicationTopology toUp() throws IOException, ClassNotFoundException {
+    public UpApplicationTopology toUp() throws IOException {
         UpApplicationTopology.Builder builder = new UpApplicationTopology.Builder();
-        for (ApiSpecification serviceImplementation : serviceImplementations) {
-            builder.withServiceImplementation(serviceImplementation.toUp());
+        for (ApiSpecification serviceImplementation : requiredClasses) {
+            builder.withRequiredClass(serviceImplementation.toUp());
         }
-        for (ApiSpecification endpointTechnology : endpointTechnologies) {
-            builder.withEndpointTechnology(endpointTechnology.toUp());
+        for (ApiSpecification endpointTechnology : requiredTechnologies) {
+            builder.withRequiredTechnology(endpointTechnology.toUp());
         }
         for (ApiEndpointDefinition endpointDefinition : endpointDefinitions) {
             builder.withEndpointDefinition(endpointDefinition.toUp());
@@ -47,17 +47,17 @@ public final class ApiApplicationTopology {
         return builder.build();
     }
 
-    private List<ApiSpecification> serviceImplementations = new ArrayList<>();
-    private List<ApiSpecification> endpointTechnologies = new ArrayList<>();
+    private List<ApiSpecification> requiredClasses = new ArrayList<>();
+    private List<ApiSpecification> requiredTechnologies = new ArrayList<>();
     private List<ApiEndpointDefinition> endpointDefinitions = new ArrayList<>();
     private List<ApiServiceDefinition> serviceDefinitions = new ArrayList<>();
 
-    public List<ApiSpecification> getServiceImplementations() {
-        return serviceImplementations;
+    public List<ApiSpecification> getRequiredClasses() {
+        return requiredClasses;
     }
 
-    public List<ApiSpecification> getEndpointTechnologies() {
-        return endpointTechnologies;
+    public List<ApiSpecification> getRequiredTechnologies() {
+        return requiredTechnologies;
     }
 
     public List<ApiEndpointDefinition> getEndpointDefinitions() {
@@ -71,8 +71,8 @@ public final class ApiApplicationTopology {
     @Override
     public String toString() {
         return String.format("ApiApplicationTopology{%s, %s, %s, %s}",
-                serviceImplementations,
-                endpointTechnologies,
+                requiredClasses,
+                requiredTechnologies,
                 endpointDefinitions,
                 serviceDefinitions);
     }

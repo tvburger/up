@@ -10,19 +10,19 @@ public final class ApiServiceDefinition {
 
     public static ApiServiceDefinition fromUp(UpServiceDefinition up) {
         ApiServiceDefinition api = new ApiServiceDefinition();
-        api.serviceType = up.getServiceType();
+        api.serviceType = ApiSpecification.fromUp(up.getServiceType());
         api.instanceDefinition = ApiInstanceDefinition.fromUp(up.getInstanceDefinition());
         return api;
     }
 
-    public UpServiceDefinition toUp() throws IOException, ClassNotFoundException {
-        return UpServiceDefinition.Factory.create(serviceType, instanceDefinition.toUp());
+    public UpServiceDefinition toUp() throws IOException {
+        return UpServiceDefinition.Factory.create(serviceType.toUp(), instanceDefinition.toUp());
     }
 
-    private Class<?> serviceType;
+    private ApiSpecification serviceType;
     private ApiInstanceDefinition instanceDefinition;
 
-    public Class<?> getServiceType() {
+    public ApiSpecification getServiceType() {
         return serviceType;
     }
 

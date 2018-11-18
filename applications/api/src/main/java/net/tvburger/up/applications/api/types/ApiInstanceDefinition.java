@@ -13,7 +13,7 @@ public final class ApiInstanceDefinition {
 
     public static ApiInstanceDefinition fromUp(InstanceDefinition up) {
         ApiInstanceDefinition api = new ApiInstanceDefinition();
-        api.instanceSpecification = ApiSpecification.fromUp(up.getInstanceSpecification());
+        api.classSpecification = ApiSpecification.fromUp(up.getClassSpecification());
         api.arguments = new ApiList<>();
         for (Object argument : up.getArguments()) {
             api.arguments.add(argument == null ? Void.class : argument.getClass(), argument);
@@ -22,34 +22,40 @@ public final class ApiInstanceDefinition {
     }
 
     @SuppressWarnings("unchecked")
-    public InstanceDefinition toUp() throws ClassNotFoundException, IOException {
-        InstanceDefinition.Builder builder = new InstanceDefinition.Builder();
-        builder.withInstanceSpecification(instanceSpecification.toUp());
-        for (ApiList.Entry<Class<?>, Object> argument : arguments) {
-            Object value;
-            if (argument.getValue() instanceof String) {
-                String stringArgument = (String) argument.getValue();
-                Class<?> type = argument.getKey();
-                if (Class.class.isAssignableFrom(type)) {
-                    value = Class.forName(stringArgument);
-                } else if (Enum.class.isAssignableFrom(type)) {
-                    value = Enum.valueOf((Class) type, stringArgument);
+    public InstanceDefinition toUp() throws IOException {
+        try {
+            InstanceDefinition.Builder builder = new InstanceDefinition.Builder();
+            builder.withClassSpecification(classSpecification.toUp());
+            for (ApiList.Entry<Class<?>, Object> argument : arguments) {
+                Object value;
+                if (argument.getValue() instanceof String) {
+                    String stringArgument = (String) argument.getValue();
+                    Class<?> type = argument.getKey();
+                    if (String.class.isAssignableFrom(type)) {
+                        value = stringArgument;
+                    } else if (Class.class.isAssignableFrom(type)) {
+                        value = Class.forName(stringArgument);
+                    } else if (Enum.class.isAssignableFrom(type)) {
+                        value = Enum.valueOf((Class) type, stringArgument);
+                    } else {
+                        value = mapper.readValue((String) argument.getValue(), type);
+                    }
                 } else {
-                    value = mapper.readValue((String) argument.getValue(), type);
+                    value = argument.getValue();
                 }
-            } else {
-                value = argument.getValue();
+                builder.withArgument(value);
             }
-            builder.withArgument(value);
+            return builder.build();
+        } catch (ClassNotFoundException cause) {
+            throw new IOException("Failed to load class: " + cause.getMessage(), cause);
         }
-        return builder.build();
     }
 
-    private ApiSpecification instanceSpecification;
+    private ApiSpecification classSpecification;
     private ApiList<Class<?>, Object> arguments;
 
-    public ApiSpecification getInstanceSpecification() {
-        return instanceSpecification;
+    public ApiSpecification getClassSpecification() {
+        return classSpecification;
     }
 
     public ApiList<Class<?>, Object> getArguments() {

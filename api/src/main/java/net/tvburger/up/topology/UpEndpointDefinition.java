@@ -22,7 +22,7 @@ public class UpEndpointDefinition implements Serializable {
 
         public Builder withInstanceDefinition(Class<?> endpointClass, Object... arguments) {
             InstanceDefinition.Builder builder = new InstanceDefinition.Builder()
-                    .withInstanceSpecification(endpointClass);
+                    .withClassSpecification(endpointClass);
             if (arguments != null) {
                 for (Object argument : arguments) {
                     builder.withArgument(argument);

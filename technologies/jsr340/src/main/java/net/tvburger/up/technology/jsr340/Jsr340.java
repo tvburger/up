@@ -61,7 +61,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
             }
 
             public net.tvburger.up.behaviors.Specification getServletSpecification() {
-                return getInstanceDefinition().getInstanceSpecification();
+                return getInstanceDefinition().getClassSpecification();
             }
 
             public List<Object> getArguments() {

@@ -26,6 +26,10 @@ public final class ApiList<K, V> extends LinkedList<ApiList.Entry<K, V>> {
             return value;
         }
 
+        @Override
+        public String toString() {
+            return key + "=" + value;
+        }
     }
 
     public ApiList() {

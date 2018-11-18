@@ -14,14 +14,14 @@ public class InstanceDefinition implements Serializable {
             return create(Specifications.forClass(instanceClass));
         }
 
-        public static InstanceDefinition create(Specification instanceSpecification, Object... arguments) {
-            Objects.requireNonNull(instanceSpecification);
+        public static InstanceDefinition create(Specification classSpecification, Object... arguments) {
+            Objects.requireNonNull(classSpecification);
             List<Object> argumentList = new ArrayList<>();
             if (arguments != null) {
                 argumentList.addAll(Arrays.asList(arguments));
             }
             return new InstanceDefinition(
-                    instanceSpecification,
+                    classSpecification,
                     Collections.unmodifiableList(new ArrayList<>(argumentList)));
         }
 
@@ -32,19 +32,19 @@ public class InstanceDefinition implements Serializable {
 
     public static final class Builder {
 
-        private Specification instanceSpecification;
+        private Specification classSpecification;
         private List<Object> arguments = new ArrayList<>();
 
-        public Builder withInstanceSpecification(String instanceClassName) {
-            return withInstanceSpecification(Specifications.forClass(instanceClassName));
+        public Builder withClassSpecification(String instanceClassName) {
+            return withClassSpecification(Specifications.forClass(instanceClassName));
         }
 
-        public Builder withInstanceSpecification(Class<?> instanceClass) {
-            return withInstanceSpecification(Specifications.forClass(instanceClass));
+        public Builder withClassSpecification(Class<?> instanceClass) {
+            return withClassSpecification(Specifications.forClass(instanceClass));
         }
 
-        public Builder withInstanceSpecification(Specification instanceSpecification) {
-            this.instanceSpecification = instanceSpecification;
+        public Builder withClassSpecification(Specification classSpecification) {
+            this.classSpecification = classSpecification;
             return this;
         }
 
@@ -54,24 +54,24 @@ public class InstanceDefinition implements Serializable {
         }
 
         public InstanceDefinition build() {
-            if (instanceSpecification == null) {
+            if (classSpecification == null) {
                 throw new IllegalStateException();
             }
-            return new InstanceDefinition(instanceSpecification, Collections.unmodifiableList(new ArrayList<>(arguments)));
+            return new InstanceDefinition(classSpecification, Collections.unmodifiableList(new ArrayList<>(arguments)));
         }
 
     }
 
-    private final Specification instanceSpecification;
+    private final Specification classSpecification;
     private final List<Object> arguments;
 
-    protected InstanceDefinition(Specification instanceSpecification, List<Object> arguments) {
-        this.instanceSpecification = instanceSpecification;
+    protected InstanceDefinition(Specification classSpecification, List<Object> arguments) {
+        this.classSpecification = classSpecification;
         this.arguments = arguments;
     }
 
-    public Specification getInstanceSpecification() {
-        return instanceSpecification;
+    public Specification getClassSpecification() {
+        return classSpecification;
     }
 
     public List<Object> getArguments() {

@@ -171,8 +171,8 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
         try {
             logger.info("Deploying service: " + serviceDefinition.getServiceType());
             UpService<?> service = getLocalServicesManager().addService(
-                    (Class) serviceDefinition.getServiceType(),
-                    UpClassProvider.getClass(serviceDefinition.getInstanceDefinition().getInstanceSpecification()),
+                    (Class) UpClassProvider.getClass(serviceDefinition.getServiceType()),
+                    UpClassProvider.getClass(serviceDefinition.getInstanceDefinition().getClassSpecification()),
                     new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
             service.getManager().init();
             logger.info("UpService deployed: " + service.getInfo());

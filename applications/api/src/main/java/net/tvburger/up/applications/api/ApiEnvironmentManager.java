@@ -26,7 +26,7 @@ public class ApiEnvironmentManager {
     public void deploy(ApiApplicationTopology applicationTopology) throws TopologyException {
         try {
             manager.deploy(applicationTopology.toUp());
-        } catch (ClassNotFoundException | IOException cause) {
+        } catch (IOException cause) {
             throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
         }
     }
@@ -36,7 +36,7 @@ public class ApiEnvironmentManager {
     public void deploy(ApiServiceDefinition serviceDefinition) throws TopologyException {
         try {
             manager.deploy(serviceDefinition.toUp());
-        } catch (ClassNotFoundException | IOException cause) {
+        } catch (IOException cause) {
             throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
         }
     }
@@ -46,7 +46,7 @@ public class ApiEnvironmentManager {
     public void deploy(ApiEndpointDefinition endpointDefinition) throws TopologyException {
         try {
             manager.deploy(endpointDefinition.toUp());
-        } catch (ClassNotFoundException | IOException cause) {
+        } catch (IOException cause) {
             throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
         }
     }

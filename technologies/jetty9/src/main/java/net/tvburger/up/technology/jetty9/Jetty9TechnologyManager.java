@@ -219,7 +219,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
                 throw new TopologyException("Unsupported specification!");
             }
-            Class<? extends Servlet> servletClass = UpClassProvider.getClass(endpointDefinition.getInstanceDefinition().getInstanceSpecification(), Servlet.class);
+            Class<? extends Servlet> servletClass = UpClassProvider.getClass(endpointDefinition.getInstanceDefinition().getClassSpecification(), Servlet.class);
             Map<String, String> settings = endpointDefinition.getSettings();
             if (!settings.containsKey("mapping")) {
                 throw new TopologyException("Invalid endpoint definition: no mapping specified in settings!");
@@ -233,7 +233,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             endpoint.getManager().init();
             logger.info("UpEndpoint deployed: " + info);
             return endpoint;
-        } catch (LifecycleException | AccessDeniedException cause) {
+        } catch (LifecycleException | IllegalArgumentException | AccessDeniedException cause) {
             String message = "Failed to deploy endpoint: " + cause.getMessage();
             logger.error(message, cause);
             throw new UpRuntimeException(message, cause);

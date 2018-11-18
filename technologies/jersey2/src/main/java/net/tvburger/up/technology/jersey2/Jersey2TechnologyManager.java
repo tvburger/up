@@ -167,7 +167,7 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
             endpoint.getManager().init();
             logger.info("UpEndpoint deployed: " + info);
             return endpoint;
-        } catch (LifecycleException | AccessDeniedException | InstantiationException | IllegalAccessException cause) {
+        } catch (LifecycleException | IllegalArgumentException | AccessDeniedException | InstantiationException | IllegalAccessException cause) {
             String message = "Failed to deploy endpoint: " + cause.getMessage();
             logger.error(message, cause);
             throw new TopologyException(message, cause);

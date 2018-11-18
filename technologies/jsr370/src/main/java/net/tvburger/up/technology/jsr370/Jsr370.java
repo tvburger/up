@@ -39,10 +39,12 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
 
                 public static Definition create(String mapping, Class<? extends Application> applicationType) {
                     Objects.requireNonNull(applicationType);
-                    Map<String, String> map = new HashMap<>();
+                    Map<String, String> settings = new HashMap<>();
+                    settings.put("mapping", mapping);
+                    settings.put("type", "application");
                     return new Definition(
                             InstanceDefinition.Factory.create(applicationType),
-                            Collections.singletonMap("mapping", mapping));
+                            Collections.unmodifiableMap(settings));
                 }
 
                 private Factory() {
@@ -65,7 +67,7 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
             }
 
             public net.tvburger.up.behaviors.Specification getApplicationSpecification() {
-                return getInstanceDefinition().getInstanceSpecification();
+                return getInstanceDefinition().getClassSpecification();
             }
 
             public String getMapping() {

@@ -57,7 +57,7 @@ public final class ClientEnvironmentManager extends ApiRequester implements UpEn
     public UpApplicationTopology dump() {
         try {
             return apiRead("dump", ApiApplicationTopology.class).toUp();
-        } catch (UpException | ClassNotFoundException | IOException | ApiException cause) {
+        } catch (UpException | IOException | ApiException cause) {
             throw new ApiException("Failed to dump: " + cause.getMessage(), cause);
         }
     }

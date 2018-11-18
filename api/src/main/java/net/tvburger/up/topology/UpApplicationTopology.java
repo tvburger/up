@@ -13,32 +13,33 @@ public class UpApplicationTopology implements Serializable {
 
     public static final class Builder {
 
-        private Set<Specification> serviceImplementations = new LinkedHashSet<>();
-        private Set<Specification> endpointTechnologies = new LinkedHashSet<>();
+        private Set<Specification> requiredClasses = new LinkedHashSet<>();
+        private Set<Specification> requiredTechnologies = new LinkedHashSet<>();
         private Set<UpEndpointDefinition> endpointDefinitions = new LinkedHashSet<>();
         private Set<UpServiceDefinition> serviceDefinitions = new LinkedHashSet<>();
 
-        public Builder withServiceImplementation(Class<?> serviceClass) {
-            return withServiceImplementation(Specifications.forClass(serviceClass));
+        public Builder withRequiredClass(Class<?> serviceClass) {
+            return withRequiredClass(Specifications.forClass(serviceClass));
         }
 
-        public Builder withServiceImplementation(Specification serviceClassSpecification) {
-            serviceImplementations.add(serviceClassSpecification);
+        public Builder withRequiredClass(Specification serviceClassSpecification) {
+            requiredClasses.add(serviceClassSpecification);
             return this;
         }
 
-        public Builder withEndpointTechnology(String name, String version) {
-            return withEndpointTechnology(SpecificationImpl.Factory.create(name, version));
+        public Builder withRequiredTechnology(String name, String version) {
+            return withRequiredTechnology(SpecificationImpl.Factory.create(name, version));
         }
 
-        public Builder withEndpointTechnology(Specification endpointTechnology) {
-            endpointTechnologies.add(endpointTechnology);
+        public Builder withRequiredTechnology(Specification endpointTechnology) {
+            requiredTechnologies.add(endpointTechnology);
             return this;
         }
 
         public Builder withEndpointDefinition(UpEndpointDefinition endpointDefinition) {
             endpointDefinitions.add(endpointDefinition);
-            endpointTechnologies.add(endpointDefinition.getEndpointTechnology());
+            requiredClasses.add(endpointDefinition.getInstanceDefinition().getClassSpecification());
+            requiredTechnologies.add(endpointDefinition.getEndpointTechnology());
             return this;
         }
 
@@ -48,45 +49,45 @@ public class UpApplicationTopology implements Serializable {
 
         public Builder withServiceDefinition(UpServiceDefinition serviceDefinition) {
             serviceDefinitions.add(serviceDefinition);
-            serviceImplementations.add(serviceDefinition.getInstanceDefinition().getInstanceSpecification());
+            requiredClasses.add(serviceDefinition.getInstanceDefinition().getClassSpecification());
             return this;
         }
 
         public UpApplicationTopology build() {
             return new UpApplicationTopology(
-                    Collections.unmodifiableSet(new LinkedHashSet<>(serviceImplementations)),
-                    Collections.unmodifiableSet(new LinkedHashSet<>(endpointTechnologies)),
+                    Collections.unmodifiableSet(new LinkedHashSet<>(requiredClasses)),
+                    Collections.unmodifiableSet(new LinkedHashSet<>(requiredTechnologies)),
                     Collections.unmodifiableSet(new LinkedHashSet<>(endpointDefinitions)),
                     Collections.unmodifiableSet(new LinkedHashSet<>(serviceDefinitions)));
         }
 
     }
 
-    private final Set<Specification> serviceImplementations;
-    private final Set<Specification> endpointTechnologies;
+    private final Set<Specification> requiredClasses;
+    private final Set<Specification> requiredTechnologies;
     private final Set<UpEndpointDefinition> endpointDefinitions;
     private final Set<UpServiceDefinition> serviceDefinitions;
 
     protected UpApplicationTopology(UpApplicationTopology deploymentDefinition) {
-        serviceImplementations = deploymentDefinition.serviceImplementations;
-        endpointTechnologies = deploymentDefinition.endpointTechnologies;
+        requiredClasses = deploymentDefinition.requiredClasses;
+        requiredTechnologies = deploymentDefinition.requiredTechnologies;
         serviceDefinitions = deploymentDefinition.serviceDefinitions;
         endpointDefinitions = deploymentDefinition.endpointDefinitions;
     }
 
-    private UpApplicationTopology(Set<Specification> serviceImplementations, Set<Specification> endpointTechnologies, Set<UpEndpointDefinition> endpointDefinitions, Set<UpServiceDefinition> serviceDefinitions) {
-        this.serviceImplementations = serviceImplementations;
-        this.endpointTechnologies = endpointTechnologies;
+    private UpApplicationTopology(Set<Specification> requiredClasses, Set<Specification> requiredTechnologies, Set<UpEndpointDefinition> endpointDefinitions, Set<UpServiceDefinition> serviceDefinitions) {
+        this.requiredClasses = requiredClasses;
+        this.requiredTechnologies = requiredTechnologies;
         this.endpointDefinitions = endpointDefinitions;
         this.serviceDefinitions = serviceDefinitions;
     }
 
-    public Set<Specification> getServiceImplementations() {
-        return serviceImplementations;
+    public Set<Specification> getRequiredClasses() {
+        return requiredClasses;
     }
 
-    public Set<Specification> getEndpointTechnologies() {
-        return endpointTechnologies;
+    public Set<Specification> getRequiredTechnologies() {
+        return requiredTechnologies;
     }
 
     public Set<UpEndpointDefinition> getEndpointDefinitions() {

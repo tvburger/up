@@ -18,7 +18,7 @@ public final class ApiEndpointDefinition {
         return api;
     }
 
-    public UpEndpointDefinition toUp() throws IOException, ClassNotFoundException {
+    public UpEndpointDefinition toUp() throws IOException {
         UpEndpointDefinition.Builder builder = new UpEndpointDefinition.Builder();
         builder.withEndpointTechnology(endpointTechnology.toUp());
         builder.withInstanceDefinition(instanceDefinition.toUp());
