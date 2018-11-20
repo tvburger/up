@@ -1,18 +1,18 @@
 package net.tvburger.up.technology.jersey2;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpEndpointDefinition;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr370.Jsr370;
-import net.tvburger.up.topology.TopologyException;
-import net.tvburger.up.topology.UpEndpointDefinition;
 import net.tvburger.up.util.Identities;
-import net.tvburger.up.util.UpClassProvider;
 import org.glassfish.grizzly.http.server.HttpServer;
 import org.glassfish.jersey.grizzly2.httpserver.GrizzlyHttpServerFactory;
 import org.glassfish.jersey.server.ResourceConfig;
@@ -34,7 +34,7 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
 
     private final Map<UpEnvironment.Info, Set<Jsr370.Endpoint.Info>> environments = new HashMap<>();
     private final Map<Jsr370.Endpoint.Info, HttpServer> httpServers = new HashMap<>();
-    private final Map<Jsr370.Endpoint.Info, Jsr370.Endpoint> endpoints = new HashMap<>();
+    private final Map<Jsr370.Endpoint.Info, Jersey2Endpoint> endpoints = new HashMap<>();
     private final Map<Jsr370.Endpoint.Info, UpEndpointDefinition> definitions = new HashMap<>();
 
     private final UpEngine engine;
@@ -65,11 +65,11 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
     @Override
     public synchronized void start() throws LifecycleException {
         super.start();
-        for (Jsr370.Endpoint endpoint : endpoints.values()) {
+        for (Jersey2Endpoint endpoint : endpoints.values()) {
             try {
-                Jsr370.Endpoint.Manager manager = endpoint.getManager();
+                Jersey2Endpoint.Manager manager = endpoint.getManager();
                 if (manager.getState() == State.READY) {
-                    manager.stop();
+                    manager.doStart();
                 }
             } catch (AccessDeniedException cause) {
             }
@@ -79,11 +79,11 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
     @Override
     public synchronized void stop() throws LifecycleException {
         super.stop();
-        for (Jsr370.Endpoint endpoint : endpoints.values()) {
+        for (Jersey2Endpoint endpoint : endpoints.values()) {
             try {
-                Jsr370.Endpoint.Manager manager = endpoint.getManager();
+                Jersey2Endpoint.Manager manager = endpoint.getManager();
                 if (manager.getState() == State.ACTIVE) {
-                    manager.stop();
+                    manager.doStop();
                 }
             } catch (AccessDeniedException cause) {
             }
@@ -93,11 +93,11 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
     @Override
     public synchronized void destroy() throws LifecycleException {
         super.destroy();
-        for (Jsr370.Endpoint endpoint : endpoints.values()) {
+        for (Jersey2Endpoint endpoint : endpoints.values()) {
             try {
-                Jsr370.Endpoint.Manager manager = endpoint.getManager();
+                Jersey2Endpoint.Manager manager = endpoint.getManager();
                 if (manager.getState() == State.READY) {
-                    manager.destroy();
+                    manager.doDestroy();
                 }
             } catch (AccessDeniedException cause) {
             }
@@ -136,41 +136,41 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
 
     @SuppressWarnings("unchecked")
     @Override
-    public Jsr370.Endpoint deploy(UpEnvironment.Info environmentInfo, UpEndpointDefinition endpointDefinition) throws TopologyException {
+    public Jsr370.Endpoint.Manager deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication application) throws DeployException {
         try {
-            if (environmentInfo == null || endpointDefinition == null) {
+            if (endpointDefinition == null || application == null) {
                 throw new IllegalArgumentException();
             }
-            logger.info("Deploying endpoint in: " + environmentInfo.getName());
+            logger.info("Deploying endpoint for: " + application.getInfo());
             Jsr370.Endpoint.Definition definition = Jsr370.Endpoint.Definition.parse(endpointDefinition);
             String mapping = definition.getMapping();
             String mappingWithoutSlash = mapping.startsWith("/") ? mapping.substring(1) : mapping;
-            URI uri = UriBuilder.fromPath("/" + environmentInfo.getName() + "/" + mappingWithoutSlash).scheme("http").host(hostname).port(findFreePort()).build();
-            Class<? extends Application> applicationClass = UpClassProvider.getClass(definition.getApplicationSpecification(), Application.class);
+            URI uri = UriBuilder.fromPath("/" + application.getInfo().getEnvironmentInfo().getName() + "/" + mappingWithoutSlash).scheme("http").host(hostname).port(findFreePort()).build();
+            Class<? extends Application> applicationClass = application.getPackage().getClassLoader().loadClass(definition.getApplicationSpecification(), Application.class);
             Jsr370.Endpoint.Info info = new Jsr370.Endpoint.Info(uri,
                     Identities.ANONYMOUS,
                     applicationClass,
                     uri.getPort(),
                     uri.getHost(),
-                    environmentInfo.getName(),
+                    application.getInfo().getEnvironmentInfo().getName(),
                     mapping,
                     applicationClass.getCanonicalName() + "@" + uri.getPort(),
-                    environmentInfo);
-            Jersey2Endpoint endpoint = Jersey2Endpoint.Factory.create(info, this);
-            Application application = new Jersey2ContextApplication(applicationClass.newInstance(), endpoint, identity);
-            ResourceConfig resourceConfig = ResourceConfig.forApplication(application);
+                    application.getInfo());
+            Jersey2Endpoint endpoint = Jersey2Endpoint.Factory.create(info, this, application);
+            Application instance = new Jersey2ContextApplication(applicationClass.newInstance(), endpoint, identity);
+            ResourceConfig resourceConfig = ResourceConfig.forApplication(instance);
             HttpServer server = GrizzlyHttpServerFactory.createHttpServer(uri, resourceConfig);
-            environments.computeIfAbsent(info.getEnvironmentInfo(), k -> new HashSet<>()).add(endpoint.getInfo());
+            environments.computeIfAbsent(info.getApplicationInfo().getEnvironmentInfo(), k -> new HashSet<>()).add(endpoint.getInfo());
             httpServers.put(info, server);
             endpoints.put(info, endpoint);
             definitions.put(info, definition);
-            endpoint.getManager().init();
+            endpoint.getManager().doInit();
             logger.info("UpEndpoint deployed: " + info);
-            return endpoint;
-        } catch (LifecycleException | IllegalArgumentException | AccessDeniedException | InstantiationException | IllegalAccessException cause) {
+            return endpoint.getManager();
+        } catch (LifecycleException | IllegalArgumentException | ClassNotFoundException | AccessDeniedException | InstantiationException | IllegalAccessException cause) {
             String message = "Failed to deploy endpoint: " + cause.getMessage();
             logger.error(message, cause);
-            throw new TopologyException(message, cause);
+            throw new DeployException(message, cause);
         }
     }
 
@@ -200,26 +200,35 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
     void start(Jsr370.Endpoint.Info info) throws LifecycleException {
         try {
             logger.info("Starting endpoint: " + info);
+            endpoints.get(info).getManager().doStart();
             httpServers.get(info).start();
-        } catch (IOException cause) {
+        } catch (IOException | AccessDeniedException cause) {
             String message = "Failed to start endpoint: " + cause.getMessage();
             logger.error(message, cause);
             throw new LifecycleException(message, cause);
         }
     }
 
-    void stop(Jsr370.Endpoint.Info info) {
-        logger.info("Stopping endpoint: " + info);
-        httpServers.get(info).shutdownNow();
+    void stop(Jsr370.Endpoint.Info info) throws LifecycleException {
+        try {
+            logger.info("Stopping endpoint: " + info);
+            endpoints.get(info).getManager().doStop();
+            httpServers.get(info).shutdownNow();
+        } catch (AccessDeniedException cause) {
+            String message = "Failed to stop endpoint: " + cause.getMessage();
+            logger.error(message, cause);
+            throw new LifecycleException(message, cause);
+        }
     }
 
     void destroy(Jsr370.Endpoint.Info info) throws LifecycleException {
         try {
             logger.info("Removing endpoint: " + info);
-            Jsr370.Endpoint endpoint = endpoints.remove(info);
-            environments.get(info.getEnvironmentInfo()).remove(endpoint);
+            Jersey2Endpoint endpoint = endpoints.remove(info);
+            environments.get(info.getApplicationInfo().getEnvironmentInfo()).remove(endpoint.getInfo());
             definitions.remove(info);
             httpServers.remove(info);
+            endpoint.getManager().doDestroy();
         } catch (Exception cause) {
             logger.error("Failed to remove endpoint: " + cause.getMessage(), cause);
             throw new LifecycleException("Exception while destroying application: " + cause.getMessage(), cause);

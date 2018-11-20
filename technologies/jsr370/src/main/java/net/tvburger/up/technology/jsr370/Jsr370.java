@@ -1,14 +1,14 @@
 package net.tvburger.up.technology.jsr370;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEndpointTechnologyInfo;
-import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
+import net.tvburger.up.deploy.InstanceDefinition;
+import net.tvburger.up.deploy.UpEndpointDefinition;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.runtime.impl.UpEndpointTechnologyInfoImpl;
 import net.tvburger.up.security.Identification;
-import net.tvburger.up.topology.InstanceDefinition;
-import net.tvburger.up.topology.UpEndpointDefinition;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
@@ -18,7 +18,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
-public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.Endpoint.Info> {
+public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint.Info> {
 
     interface Endpoint extends UpEndpoint<Endpoint.Manager, Endpoint.Info> {
 
@@ -89,9 +89,9 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
             private final String contextPath;
             private final String mapping;
             private final String name;
-            private final UpEnvironment.Info environmentInfo;
+            private final UpApplication.Info applicationInfo;
 
-            public Info(URI endpointUri, Identification identification, Class<? extends Application> applicationClass, int port, String serverName, String contextPath, String mapping, String name, UpEnvironment.Info environmentInfo) {
+            public Info(URI endpointUri, Identification identification, Class<? extends Application> applicationClass, int port, String serverName, String contextPath, String mapping, String name, UpApplication.Info applicationInfo) {
                 this.endpointUri = endpointUri;
                 this.identification = identification;
                 this.applicationClass = applicationClass;
@@ -100,7 +100,7 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
                 this.contextPath = contextPath;
                 this.mapping = mapping;
                 this.name = name;
-                this.environmentInfo = environmentInfo;
+                this.applicationInfo = applicationInfo;
             }
 
             @Override
@@ -143,8 +143,8 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
             }
 
             @Override
-            public UpEnvironment.Info getEnvironmentInfo() {
-                return environmentInfo;
+            public UpApplication.Info getApplicationInfo() {
+                return applicationInfo;
             }
 
             @Override
@@ -184,7 +184,7 @@ public interface Jsr370 extends UpEndpointTechnology<Jsr370.Endpoint, Jsr370.End
 
     }
 
-    interface Manager extends UpEndpointTechnology.Manager<Endpoint> {
+    interface Manager extends UpEndpointTechnology.Manager<Jsr370.Endpoint.Info> {
     }
 
 }

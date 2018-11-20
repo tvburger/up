@@ -1,12 +1,12 @@
 package net.tvburger.up.technology.jersey2;
 
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.context.UpContext;
-import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.runtime.impl.UpContextImpl;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.topology.TopologyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +36,7 @@ public final class Jersey2ContextApplication extends Application {
                 contexts.set(engineContext);
                 UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, identity, engineContext));
                 logger.info("Serving URI: " + containerRequestContext.getUriInfo().getRequestUri());
-            } catch (TopologyException | AccessDeniedException cause) {
+            } catch (DeployException | AccessDeniedException cause) {
                 logger.error("Failed to set context: " + cause.getMessage(), cause);
                 throw new IOException("Failed to process request");
             }

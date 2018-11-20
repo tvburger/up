@@ -17,6 +17,11 @@
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
+            <artifactId>up-infra-api</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
             <artifactId>up-technology-jetty9</artifactId>
             <version>${project.version}</version>
         </dependency>

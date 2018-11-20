@@ -1,5 +1,6 @@
 package net.tvburger.up.technology.jersey2;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -14,9 +15,9 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
 
     public static final class Factory {
 
-        public static Jersey2Endpoint create(Jsr370.Endpoint.Info endpointInfo, Jersey2TechnologyManager technologyManager) {
+        public static Jersey2Endpoint create(Jsr370.Endpoint.Info endpointInfo, Jersey2TechnologyManager technologyManager, UpApplication application) {
             logger.info("Creating new endpoint: " + endpointInfo);
-            return new Jersey2Endpoint(new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
+            return new Jersey2Endpoint(application, new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
         }
 
         private Factory() {
@@ -35,24 +36,41 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
             this.manager = manager;
         }
 
+        void doInit() throws LifecycleException {
+            logger.info("Initializing jersey2 endpoint: " + info.getEndpointUri());
+            super.init();
+        }
+
+        void doStart() throws LifecycleException {
+            logger.info("Starting jersey2 endpoint: " + info.getEndpointUri());
+            super.start();
+        }
+
+        void doStop() throws LifecycleException {
+            logger.info("Stopping jersey2 endpoint: " + info.getEndpointUri());
+            super.stop();
+        }
+
+        void doDestroy() throws LifecycleException {
+            logger.info("Destroying jersey2 endpoint: " + info.getEndpointUri());
+            super.destroy();
+        }
+
         @Override
         public void start() throws LifecycleException {
             logger.info("Starting");
-            super.start();
             manager.start(info);
         }
 
         @Override
         public void stop() throws LifecycleException {
             logger.info("Stopping");
-            super.stop();
             manager.stop(info);
         }
 
         @Override
         public void destroy() throws LifecycleException {
             logger.info("Destroying");
-            super.destroy();
             manager.destroy(info);
         }
 
@@ -67,27 +85,29 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
         }
 
         @Override
-        public Jsr370.Endpoint.Info getInfo() {
+        public Jersey2Endpoint.Info getInfo() {
             return info;
         }
 
     }
 
+    private final UpApplication application;
     private final Manager manager;
     private final Identification identification;
 
-    public Jersey2Endpoint(Manager manager, Identification identification) {
+    public Jersey2Endpoint(UpApplication application, Manager manager, Identification identification) {
+        this.application = application;
         this.manager = manager;
         this.identification = identification;
     }
 
     @Override
-    public Jsr370.Endpoint.Manager getManager() throws AccessDeniedException {
+    public Jersey2Endpoint.Manager getManager() throws AccessDeniedException {
         return manager;
     }
 
     @Override
-    public Jsr370.Endpoint.Info getInfo() {
+    public Jersey2Endpoint.Info getInfo() {
         return manager.getInfo();
     }
 
@@ -96,4 +116,8 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
         return identification;
     }
 
+    @Override
+    public UpApplication getApplication() {
+        return application;
+    }
 }

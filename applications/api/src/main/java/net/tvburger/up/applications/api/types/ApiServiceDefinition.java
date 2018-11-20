@@ -1,7 +1,7 @@
 package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import net.tvburger.up.topology.UpServiceDefinition;
+import net.tvburger.up.deploy.UpServiceDefinition;
 
 import java.io.IOException;
 

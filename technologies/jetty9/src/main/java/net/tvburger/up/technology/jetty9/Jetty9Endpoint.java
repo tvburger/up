@@ -1,5 +1,6 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -14,9 +15,9 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     public static final class Factory {
 
-        public static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager) {
+        public static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager, UpApplication application) {
             logger.info("Creating new endpoint: " + endpointInfo);
-            return new Jetty9Endpoint(new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
+            return new Jetty9Endpoint(application, new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
         }
 
         private Factory() {
@@ -35,24 +36,41 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
             this.manager = manager;
         }
 
+        void doInit() throws LifecycleException {
+            logger.info("Initializing jetty9 endpoint: " + info.getEndpointUri());
+            super.init();
+        }
+
+        void doStart() throws LifecycleException {
+            logger.info("Starting jetty9 endpoint: " + info.getEndpointUri());
+            super.start();
+        }
+
+        void doStop() throws LifecycleException {
+            logger.info("Stopping jetty9 endpoint: " + info.getEndpointUri());
+            super.stop();
+        }
+
+        void doDestroy() throws LifecycleException {
+            logger.info("Destroying jetty9 endpoint: " + info.getEndpointUri());
+            super.destroy();
+        }
+
         @Override
         public void start() throws LifecycleException {
             logger.info("Starting");
-            super.start();
-            manager.restartIfNeeded();
+            manager.start(info);
         }
 
         @Override
         public void stop() throws LifecycleException {
             logger.info("Stopping");
-            super.stop();
-            manager.restartIfNeeded();
+            manager.stop(info);
         }
 
         @Override
         public void destroy() throws LifecycleException {
             logger.info("Destroying");
-            super.destroy();
             manager.destroy(info);
         }
 
@@ -73,21 +91,23 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     }
 
+    private final UpApplication application;
     private final Manager manager;
     private final Identification identification;
 
-    public Jetty9Endpoint(Manager manager, Identification identification) {
+    public Jetty9Endpoint(UpApplication application, Manager manager, Identification identification) {
+        this.application = application;
         this.manager = manager;
         this.identification = identification;
     }
 
     @Override
-    public Jsr340.Endpoint.Manager getManager() throws AccessDeniedException {
+    public Jetty9Endpoint.Manager getManager() throws AccessDeniedException {
         return manager;
     }
 
     @Override
-    public Jsr340.Endpoint.Info getInfo() {
+    public Jetty9Endpoint.Info getInfo() {
         return manager.getInfo();
     }
 
@@ -96,4 +116,8 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
         return identification;
     }
 
+    @Override
+    public UpApplication getApplication() {
+        return application;
+    }
 }

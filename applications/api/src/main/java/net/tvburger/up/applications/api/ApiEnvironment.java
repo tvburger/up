@@ -39,8 +39,9 @@ public final class ApiEnvironment {
         return null;
     }
 
-    public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return null;
+    @Path("/service/{name}")
+    public ApiServiceManager getServiceManager(UpService.Info<?> serviceInfo) throws AccessDeniedException {
+        return new ApiServiceManager(environment.getServiceManager(serviceInfo));
     }
 
     @SuppressWarnings("unchecked")

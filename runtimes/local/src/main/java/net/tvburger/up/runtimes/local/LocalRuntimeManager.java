@@ -5,14 +5,18 @@ import net.tvburger.up.UpRuntimeInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
+import net.tvburger.up.infra.UpEngineDefinition;
+import net.tvburger.up.infra.impl.UpEngineImpl;
+import net.tvburger.up.infra.impl.UpEngineManagerImpl;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.UpRuntimeException;
 import net.tvburger.up.runtime.context.UpContext;
-import net.tvburger.up.runtime.impl.*;
+import net.tvburger.up.runtime.impl.UpContextImpl;
+import net.tvburger.up.runtime.impl.UpRuntimeInfoImpl;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.topology.UpEngineDefinition;
 import net.tvburger.up.util.Identities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -76,6 +80,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
             UpEnvironment environment = LocalEnvironment.Factory.create(getEngine(), environmentName, runtime.getInfo());
             environments.put(environment.getInfo().getName(), environment);
             environment.getManager().init();
+            logger.info("Added environment: " + environmentName);
             return environment;
         } catch (LifecycleException | AccessDeniedException cause) {
             logger.error("Failed to add environment: " + cause.getMessage(), cause);
@@ -95,10 +100,10 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
             engineManager = UpEngineManagerImpl.Factory.create(new LocalEngineInfo(identity), engineDefinition, identity, runtime);
             engineManager.setEngine(new UpEngineImpl(engineManager));
             UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
-            logger.info("Intializing...");
+            logger.info("Intializing: " + getInfo());
             engineInfos.add(engineManager.getInfo());
             engineManager.init();
-            logger.info("Initialized");
+            logger.info("Initialized: " + getInfo());
         } catch (UnknownHostException cause) {
             logger.error("Failed to initialize: " + cause.getMessage(), cause);
             throw new LifecycleException(cause);
@@ -113,12 +118,12 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
         UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
         super.start();
         try {
-            logger.info("Starting...");
+            logger.info("Starting: " + getInfo());
             for (UpEnvironment environment : environments.values()) {
                 environment.getManager().start();
             }
             engineManager.start();
-            logger.info("Started");
+            logger.info("Started: " + getInfo());
         } catch (AccessDeniedException cause) {
             logger.error("Failed to start: " + cause.getMessage(), cause);
             throw new LifecycleException(cause);
@@ -133,7 +138,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
         UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
         super.stop();
         try {
-            logger.info("Stopping...");
+            logger.info("Stopping: " + getInfo());
             for (UpEnvironment environment : environments.values()) {
                 UpEnvironment.Manager manager = environment.getManager();
                 if (manager.getState() == State.ACTIVE) {
@@ -141,7 +146,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
                 }
             }
             engineManager.stop();
-            logger.info("Stopped");
+            logger.info("Stopped: " + getInfo());
         } catch (AccessDeniedException cause) {
             logger.error("Failed to stop: " + cause.getMessage(), cause);
             throw new LifecycleException(cause);
@@ -156,7 +161,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
         UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
         super.destroy();
         try {
-            logger.info("Destroying...");
+            logger.info("Destroying: " + getInfo());
             for (UpEnvironment environment : environments.values()) {
                 UpEnvironment.Manager manager = environment.getManager();
                 switch (manager.getState()) {
@@ -169,7 +174,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
                 }
             }
             engineManager.destroy();
-            logger.info("Destroyed");
+            logger.info("Destroyed: " + getInfo());
         } catch (AccessDeniedException cause) {
             logger.error("Failed to cleanUp: " + cause.getMessage(), cause);
             throw new LifecycleException(cause);

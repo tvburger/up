@@ -6,8 +6,8 @@ import net.tvburger.up.runtime.context.CallerInfo;
 import net.tvburger.up.runtime.context.Locality;
 import net.tvburger.up.runtime.context.TransactionInfo;
 import net.tvburger.up.runtime.context.UpContext;
-import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.runtime.impl.UpContextImpl;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.runtimes.local.LocalInstance;
 import net.tvburger.up.security.AccessDeniedException;
 

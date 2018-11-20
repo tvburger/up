@@ -1,9 +1,6 @@
 package net.tvburger.up.clients.java.impl;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpException;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.applications.api.types.*;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.clients.java.ApiException;
@@ -83,6 +80,26 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
         // TODO: return API service proxy
+        return null;
+    }
+
+    @Override
+    public Set<UpPackage.Info> listPackages() {
+        return null;
+    }
+
+    @Override
+    public UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException {
+        return null;
+    }
+
+    @Override
+    public Set<UpApplication.Info> listApplications() {
+        return null;
+    }
+
+    @Override
+    public UpApplication getApplication(UpApplication.Info applicationInfo) throws AccessDeniedException {
         return null;
     }
 

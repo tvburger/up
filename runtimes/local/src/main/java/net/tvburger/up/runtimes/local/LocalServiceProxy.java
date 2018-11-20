@@ -1,11 +1,12 @@
 package net.tvburger.up.runtimes.local;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.runtime.context.UpContext;
-import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.runtime.impl.UpContextImpl;
 import net.tvburger.up.runtime.impl.UpServiceImpl;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.runtimes.local.client.UpProxyException;
 import net.tvburger.up.security.Identity;
 import org.slf4j.Logger;
@@ -27,14 +28,15 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
     public static final class Factory {
 
         @SuppressWarnings("unchecked")
-        public static <T> T create(T service, Identity serviceIdentity, UpService.Manager<T> serviceManager) {
+        public static <T> T create(T service, UpApplication application, Identity serviceIdentity, UpService.Manager<T> serviceManager) {
             Objects.requireNonNull(service);
+            Objects.requireNonNull(application);
             Objects.requireNonNull(serviceIdentity);
             Objects.requireNonNull(serviceManager);
             return (T) Proxy.newProxyInstance(
                     service.getClass().getClassLoader(),
                     service.getClass().getInterfaces(),
-                    new LocalServiceProxy<>(new UpServiceImpl<>(serviceManager, service), serviceIdentity));
+                    new LocalServiceProxy<>(new UpServiceImpl<>(application, serviceManager, service), serviceIdentity));
         }
 
         private Factory() {

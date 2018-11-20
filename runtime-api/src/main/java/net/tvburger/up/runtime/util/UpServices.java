@@ -1,24 +1,27 @@
 package net.tvburger.up.runtime.util;
 
 import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.topology.TopologyException;
+import net.tvburger.up.deploy.DeployException;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Arrays;
+import java.util.Objects;
 
 public final class UpServices {
 
-    public static <T> T instantiateService(UpEnvironment environment, Class<T> serviceClass, Object... arguments) throws TopologyException {
+    public static <T> T instantiateService(UpEnvironment environment, Class<T> serviceClass, Object... arguments) throws DeployException {
         try {
+            Objects.requireNonNull(environment);
+            Objects.requireNonNull(serviceClass);
             Constructor<T> constructor = getConstructor(serviceClass, arguments);
-            System.out.println(Arrays.toString(constructor.getParameterTypes()));
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < arguments.length; i++) {
+                if (arguments[i].getClass().equals(String.class)) {
+                }
                 if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {
                     Object serviceInterface = environment.lookupService(parameterTypes[i]);
                     if (serviceInterface == null) {
-                        throw new TopologyException("No dependent service found: " + parameterTypes[i]);
+                        throw new DeployException("No dependent service found: " + parameterTypes[i]);
                     }
                     arguments[i] = serviceInterface;
                 }
@@ -26,12 +29,12 @@ public final class UpServices {
             return constructor.newInstance(arguments);
         } catch (ClassCastException | InstantiationException | IllegalAccessException |
                 IllegalArgumentException | InvocationTargetException cause) {
-            throw new TopologyException(cause);
+            throw new DeployException(cause);
         }
     }
 
     @SuppressWarnings("unchecked")
-    private static <T> Constructor<T> getConstructor(Class<T> serviceClass, Object[] arguments) throws TopologyException {
+    private static <T> Constructor<T> getConstructor(Class<T> serviceClass, Object[] arguments) throws DeployException {
         int argumentLength = arguments == null ? 0 : arguments.length;
         Constructor<?>[] constructors = serviceClass.getConstructors();
         for (Constructor<?> constructor : constructors) {
@@ -39,7 +42,7 @@ public final class UpServices {
                 return (Constructor<T>) constructor;
             }
         }
-        throw new TopologyException(String.format("No constructor of %s found with %s arguments!", serviceClass, argumentLength));
+        throw new DeployException(String.format("No constructor of %s found with %s arguments!", serviceClass, argumentLength));
     }
 
     private UpServices() {

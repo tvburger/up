@@ -1,9 +1,7 @@
 package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
-import net.tvburger.up.security.Identification;
 
 import java.util.Objects;
 import java.util.UUID;
@@ -13,7 +11,7 @@ public final class ApiServiceInfo<T> implements UpService.Info<T> {
 
     private Class<T> serviceType;
     private UUID serviceInstanceId;
-    private ApiEnvironmentInfo environmentInfo;
+    private ApiApplicationInfo applicationInfo;
     private ApiIdentification identification;
     private String specificationName;
     private String specificationVersion;
@@ -29,12 +27,12 @@ public final class ApiServiceInfo<T> implements UpService.Info<T> {
     }
 
     @Override
-    public UpEnvironment.Info getEnvironmentInfo() {
-        return environmentInfo;
+    public ApiApplicationInfo getApplicationInfo() {
+        return applicationInfo;
     }
 
     @Override
-    public Identification getIdentification() {
+    public ApiIdentification getIdentification() {
         return identification;
     }
 
@@ -56,7 +54,7 @@ public final class ApiServiceInfo<T> implements UpService.Info<T> {
                 serviceType.getCanonicalName(),
                 identification,
                 serviceInstanceId,
-                environmentInfo);
+                applicationInfo);
     }
 
     @Override
@@ -67,7 +65,7 @@ public final class ApiServiceInfo<T> implements UpService.Info<T> {
                         && Objects.equals(getServiceType(), ((UpService.Info) object).getServiceType())
                         && Objects.equals(getIdentification(), ((UpService.Info) object).getIdentification())
                         && Objects.equals(getServiceInstanceId(), ((UpService.Info) object).getServiceInstanceId())
-                        && Objects.equals(getEnvironmentInfo(), ((UpService.Info) object).getEnvironmentInfo())
+                        && Objects.equals(getApplicationInfo(), ((UpService.Info) object).getApplicationInfo())
                         && Objects.equals(getSpecificationName(), ((UpService.Info) object).getSpecificationName())
                         && Objects.equals(getSpecificationVersion(), ((UpService.Info) object).getSpecificationVersion()));
     }
@@ -79,6 +77,6 @@ public final class ApiServiceInfo<T> implements UpService.Info<T> {
                 + Objects.hashCode(serviceType) * 41
                 + Objects.hashCode(identification) * 13
                 + Objects.hashCode(serviceInstanceId) * 11
-                + Objects.hashCode(environmentInfo) * 3;
+                + Objects.hashCode(applicationInfo) * 3;
     }
 }

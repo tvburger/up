@@ -1,9 +1,11 @@
 package net.tvburger.up.runtimes.local;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.behaviors.impl.ImplementationImpl;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.impl.UpServiceImpl;
 import net.tvburger.up.runtime.impl.UpServiceInfoImpl;
@@ -11,7 +13,6 @@ import net.tvburger.up.runtime.impl.UpServiceManagerImpl;
 import net.tvburger.up.runtime.util.UpServices;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.topology.TopologyException;
 import net.tvburger.up.util.Identities;
 
 import java.util.*;
@@ -30,16 +31,16 @@ public final class LocalServicesManager {
         this.environmentInfo = environmentInfo;
     }
 
-    public <T, S extends T> UpService<T> addService(Class<T> serviceType, Class<S> serviceClass, Object[] arguments) throws AccessDeniedException, TopologyException {
+    public <T, S extends T> UpService<T> addService(UpApplication application, Class<T> serviceType, Class<S> serviceClass, Object[] arguments) throws AccessDeniedException, DeployException {
         if (serviceClass == null || serviceType == null || !serviceType.isAssignableFrom(serviceClass) || !serviceType.isInterface()) {
-            throw new TopologyException("Invalid serviceType and serviceClass: " + serviceType + " - " + serviceClass);
+            throw new DeployException("Invalid serviceType and serviceClass: " + serviceType + " - " + serviceClass);
         }
         Identity identity = Identities.ANONYMOUS;
-        UpService.Manager<T> serviceManager = createServiceManager(serviceType, serviceClass, identity);
+        UpService.Manager<T> serviceManager = createServiceManager(serviceType, serviceClass, identity, application.getInfo());
         UpEnvironment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
-        T serviceInstance = LocalServiceProxy.Factory.create(UpServices.instantiateService(environment, serviceClass, arguments), identity, serviceManager);
+        T serviceInstance = LocalServiceProxy.Factory.create(UpServices.instantiateService(environment, serviceClass, arguments), application, identity, serviceManager);
         Set<UpService<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new HashSet<>());
-        UpService<T> service = new UpServiceImpl<>(serviceManager, serviceInstance);
+        UpService<T> service = new UpServiceImpl<>(application, serviceManager, serviceInstance);
         services.add(service);
         this.services.add(service.getInfo());
         infoServiceIndex.put(service.getInfo(), service);
@@ -47,14 +48,14 @@ public final class LocalServicesManager {
         return service;
     }
 
-    private <T, S extends T> UpService.Manager<T> createServiceManager(Class<T> serviceType, Class<S> serviceClass, Identity identity) {
+    private <T, S extends T> UpService.Manager<T> createServiceManager(Class<T> serviceType, Class<S> serviceClass, Identity identity, UpApplication.Info applicationInfo) {
         return UpServiceManagerImpl.Factory.create(
                 ImplementationImpl.Factory.create(serviceType, serviceClass),
                 UpServiceInfoImpl.Factory.create(
                         serviceType,
                         Identities.getSafeIdentification(identity),
                         UUID.randomUUID(),
-                        environmentInfo));
+                        applicationInfo));
     }
 
     public <T> void removeService(UpService<T> service) {

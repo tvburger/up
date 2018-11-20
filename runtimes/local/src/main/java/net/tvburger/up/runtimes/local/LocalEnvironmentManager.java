@@ -2,25 +2,20 @@ package net.tvburger.up.runtimes.local;
 
 import net.tvburger.up.*;
 import net.tvburger.up.behaviors.LifecycleException;
-import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
-import net.tvburger.up.runtime.UpEndpointTechnology;
+import net.tvburger.up.deploy.*;
 import net.tvburger.up.runtime.UpEngine;
-import net.tvburger.up.runtime.UpRuntimeException;
+import net.tvburger.up.runtime.impl.UpApplicationInfoImpl;
 import net.tvburger.up.runtime.impl.UpEnvironmentInfoImpl;
 import net.tvburger.up.security.AccessDeniedException;
-import net.tvburger.up.topology.TopologyException;
-import net.tvburger.up.topology.UpApplicationTopology;
-import net.tvburger.up.topology.UpEndpointDefinition;
-import net.tvburger.up.topology.UpServiceDefinition;
 import net.tvburger.up.util.Identities;
-import net.tvburger.up.util.UpClassProvider;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
+import java.util.Objects;
 
 public final class LocalEnvironmentManager extends LifecycleManagerImpl implements UpEnvironment.Manager {
 
@@ -41,6 +36,8 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
 
     }
 
+    private final Map<UpPackage.Info, UpPackage> packages = new HashMap<>();
+    private final Map<UpApplication.Info, UpApplication> applications = new HashMap<>();
     private final UpEngine engine;
     private final UpEnvironment.Info environmentInfo;
     private final LocalServicesManager localServicesManager;
@@ -50,6 +47,14 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
         this.engine = engine;
         this.environmentInfo = environmentInfo;
         this.localServicesManager = localServicesManager;
+    }
+
+    public Map<UpPackage.Info, UpPackage> getPackages() {
+        return Collections.unmodifiableMap(packages);
+    }
+
+    public Map<UpApplication.Info, UpApplication> getApplications() {
+        return applications;
     }
 
     public LocalServicesManager getLocalServicesManager() {
@@ -65,17 +70,11 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     public synchronized void start() throws LifecycleException {
         super.start();
         try {
-            UpEnvironment environment = getEnvironment();
-            logger.info("Starting...");
-            for (UpService.Info<?> serviceInfo : environment.listServices()) {
-                environment.getServiceManager(serviceInfo).start();
+            logger.info("Starting: " + getInfo());
+            for (UpApplication application : applications.values()) {
+                application.getManager().start();
             }
-            for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : environment.listEndpoints().entrySet()) {
-                for (UpEndpoint.Info endpointInfo : entry.getValue()) {
-                    environment.getEndpointManager(endpointInfo).start();
-                }
-            }
-            logger.info("Started");
+            logger.info("Started: " + getInfo());
         } catch (LifecycleException | AccessDeniedException cause) {
             logger.error("Failed to start: " + cause.getMessage(), cause);
             fail();
@@ -87,17 +86,11 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     public synchronized void stop() throws LifecycleException {
         super.stop();
         try {
-            UpEnvironment environment = getEnvironment();
-            logger.info("Stopping...");
-            for (UpService.Info<?> serviceInfo : environment.listServices()) {
-                environment.getServiceManager(serviceInfo).stop();
+            logger.info("Stopping: " + getInfo());
+            for (UpApplication application : applications.values()) {
+                application.getManager().stop();
             }
-            for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : environment.listEndpoints().entrySet()) {
-                for (UpEndpoint.Info endpointInfo : entry.getValue()) {
-                    environment.getEndpointManager(endpointInfo).stop();
-                }
-            }
-            logger.info("Stopped");
+            logger.info("Stopped: " + getInfo());
         } catch (LifecycleException | AccessDeniedException cause) {
             logger.error("Failed to stop: " + cause.getMessage(), cause);
             fail();
@@ -110,17 +103,12 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
         super.destroy();
         try {
             UpEnvironment environment = getEnvironment();
-            logger.info("Destroying...");
-            for (UpService.Info<?> serviceInfo : environment.listServices()) {
-                environment.getServiceManager(serviceInfo).destroy();
-            }
-            for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : environment.listEndpoints().entrySet()) {
-                for (UpEndpoint.Info endpointInfo : entry.getValue()) {
-                    environment.getEndpointManager(endpointInfo).destroy();
-                }
+            logger.info("Destroying: " + getInfo());
+            for (UpApplication application : applications.values()) {
+                application.getManager().destroy();
             }
             ((LocalRuntimeManager) engine.getRuntime().getManager()).removeEnvironment(environment.getInfo().getName());
-            logger.info("Destroyed");
+            logger.info("Destroyed: " + getInfo());
         } catch (LifecycleException | AccessDeniedException cause) {
             logger.error("Failed to start: " + cause.getMessage(), cause);
             fail();
@@ -130,11 +118,6 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
 
     private UpEnvironment getEnvironment() throws AccessDeniedException {
         return engine.getRuntime().getEnvironment(getInfo().getName());
-    }
-
-    @Override
-    public UpApplicationTopology dump() {
-        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -148,66 +131,86 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     }
 
     @Override
-    public void deploy(UpApplicationTopology applicationTopology) throws TopologyException {
+    public boolean supportsPackageDefinitionType(Class<? extends UpPackageDefinition> packageDefinitionType) {
+        return LocalPackageDefinition.class.equals(packageDefinitionType);
+    }
+
+    @Override
+    public UpPackage.Manager deployPackage(UpPackageDefinition packageDefinition) throws DeployException {
+        if (!supportsPackageDefinitionType(packageDefinition.getClass())) {
+            throw new DeployException("Invalid package definition type!");
+        }
         try {
-            logger.info("Deploying application...");
-            for (UpServiceDefinition serviceDefinition : applicationTopology.getServiceDefinitions()) {
-                deploy(serviceDefinition);
+            logger.info("Deploying package...");
+            LocalPackageDefinition localPackage = (LocalPackageDefinition) packageDefinition;
+            packages.put(localPackage.getInfo(), localPackage);
+            logger.info("Deployed package: " + localPackage.getInfo());
+            return localPackage.getManager();
+        } catch (AccessDeniedException cause) {
+            throw new DeployException(cause);
+        }
+    }
+
+    @Override
+    public UpApplication.Manager createApplication(String name, UpPackage.Info packageInfo) throws DeployException {
+        Objects.requireNonNull(name);
+        Objects.requireNonNull(packageInfo);
+        logger.info("Creating application: " + name);
+        UpPackage upPackage = packages.get(packageInfo);
+        if (upPackage == null) {
+            throw new DeployException("No such package: " + packageInfo);
+        }
+        UpApplication.Info info = new UpApplicationInfoImpl(name, packageInfo, environmentInfo, Identities.ANONYMOUS);
+        LocalApplicationManager manager = new LocalApplicationManager(localServicesManager, engine, info);
+        UpApplication application = LocalApplication.Factory.create(manager, upPackage, Identities.ANONYMOUS);
+        manager.init(application);
+        applications.put(application.getInfo(), application);
+        logger.info("Created application: " + name);
+        return manager;
+    }
+
+    @Override
+    public UpApplication.Manager deployApplication(UpApplicationDefinition applicationDefinition, UpPackage.Info packageInfo) throws DeployException {
+        Objects.requireNonNull(applicationDefinition);
+        Objects.requireNonNull(packageInfo);
+        try {
+            logger.info("Deploying application: " + applicationDefinition.getName());
+            UpApplication.Manager manager = createApplication(applicationDefinition.getName(), packageInfo);
+            for (UpServiceDefinition serviceDefinition : applicationDefinition.getServiceDefinitions()) {
+                manager.deployService(serviceDefinition);
             }
-            for (UpEndpointDefinition endpointDefinition : applicationTopology.getEndpointDefinitions()) {
-                deploy(endpointDefinition);
+            for (UpEndpointDefinition endpointDefinition : applicationDefinition.getEndpointDefinitions()) {
+                manager.deployEndpoint(endpointDefinition);
             }
-            logger.info("Application deployed");
-        } catch (TopologyException cause) {
+            logger.info("Application deployed: " + applicationDefinition.getName());
+            return manager;
+        } catch (DeployException cause) {
             String message = "Failed to deploy application: " + cause.getMessage();
             logger.error(message, cause);
-            throw new TopologyException(message, cause);
-        }
-    }
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public void deploy(UpServiceDefinition serviceDefinition) throws TopologyException {
-        try {
-            logger.info("Deploying service: " + serviceDefinition.getServiceType());
-            UpService<?> service = getLocalServicesManager().addService(
-                    (Class) UpClassProvider.getClass(serviceDefinition.getServiceType()),
-                    UpClassProvider.getClass(serviceDefinition.getInstanceDefinition().getClassSpecification()),
-                    new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
-            service.getManager().init();
-            logger.info("UpService deployed: " + service.getInfo());
-        } catch (LifecycleException | AccessDeniedException cause) {
-            String message = "Failed to deploy service: " + cause.getMessage();
-            logger.error(message, cause);
-            throw new TopologyException(message, cause);
+            throw new DeployException(message, cause);
         }
     }
 
     @Override
-    public void deploy(UpEndpointDefinition endpointDefinition) throws TopologyException {
+    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException {
+        Objects.requireNonNull(serviceDefinition);
+        Objects.requireNonNull(applicationInfo);
         try {
-            logger.info("Deploying endpoint: " + endpointDefinition.getEndpointTechnology());
-            UpEndpointTechnologyInfo info = getEndpointTechnologyInfo(endpointDefinition.getEndpointTechnology());
-            engine.getEndpointTechnology(info.getEndpointType()).getManager().deploy(getInfo(), endpointDefinition);
-            logger.info("Deployed endpoint: " + info);
-        } catch (AccessDeniedException | TopologyException | UpRuntimeException cause) {
-            String message = "Failed to deploy endpoint: " + cause.getMessage();
-            logger.error(message, cause);
-            throw new TopologyException(message, cause);
+            return applications.get(applicationInfo).getManager().deployService(serviceDefinition);
+        } catch (AccessDeniedException cause) {
+            throw new DeployException(cause);
         }
     }
 
-
-    private UpEndpointTechnologyInfo getEndpointTechnologyInfo(Specification endpointReference) throws TopologyException {
-        for (Class<?> endpointType : engine.listEndpointTypes()) {
-            UpEndpointTechnology<?, ?> endpointTechnology = engine.getEndpointTechnology(endpointType);
-            UpEndpointTechnologyInfo info = endpointTechnology.getInfo();
-            if (info.getSpecificationName().equals(endpointReference.getSpecificationName())
-                    && info.getSpecificationVersion().equals(endpointReference.getSpecificationVersion())) {
-                return info;
-            }
+    @Override
+    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException {
+        Objects.requireNonNull(endpointDefinition);
+        Objects.requireNonNull(applicationInfo);
+        try {
+            return applications.get(applicationInfo).getManager().deployEndpoint(endpointDefinition);
+        } catch (AccessDeniedException cause) {
+            throw new DeployException(cause);
         }
-        throw new TopologyException("No such endpoint technology: " + endpointReference);
     }
 
 }

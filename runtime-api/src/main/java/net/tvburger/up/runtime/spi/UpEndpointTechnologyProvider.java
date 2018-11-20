@@ -7,6 +7,6 @@ public interface UpEndpointTechnologyProvider {
 
     Class<?> getEndpointType();
 
-    UpEndpointTechnology<?, ?> getEndpointTechnology() throws UpRuntimeException;
+    UpEndpointTechnology<?> getEndpointTechnology() throws UpRuntimeException;
 
 }

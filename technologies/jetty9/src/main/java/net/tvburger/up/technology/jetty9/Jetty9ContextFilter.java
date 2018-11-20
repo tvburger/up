@@ -1,12 +1,12 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.context.UpContext;
-import net.tvburger.up.runtime.impl.UpContextHolder;
 import net.tvburger.up.runtime.impl.UpContextImpl;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.technology.jsr340.Jsr340;
-import net.tvburger.up.topology.TopologyException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -37,7 +37,7 @@ public final class Jetty9ContextFilter implements Filter {
             logger.info("Serving URI: " + ((HttpServletRequest) request).getRequestURI());
             chain.doFilter(request, response);
             logger.info("Returning from: " + ((HttpServletRequest) request).getRequestURI());
-        } catch (TopologyException | AccessDeniedException cause) {
+        } catch (DeployException | AccessDeniedException cause) {
             logger.error("Failed to set context: " + cause.getMessage(), cause);
             throw new ServletException("Failed to set context!");
         } catch (ServletException | IOException cause) {

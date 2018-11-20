@@ -1,6 +1,6 @@
 package net.tvburger.up.runtime.impl;
 
-import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
@@ -13,20 +13,20 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
 
     public static final class Factory {
 
-        public static <T> UpServiceInfoImpl<T> create(Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpEnvironment.Info environmentInfo) {
+        public static <T> UpServiceInfoImpl<T> create(Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpApplication.Info applicationInfo) {
             Objects.requireNonNull(serviceType);
             return create(
                     SpecificationImpl.Factory.create(serviceType.getCanonicalName(), "unversioned"),
-                    serviceType, identification, serviceInstanceId, environmentInfo);
+                    serviceType, identification, serviceInstanceId, applicationInfo);
         }
 
-        public static <T> UpServiceInfoImpl<T> create(Specification specification, Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpEnvironment.Info environmentInfo) {
+        public static <T> UpServiceInfoImpl<T> create(Specification specification, Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpApplication.Info applicationInfo) {
             Objects.requireNonNull(specification);
             Objects.requireNonNull(serviceType);
             Objects.requireNonNull(identification);
             Objects.requireNonNull(serviceInstanceId);
-            Objects.requireNonNull(environmentInfo);
-            return new UpServiceInfoImpl<>(specification, serviceType, identification, serviceInstanceId, environmentInfo);
+            Objects.requireNonNull(applicationInfo);
+            return new UpServiceInfoImpl<>(specification, serviceType, identification, serviceInstanceId, applicationInfo);
         }
 
         private Factory() {
@@ -38,14 +38,14 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
     private final Class<T> serviceType;
     private final Identification identification;
     private final UUID serviceInstanceId;
-    private final UpEnvironment.Info environmentInfo;
+    private final UpApplication.Info applicationInfo;
 
-    protected UpServiceInfoImpl(Specification specification, Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpEnvironment.Info environmentInfo) {
+    protected UpServiceInfoImpl(Specification specification, Class<T> serviceType, Identification identification, UUID serviceInstanceId, UpApplication.Info applicationInfo) {
         this.specification = specification;
         this.serviceType = serviceType;
         this.identification = identification;
         this.serviceInstanceId = serviceInstanceId;
-        this.environmentInfo = environmentInfo;
+        this.applicationInfo = applicationInfo;
     }
 
     @Override
@@ -64,8 +64,8 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
     }
 
     @Override
-    public UpEnvironment.Info getEnvironmentInfo() {
-        return environmentInfo;
+    public UpApplication.Info getApplicationInfo() {
+        return applicationInfo;
     }
 
     @Override
@@ -85,7 +85,7 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
                 serviceType.getCanonicalName(),
                 identification,
                 serviceInstanceId,
-                environmentInfo);
+                applicationInfo);
     }
 
     @Override
@@ -96,7 +96,7 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
                         && Objects.equals(getServiceType(), ((UpService.Info) object).getServiceType())
                         && Objects.equals(getIdentification(), ((UpService.Info) object).getIdentification())
                         && Objects.equals(getServiceInstanceId(), ((UpService.Info) object).getServiceInstanceId())
-                        && Objects.equals(getEnvironmentInfo(), ((UpService.Info) object).getEnvironmentInfo())
+                        && Objects.equals(getApplicationInfo(), ((UpService.Info) object).getApplicationInfo())
                         && Objects.equals(getSpecificationName(), ((UpService.Info) object).getSpecificationName())
                         && Objects.equals(getSpecificationVersion(), ((UpService.Info) object).getSpecificationVersion()));
     }
@@ -107,7 +107,7 @@ public class UpServiceInfoImpl<T> implements UpService.Info<T> {
                 + Objects.hashCode(serviceType) * 41
                 + Objects.hashCode(identification) * 13
                 + Objects.hashCode(serviceInstanceId) * 11
-                + Objects.hashCode(environmentInfo) * 3;
+                + Objects.hashCode(applicationInfo) * 3;
     }
 
 }

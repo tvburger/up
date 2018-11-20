@@ -5,7 +5,7 @@ import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpService;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
-import net.tvburger.up.runtime.impl.UpContextHolder;
+import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.security.Identity;
 
 import java.util.UUID;

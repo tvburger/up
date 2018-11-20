@@ -4,10 +4,10 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.clients.java.ApiException;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.UpRuntimeException;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.topology.TopologyException;
 
 import javax.ws.rs.ProcessingException;
 import javax.ws.rs.WebApplicationException;
@@ -76,15 +76,15 @@ public abstract class ApiRequester {
         this.provider = provider;
     }
 
-    protected void apiWrite(String path) throws ApiException, UpClientException, TopologyException, AccessDeniedException, UpRuntimeException, LifecycleException {
+    protected void apiWrite(String path) throws ApiException, UpClientException, DeployException, AccessDeniedException, UpRuntimeException, LifecycleException {
         doPostRequest(path, null);
     }
 
-    protected void apiWrite(String path, Object payload) throws ApiException, UpClientException, TopologyException, AccessDeniedException, UpRuntimeException, LifecycleException {
+    protected void apiWrite(String path, Object payload) throws ApiException, UpClientException, DeployException, AccessDeniedException, UpRuntimeException, LifecycleException {
         doPostRequest(path, payload);
     }
 
-    private Response doPostRequest(String path, Object payload) throws ApiException, UpClientException, AccessDeniedException, TopologyException, UpRuntimeException, LifecycleException {
+    private Response doPostRequest(String path, Object payload) throws ApiException, UpClientException, AccessDeniedException, DeployException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         try {
             Response response = client.target(factory.createTarget(path)).request()
@@ -98,7 +98,7 @@ public abstract class ApiRequester {
         }
     }
 
-    private void handleStatus(Response response) throws AccessDeniedException, TopologyException, UpClientException, ApiException, UpRuntimeException, LifecycleException {
+    private void handleStatus(Response response) throws AccessDeniedException, DeployException, UpClientException, ApiException, UpRuntimeException, LifecycleException {
         switch (response.getStatusInfo().getFamily()) {
             case INFORMATIONAL:
             case SUCCESSFUL:
@@ -110,7 +110,7 @@ public abstract class ApiRequester {
                     case UNAUTHORIZED:
                         throw new AccessDeniedException();
                     case FORBIDDEN:
-                        throw new TopologyException();
+                        throw new DeployException();
                     case CONFLICT:
                         throw new LifecycleException();
                     case BAD_REQUEST:
@@ -126,16 +126,16 @@ public abstract class ApiRequester {
         }
     }
 
-    protected void apiRead(String path) throws ApiException, AccessDeniedException, TopologyException, UpClientException, UpRuntimeException, LifecycleException {
+    protected void apiRead(String path) throws ApiException, AccessDeniedException, DeployException, UpClientException, UpRuntimeException, LifecycleException {
         doGetRequest(path);
     }
 
-    protected <T> T apiRead(String path, Class<T> responseType) throws ApiException, AccessDeniedException, TopologyException, UpClientException, UpRuntimeException, LifecycleException {
+    protected <T> T apiRead(String path, Class<T> responseType) throws ApiException, AccessDeniedException, DeployException, UpClientException, UpRuntimeException, LifecycleException {
         return apiRead(path, new ApiResponseType.Value(responseType));
     }
 
     @SuppressWarnings("unchecked")
-    protected <T> T apiRead(String path, ApiResponseType responseType) throws ApiException, AccessDeniedException, TopologyException, UpClientException, UpRuntimeException, LifecycleException {
+    protected <T> T apiRead(String path, ApiResponseType responseType) throws ApiException, AccessDeniedException, DeployException, UpClientException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         Objects.requireNonNull(responseType);
         try {
@@ -146,7 +146,7 @@ public abstract class ApiRequester {
         }
     }
 
-    private Response doGetRequest(String path) throws ApiException, AccessDeniedException, TopologyException, UpClientException, UpRuntimeException, LifecycleException {
+    private Response doGetRequest(String path) throws ApiException, AccessDeniedException, DeployException, UpClientException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         try {
             Response response = client.target(factory.createTarget(path)).request()

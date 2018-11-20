@@ -1,8 +1,6 @@
 package net.tvburger.up.runtime.util;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.runtime.context.UpContext;
 import net.tvburger.up.security.AccessDeniedException;
@@ -14,16 +12,26 @@ public final class UpEnvironments {
 
     public static void printEnvironment(UpEnvironment environment) throws AccessDeniedException {
         System.out.println(String.format("[%-7s] UpEnvironment: %s", environment.getManager().getState(), environment.getInfo()));
-        System.out.println(String.format("[%-7s]   UpServices:", "-"));
-        for (UpService.Info<?> serviceInfo : environment.listServices()) {
-            UpService.Manager<?> serviceManager = environment.getServiceManager(serviceInfo);
-            System.out.println(String.format("[%-7s]     UpService: %s", serviceManager.getState(), serviceInfo));
+        for (UpPackage.Info packageInfo : environment.listPackages()) {
+            System.out.println(String.format("[%-7s]   UpPackage: %s", "-", packageInfo));
         }
-        for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : environment.listEndpoints().entrySet()) {
-            System.out.println(String.format("[%-7s]   Endpoints: %s", "-", entry.getKey()));
-            for (UpEndpoint.Info endpointInfo : entry.getValue()) {
-                UpEndpoint.Manager<?> endpointManager = environment.getEndpointManager(endpointInfo);
-                System.out.println(String.format("[%-7s]     UpEndpoint: %s", endpointManager.getState(), endpointInfo));
+        for (UpApplication.Info applicationInfo : environment.listApplications()) {
+            UpApplication application = environment.getApplication(applicationInfo);
+            System.out.println(String.format("[%-7s]   UpApplication: %s", application.getManager().getState(), applicationInfo.getName()));
+            System.out.println(String.format("[%-7s]     UpPackage: %s", "-", application.getPackage().getInfo().getPackageId()));
+            System.out.println(String.format("[%-7s]     UpServices:", "-"));
+            for (UpService.Info<?> serviceInfo : application.listServices()) {
+                UpService.Manager<?> serviceManager = environment.getServiceManager(serviceInfo);
+                System.out.println(String.format("[%-7s]       UpService: %s", serviceManager.getState(), serviceInfo.getSpecificationName()));
+            }
+            for (Map.Entry<Specification, Set<? extends UpEndpoint.Info>> entry : application.listEndpoints().entrySet()) {
+                System.out.println(String.format("[%-7s]     Endpoints: %s", "-", entry.getKey()));
+                for (UpEndpoint.Info endpointInfo : entry.getValue()) {
+                    UpEndpoint.Manager<?> endpointManager = environment.getEndpointManager(endpointInfo);
+                    if (endpointManager != null) { // TODO: fix this - it shouldn't be listed in the application.listEndpoints...(?)
+                        System.out.println(String.format("[%-7s]       UpEndpoint: %s", endpointManager.getState(), endpointInfo.getEndpointUri()));
+                    }
+                }
             }
         }
     }

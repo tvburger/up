@@ -12,7 +12,7 @@ public interface UpService<T> extends ManagedEntity<UpService.Manager<T>, UpServ
 
         UUID getServiceInstanceId();
 
-        UpEnvironment.Info getEnvironmentInfo();
+        UpApplication.Info getApplicationInfo();
 
     }
 
@@ -20,5 +20,7 @@ public interface UpService<T> extends ManagedEntity<UpService.Manager<T>, UpServ
     }
 
     T getInterface();
+
+    UpApplication getApplication();
 
 }

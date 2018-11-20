@@ -15,6 +15,13 @@ public final class Specifications {
         return UNVERSIONED.equals(specification.getSpecificationVersion());
     }
 
+    public static boolean definesClass(Specification specification, Class<?> clazz) {
+        Objects.requireNonNull(specification);
+        Objects.requireNonNull(clazz);
+        return specification.getSpecificationName().equals(clazz.getCanonicalName())
+                && specification.getSpecificationVersion().equals(getVersion(clazz));
+    }
+
     public static Specification forClass(String className) {
         return forClass(className, UNVERSIONED);
     }

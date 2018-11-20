@@ -32,12 +32,12 @@ public final class Jetty9Technology implements Jsr340 {
     }
 
     @Override
-    public Set<Endpoint.Info> listEndpoints(UpEnvironment.Info environmentInfo) {
+    public Set<Jsr340.Endpoint.Info> listEndpoints(UpEnvironment.Info environmentInfo) {
         return technologyManager.listEndpoints(environmentInfo);
     }
 
     @Override
-    public UpEndpoint.Manager<Endpoint.Info> getEndpointManager(Endpoint.Info endpointInfo) throws AccessDeniedException {
+    public UpEndpoint.Manager<Jsr340.Endpoint.Info> getEndpointManager(Endpoint.Info endpointInfo) throws AccessDeniedException {
         return technologyManager.getEndpointManager(endpointInfo);
     }
 

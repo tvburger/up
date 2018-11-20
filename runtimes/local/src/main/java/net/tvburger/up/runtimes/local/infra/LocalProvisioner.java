@@ -6,15 +6,15 @@ import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.UpClientTarget;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.infra.InfrastructureProvisioner;
+import net.tvburger.up.infra.UpEngineDefinition;
+import net.tvburger.up.infra.UpRuntimeTopology;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.UpRuntimeException;
 import net.tvburger.up.runtimes.local.LocalInstance;
 import net.tvburger.up.runtimes.local.client.LocalClientTarget;
 import net.tvburger.up.security.AccessDeniedException;
-import net.tvburger.up.topology.TopologyException;
-import net.tvburger.up.topology.UpEngineDefinition;
-import net.tvburger.up.topology.UpRuntimeTopology;
 import net.tvburger.up.util.Identities;
 import net.tvburger.up.util.LocalJavaImplementation;
 
@@ -77,7 +77,7 @@ public final class LocalProvisioner implements InfrastructureProvisioner {
             instance.init(runtimeDefinition);
             instance.getRuntime().getManager().start();
             return new LocalClientTarget(instance);
-        } catch (AccessDeniedException | TopologyException | LifecycleException cause) {
+        } catch (AccessDeniedException | DeployException | LifecycleException cause) {
             throw new UpRuntimeException(cause);
         }
     }

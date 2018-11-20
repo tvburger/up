@@ -30,9 +30,21 @@ public interface UpEngine extends ManagedEntity<UpEngine.Manager, UpEngine.Info>
 
     Set<UpEndpointTechnologyInfo> listEndpointTechnologies();
 
-    <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(Class<T> endpointType);
+    <T, I extends UpEndpoint.Info> UpEndpointTechnology<I> getEndpointTechnology(Class<T> endpointType);
 
-    <T, I extends UpEndpoint.Info> UpEndpointTechnology<T, I> getEndpointTechnology(UpEndpointTechnologyInfo technologyInfo);
+    default <I extends UpEndpoint.Info> UpEndpointTechnology<I> getEndpointTechnology(Specification specification) {
+        for (Class<?> endpointType : listEndpointTypes()) {
+            UpEndpointTechnology<?> endpointTechnology = getEndpointTechnology(endpointType);
+            UpEndpointTechnologyInfo info = endpointTechnology.getInfo();
+            if (info.getSpecificationName().equals(specification.getSpecificationName())
+                    && info.getSpecificationVersion().equals(specification.getSpecificationVersion())) {
+                return getEndpointTechnology(info);
+            }
+        }
+        return null;
+    }
+
+    <I extends UpEndpoint.Info> UpEndpointTechnology<I> getEndpointTechnology(UpEndpointTechnologyInfo technologyInfo);
 
     UpRuntime getRuntime();
 

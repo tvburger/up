@@ -2,9 +2,6 @@ package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEndpointTechnologyInfo;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.security.Identification;
 
 import java.net.URI;
 import java.util.Objects;
@@ -14,7 +11,7 @@ public final class ApiEndpointInfo implements UpEndpoint.Info {
 
     private URI endpointUri;
     private ApiEndpointTechnologyInfo endpointTechnologyInfo;
-    private ApiEnvironmentInfo environmentInfo;
+    private ApiApplicationInfo applicationInfo;
     private ApiIdentification identification;
 
     @Override
@@ -23,23 +20,23 @@ public final class ApiEndpointInfo implements UpEndpoint.Info {
     }
 
     @Override
-    public UpEndpointTechnologyInfo getEndpointTechnologyInfo() {
+    public ApiEndpointTechnologyInfo getEndpointTechnologyInfo() {
         return endpointTechnologyInfo;
     }
 
     @Override
-    public UpEnvironment.Info getEnvironmentInfo() {
-        return environmentInfo;
+    public ApiApplicationInfo getApplicationInfo() {
+        return applicationInfo;
     }
 
     @Override
-    public Identification getIdentification() {
+    public ApiIdentification getIdentification() {
         return identification;
     }
 
     @Override
     public String toString() {
-        return String.format("ApiEndpointInfo{%s, %s, %s, %s}", endpointUri, endpointTechnologyInfo, environmentInfo, identification);
+        return String.format("ApiEndpointInfo{%s, %s, %s, %s}", endpointUri, endpointTechnologyInfo, applicationInfo, identification);
     }
 
     @Override
@@ -49,7 +46,7 @@ public final class ApiEndpointInfo implements UpEndpoint.Info {
                 (object instanceof UpEndpoint.Info
                         && Objects.equals(getEndpointUri(), ((UpEndpoint.Info) object).getEndpointUri())
                         && Objects.equals(getEndpointTechnologyInfo(), ((UpEndpoint.Info) object).getEndpointTechnologyInfo())
-                        && Objects.equals(getEnvironmentInfo(), ((UpEndpoint.Info) object).getEnvironmentInfo())
+                        && Objects.equals(getApplicationInfo(), ((UpEndpoint.Info) object).getApplicationInfo())
                         && Objects.equals(getIdentification(), ((UpEndpoint.Info) object).getIdentification()));
     }
 
@@ -57,7 +54,7 @@ public final class ApiEndpointInfo implements UpEndpoint.Info {
     public int hashCode() {
         return 182 + Objects.hashCode(endpointUri) * 51
                 + Objects.hashCode(endpointTechnologyInfo) * 397
-                + Objects.hashCode(environmentInfo) * 197
+                + Objects.hashCode(applicationInfo) * 197
                 + Objects.hashCode(identification) * 92;
     }
 

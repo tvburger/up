@@ -1,22 +1,22 @@
 package net.tvburger.up.technology.jsr340;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEndpointTechnologyInfo;
-import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.impl.SpecificationImpl;
+import net.tvburger.up.deploy.InstanceDefinition;
+import net.tvburger.up.deploy.UpEndpointDefinition;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.runtime.impl.UpEndpointTechnologyInfoImpl;
 import net.tvburger.up.security.Identification;
-import net.tvburger.up.topology.InstanceDefinition;
-import net.tvburger.up.topology.UpEndpointDefinition;
 
 import javax.servlet.Servlet;
 import java.net.URI;
 import java.util.*;
 
-public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.Endpoint.Info> {
+public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint.Info> {
 
-    interface Endpoint extends UpEndpoint<Endpoint.Manager, Endpoint.Info> {
+    interface Endpoint extends UpEndpoint<Jsr340.Endpoint.Manager, Jsr340.Endpoint.Info> {
 
         final class Definition extends UpEndpointDefinition {
 
@@ -106,7 +106,6 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                             .withEndpointTechnology(Specification.get())
                             .withInstanceDefinition(InstanceDefinition.Factory.create(servletClass, arguments.toArray()))
                             .withSetting("mapping", mapping == null ? "/*" : mapping);
-                    Map<String, String> settings = new LinkedHashMap<>();
                     for (Map.Entry<String, String> entry : initParameters.entrySet()) {
                         builder.withSetting("init." + entry.getKey(), entry.getValue());
                     }
@@ -116,7 +115,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
 
         }
 
-        interface Manager extends UpEndpoint.Manager<Info> {
+        interface Manager extends UpEndpoint.Manager<Jsr340.Endpoint.Info> {
         }
 
         final class Info implements UpEndpoint.Info {
@@ -129,9 +128,9 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
             private final String contextPath;
             private final String mapping;
             private final String name;
-            private final UpEnvironment.Info environmentInfo;
+            private final UpApplication.Info applicationInfo;
 
-            public Info(URI endpointUri, Identification identification, Class<? extends Servlet> servletClass, int port, String serverName, String contextPath, String mapping, String name, UpEnvironment.Info environmentInfo) {
+            public Info(URI endpointUri, Identification identification, Class<? extends Servlet> servletClass, int port, String serverName, String contextPath, String mapping, String name, UpApplication.Info applicationInfo) {
                 this.endpointUri = endpointUri;
                 this.identification = identification;
                 this.servletClass = servletClass;
@@ -140,7 +139,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
                 this.contextPath = contextPath;
                 this.mapping = mapping;
                 this.name = name;
-                this.environmentInfo = environmentInfo;
+                this.applicationInfo = applicationInfo;
             }
 
             @Override
@@ -183,8 +182,8 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
             }
 
             @Override
-            public UpEnvironment.Info getEnvironmentInfo() {
-                return environmentInfo;
+            public UpApplication.Info getApplicationInfo() {
+                return applicationInfo;
             }
 
             @Override
@@ -224,7 +223,7 @@ public interface Jsr340 extends UpEndpointTechnology<Jsr340.Endpoint, Jsr340.End
 
     }
 
-    interface Manager extends UpEndpointTechnology.Manager<Endpoint> {
+    interface Manager extends UpEndpointTechnology.Manager<Jsr340.Endpoint.Info> {
     }
 
 }

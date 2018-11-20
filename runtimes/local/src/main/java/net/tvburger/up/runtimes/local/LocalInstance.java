@@ -1,21 +1,21 @@
 package net.tvburger.up.runtimes.local;
 
 import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.infra.UpRuntimeTopology;
+import net.tvburger.up.infra.impl.UpEngineManagerImpl;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
-import net.tvburger.up.runtime.impl.UpEngineManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
-import net.tvburger.up.topology.TopologyException;
-import net.tvburger.up.topology.UpRuntimeTopology;
 
 public final class LocalInstance {
 
     private LocalRuntimeManager runtimeManager;
 
-    public void init(UpRuntimeTopology runtimeDefinition) throws TopologyException, LifecycleException {
+    public void init(UpRuntimeTopology runtimeDefinition) throws DeployException, LifecycleException {
         if (runtimeDefinition.getEngineDefinitions().size() != 1) {
-            throw new TopologyException("Must contain exactly 1 engine definition!");
+            throw new DeployException("Must contain exactly 1 engine definition!");
         }
         runtimeManager = LocalRuntimeManager.Factory.create(runtimeDefinition.getEngineDefinitions().iterator().next());
         runtimeManager.init();

@@ -15,11 +15,13 @@ public interface UpEndpoint<M extends UpEndpoint.Manager<I>, I extends UpEndpoin
 
         UpEndpointTechnologyInfo getEndpointTechnologyInfo();
 
-        UpEnvironment.Info getEnvironmentInfo();
+        UpApplication.Info getApplicationInfo();
 
     }
 
     interface Manager<I extends Info> extends LogManager, LifecycleManager, ManagedObject.Manager<I> {
     }
+
+    UpApplication getApplication();
 
 }

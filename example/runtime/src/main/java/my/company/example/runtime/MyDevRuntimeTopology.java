@@ -1,9 +1,9 @@
 package my.company.example.runtime;
 
+import net.tvburger.up.infra.UpEngineDefinition;
+import net.tvburger.up.infra.UpRuntimeTopology;
 import net.tvburger.up.technology.jersey2.Jersey2Implementation;
 import net.tvburger.up.technology.jetty9.Jetty9Implementation;
-import net.tvburger.up.topology.UpEngineDefinition;
-import net.tvburger.up.topology.UpRuntimeTopology;
 import net.tvburger.up.util.LocalJavaImplementation;
 
 public final class MyDevRuntimeTopology extends UpRuntimeTopology {

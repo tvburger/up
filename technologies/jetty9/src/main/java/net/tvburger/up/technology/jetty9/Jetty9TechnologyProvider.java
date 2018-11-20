@@ -14,7 +14,7 @@ public final class Jetty9TechnologyProvider implements UpEndpointTechnologyProvi
     }
 
     @Override
-    public UpEndpointTechnology<?, ?> getEndpointTechnology() throws UpRuntimeException {
+    public UpEndpointTechnology<?> getEndpointTechnology() throws UpRuntimeException {
         UpContext context = UpContext.getContext();
         if (context == null || context.getService() != null || context.getEndpoint() != null) {
             throw new UpRuntimeException("Not running inside an UpEngine, or inside a UpService or UpEndpoint!");

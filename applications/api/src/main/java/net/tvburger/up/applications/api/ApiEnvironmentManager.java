@@ -1,19 +1,16 @@
 package net.tvburger.up.applications.api;
 
 import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.applications.api.types.ApiApplicationTopology;
-import net.tvburger.up.applications.api.types.ApiEndpointDefinition;
-import net.tvburger.up.applications.api.types.ApiServiceDefinition;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.LifecycleManager;
-import net.tvburger.up.topology.TopologyException;
+import net.tvburger.up.deploy.DeployException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import java.io.IOException;
+import java.io.InputStream;
 
-public class ApiEnvironmentManager {
+public final class ApiEnvironmentManager {
 
     private final UpEnvironment.Manager manager;
 
@@ -21,41 +18,41 @@ public class ApiEnvironmentManager {
         this.manager = manager;
     }
 
-    @Path("/deploy/application")
+    @Path("/deploy")
     @POST
-    public void deploy(ApiApplicationTopology applicationTopology) throws TopologyException {
-        try {
-            manager.deploy(applicationTopology.toUp());
-        } catch (IOException cause) {
-            throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
-        }
+    public void deploy(InputStream applicationDefinitionStream) throws DeployException {
+//        try {
+//            UpContext context = UpContext.getContext();
+//            UpResourceRepository store = context.getRuntime().getFileStore(manager.getInfo());
+//            UUID applicationUuid = UUID.randomUUID();
+//            store.save(applicationDefinitionStream, applicationUuid);
+//            File file = store.resolve(applicationUuid);
+//            manager.deploy(ApiApplicationDefinition.Factory.create(file));
+//        } catch (AccessDeniedException cause) {
+//            throw new DeployException("Failed to deploy application: " + cause.getMessage(), cause);
+//        }
     }
 
-    @Path("/deploy/service")
-    @POST
-    public void deploy(ApiServiceDefinition serviceDefinition) throws TopologyException {
-        try {
-            manager.deploy(serviceDefinition.toUp());
-        } catch (IOException cause) {
-            throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Path("/deploy/endpoint")
-    @POST
-    public void deploy(ApiEndpointDefinition endpointDefinition) throws TopologyException {
-        try {
-            manager.deploy(endpointDefinition.toUp());
-        } catch (IOException cause) {
-            throw new TopologyException("Failed to deploy: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Path("/dump")
-    @GET
-    public ApiApplicationTopology dump() {
-        return ApiApplicationTopology.fromUp(manager.dump());
-    }
+// TODO: support application, serivce and endpoint definitions (?)
+//    @Path("/deploy/service")
+//    @POST
+//    public void deploy(ApiServiceDefinition serviceDefinition, ApiApplicationDefinition applicationDefinition) throws DeployException {
+//        try {
+//            manager.deploy(serviceDefinition.toUp(), applicationDefinition);
+//        } catch (IOException cause) {
+//            throw new DeployException("Failed to deploy: " + cause.getMessage(), cause);
+//        }
+//    }
+//
+//    @Path("/deploy/endpoint")
+//    @POST
+//    public void deploy(ApiEndpointDefinition endpointDefinition, ApiApplicationDefinition applicationDefinition) throws DeployException {
+//        try {
+//            manager.deploy(endpointDefinition.toUp(), applicationDefinition);
+//        } catch (IOException cause) {
+//            throw new DeployException("Failed to deploy: " + cause.getMessage(), cause);
+//        }
+//    }
 
     @Path("/init")
     @POST

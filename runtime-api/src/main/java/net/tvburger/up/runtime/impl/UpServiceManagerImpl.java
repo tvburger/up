@@ -1,6 +1,6 @@
 package net.tvburger.up.runtime.impl;
 
-import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.Implementation;
 import net.tvburger.up.behaviors.Specification;
@@ -14,11 +14,11 @@ public class UpServiceManagerImpl<T> extends LifecycleManagerImpl implements UpS
 
     public static final class Factory {
 
-        public static <T> UpServiceManagerImpl<T> create(Implementation implementation, Class<T> serviceType, Identity identity, UUID serviceInstanceId, UpEnvironment.Info environmentInfo) {
+        public static <T> UpServiceManagerImpl<T> create(Implementation implementation, Class<T> serviceType, Identity identity, UUID serviceInstanceId, UpApplication.Info applicationInfo) {
             Objects.requireNonNull(implementation);
             return create(
                     implementation,
-                    UpServiceInfoImpl.Factory.create(implementation.getSpecification(), serviceType, identity, serviceInstanceId, environmentInfo));
+                    UpServiceInfoImpl.Factory.create(implementation.getSpecification(), serviceType, identity, serviceInstanceId, applicationInfo));
         }
 
         public static <T> UpServiceManagerImpl<T> create(Implementation implementation, UpService.Info<T> serviceInfo) {

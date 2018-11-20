@@ -9,7 +9,7 @@ import net.tvburger.up.util.Java8Specification;
 
 import java.util.Set;
 
-public final class Jersey2Technology implements UpEndpointTechnology<Jsr370.Endpoint, Jsr370.Endpoint.Info> {
+public final class Jersey2Technology implements UpEndpointTechnology<Jsr370.Endpoint.Info> {
 
     private final Jersey2TechnologyManager technologyManager;
 

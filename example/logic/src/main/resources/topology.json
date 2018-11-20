@@ -1,0 +1,143 @@
+{
+  "requiredTechnologies": [
+    {
+      "specificationName": "Servlet",
+      "specificationVersion": "3.1"
+    },
+    {
+      "specificationName": "JAX-RS",
+      "specificationVersion": "2.1"
+    }
+  ],
+  "serviceDefinitions": [
+    {
+      "serviceType": {
+        "specificationName": "my.company.example.logic.DependencyService",
+        "specificationVersion": "unversioned"
+      },
+      "instanceDefinition": {
+        "instanceSpecification": {
+          "specificationVersion": "unversioned",
+          "specificationName": "my.company.example.logic.DependencyServiceImpl"
+        },
+        "arguments": []
+      }
+    },
+    {
+      "serviceType": {
+        "specificationVersion": "unversioned",
+        "specificationName": "my.company.example.logic.ExampleService"
+      },
+      "instanceDefinition": {
+        "arguments": [
+          {
+            "value": "Howdy,",
+            "key": "java.lang.String"
+          },
+          {
+            "value": "my.company.example.logic.DependencyService",
+            "key": "java.lang.Class"
+          }
+        ],
+        "instanceSpecification": {
+          "specificationName": "my.company.example.logic.ExampleServiceImpl",
+          "specificationVersion": "unversioned"
+        }
+      }
+    }
+  ],
+  "requiredClasses": [
+    {
+      "specificationName": "my.company.example.logic.DependencyServiceImpl",
+      "specificationVersion": "unversioned"
+    },
+    {
+      "specificationVersion": "unversioned",
+      "specificationName": "my.company.example.logic.ExampleServiceImpl"
+    },
+    {
+      "specificationName": "my.company.example.logic.ExampleServlet",
+      "specificationVersion": "unversioned"
+    },
+    {
+      "specificationVersion": "unversioned",
+      "specificationName": "my.company.example.logic.HelloServlet"
+    },
+    {
+      "specificationName": "net.tvburger.up.technology.jsr340.ResourcesServlet",
+      "specificationVersion": "unversioned"
+    },
+    {
+      "specificationVersion": "unversioned",
+      "specificationName": "my.company.example.logic.HelloApplication"
+    }
+  ],
+  "endpointDefinitions": [
+    {
+      "instanceDefinition": {
+        "arguments": [],
+        "instanceSpecification": {
+          "specificationName": "my.company.example.logic.ExampleServlet",
+          "specificationVersion": "unversioned"
+        }
+      },
+      "endpointTechnology": {
+        "specificationName": "Servlet",
+        "specificationVersion": "3.1"
+      },
+      "settings": {
+        "mapping": "/example/*"
+      }
+    },
+    {
+      "instanceDefinition": {
+        "instanceSpecification": {
+          "specificationVersion": "unversioned",
+          "specificationName": "my.company.example.logic.HelloServlet"
+        },
+        "arguments": []
+      },
+      "settings": {
+        "mapping": "/hello",
+        "init.message": "Hello World!"
+      },
+      "endpointTechnology": {
+        "specificationName": "Servlet",
+        "specificationVersion": "3.1"
+      }
+    },
+    {
+      "endpointTechnology": {
+        "specificationVersion": "3.1",
+        "specificationName": "Servlet"
+      },
+      "settings": {
+        "init.resourcePath": "/www",
+        "mapping": "/static/*"
+      },
+      "instanceDefinition": {
+        "instanceSpecification": {
+          "specificationName": "net.tvburger.up.technology.jsr340.ResourcesServlet",
+          "specificationVersion": "unversioned"
+        },
+        "arguments": []
+      }
+    },
+    {
+      "instanceDefinition": {
+        "arguments": [],
+        "instanceSpecification": {
+          "specificationVersion": "unversioned",
+          "specificationName": "my.company.example.logic.HelloApplication"
+        }
+      },
+      "endpointTechnology": {
+        "specificationName": "JAX-RS",
+        "specificationVersion": "2.1"
+      },
+      "settings": {
+        "mapping": "/app"
+      }
+    }
+  ]
+}

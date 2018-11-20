@@ -1,9 +1,6 @@
 package net.tvburger.up.runtimes.local;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpRuntimeInfo;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.runtime.UpEndpointTechnology;
 import net.tvburger.up.runtime.UpEngine;
@@ -82,7 +79,7 @@ public final class LocalEnvironment implements UpEnvironment {
     public Map<Specification, Set<? extends UpEndpoint.Info>> listEndpoints() {
         Map<Specification, Set<? extends UpEndpoint.Info>> endpoints = new HashMap<>();
         for (Class<?> endpointType : engine.listEndpointTypes()) {
-            UpEndpointTechnology<?, UpEndpoint.Info> technology = engine.getEndpointTechnology(endpointType);
+            UpEndpointTechnology<?> technology = engine.getEndpointTechnology(endpointType);
             Set<? extends UpEndpoint.Info> technologyEndpoints = endpoints.computeIfAbsent(technology.getInfo(), (key) -> new HashSet<>());
             technologyEndpoints.addAll((Set) technology.listEndpoints(getInfo()));
         }
@@ -103,6 +100,26 @@ public final class LocalEnvironment implements UpEnvironment {
             }
         }
         return null;
+    }
+
+    @Override
+    public Set<UpPackage.Info> listPackages() {
+        return Collections.unmodifiableSet(manager.getPackages().keySet());
+    }
+
+    @Override
+    public UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException {
+        return manager.getPackages().get(packageInfo);
+    }
+
+    @Override
+    public Set<UpApplication.Info> listApplications() {
+        return Collections.unmodifiableSet(manager.getApplications().keySet());
+    }
+
+    @Override
+    public UpApplication getApplication(UpApplication.Info applicationInfo) throws AccessDeniedException {
+        return manager.getApplications().get(applicationInfo);
     }
 
 }

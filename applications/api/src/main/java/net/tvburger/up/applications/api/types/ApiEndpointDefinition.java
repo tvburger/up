@@ -2,7 +2,7 @@ package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.topology.UpEndpointDefinition;
+import net.tvburger.up.deploy.UpEndpointDefinition;
 
 import java.io.IOException;
 import java.util.Map;

@@ -1,36 +1,38 @@
 package net.tvburger.up.example.deploy;
 
-import my.company.example.application.MyApplicationTopology;
+import my.company.example.application.MyApplicationDefinition;
 import my.company.example.logic.ExampleService;
 import my.company.example.runtime.MyDevRuntimeTopology;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpException;
-import net.tvburger.up.applications.admin.AdminApplicationTopology;
-import net.tvburger.up.applications.api.ApiTopology;
+import net.tvburger.up.UpPackage;
+import net.tvburger.up.applications.admin.AdminApplicationDefinition;
+import net.tvburger.up.applications.api.ApiDefinition;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.UpClientTarget;
+import net.tvburger.up.deploy.UpApplicationDefinition;
+import net.tvburger.up.infra.UpRuntimeTopology;
 import net.tvburger.up.runtime.UpRuntimeException;
 import net.tvburger.up.runtime.util.UpEnvironments;
+import net.tvburger.up.runtimes.local.LocalPackageDefinition;
 import net.tvburger.up.runtimes.local.infra.LocalProvisioner;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jersey2.Jersey2Implementation;
 import net.tvburger.up.technology.jetty9.Jetty9Implementation;
-import net.tvburger.up.topology.UpApplicationTopology;
-import net.tvburger.up.topology.UpRuntimeTopology;
 import net.tvburger.up.util.Identities;
 
 public final class Example {
 
-    private final UpApplicationTopology applicationTopology;
+    private final UpApplicationDefinition applicationDefinition;
     private UpRuntimeTopology runtimeTopology;
     private UpClientTarget target;
     private UpEnvironment environment;
     private UpClient adminClient;
     private UpClient apiClient;
 
-    public Example(UpApplicationTopology applicationTopology) {
-        this.applicationTopology = applicationTopology;
+    public Example(UpApplicationDefinition applicationDefinition) {
+        this.applicationDefinition = applicationDefinition;
     }
 
     public void setRuntimeTopology(UpRuntimeTopology runtimeTopology) {
@@ -58,7 +60,8 @@ public final class Example {
                 .withIdentity(Identities.ANONYMOUS)
                 .build();
         UpEnvironment.Manager manager = adminClient.getEnvironment().getManager();
-        manager.deploy(new AdminApplicationTopology());
+        UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("admin")).getInfo();
+        manager.deployApplication(new AdminApplicationDefinition(), packageInfo);
         manager.start();
     }
 
@@ -68,12 +71,14 @@ public final class Example {
                 .withIdentity(Identities.ANONYMOUS)
                 .build();
         UpEnvironment.Manager manager = apiClient.getEnvironment().getManager();
-        manager.deploy(new ApiTopology());
+        UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("api")).getInfo();
+        manager.deployApplication(new ApiDefinition(), packageInfo);
         manager.start();
     }
 
     public void deploy() throws UpException {
-        environment.getManager().deploy(applicationTopology);
+        UpPackage.Info packageInfo = environment.getManager().deployPackage(LocalPackageDefinition.Factory.create("test")).getInfo();
+        environment.getManager().deployApplication(applicationDefinition, packageInfo);
     }
 
     public void start() throws UpException {
@@ -117,15 +122,16 @@ public final class Example {
     }
 
     public static void main(String[] args) throws UpException {
-        Example example = new Example(new MyApplicationTopology());
-        example.setRuntimeTopology(new MyDevRuntimeTopology()); // this is optional
+        Example example = new Example(new MyApplicationDefinition());
+        example.setRuntimeTopology(new MyDevRuntimeTopology());
         example.init();
 
-        example.adminApplication();
-        example.apiApplication();
 
         example.deploy();
         example.start();
+
+        example.adminApplication();
+        example.apiApplication();
 
         example.sayHi();
         example.printEnvironment();
@@ -135,12 +141,14 @@ public final class Example {
         allowWebAccessFor60secs();
 
         example.stop();
+        example.printEnvironment();
         example.destroy();
+        example.printEnvironment();
     }
 
     private static void allowWebAccessFor60secs() {
         try {
-            Thread.sleep(6_000_000);
+            Thread.sleep(60_000);
         } catch (InterruptedException cause) {
         }
     }
