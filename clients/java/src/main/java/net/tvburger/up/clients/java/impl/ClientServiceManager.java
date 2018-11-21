@@ -1,21 +1,17 @@
 package net.tvburger.up.clients.java.impl;
 
-import net.tvburger.up.*;
-import net.tvburger.up.applications.api.types.ApiEnvironmentInfo;
-import net.tvburger.up.applications.api.types.ApiPackageDefinition;
-import net.tvburger.up.applications.api.types.ApiPackageInfo;
+import net.tvburger.up.UpException;
+import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.ApiServiceInfo;
+import net.tvburger.up.applications.api.types.ApiSpecification;
 import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.deploy.*;
-import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
 
-import java.io.IOException;
-import java.io.InputStream;
+public final class ClientServiceManager<T> extends ApiRequester implements UpService.Manager<T> {
 
-public final class ClientEnvironmentManager extends ApiRequester implements UpEnvironment.Manager {
-
-    public ClientEnvironmentManager(ApiRequester requester) {
-        super(requester, "manager");
+    public ClientServiceManager(String path, ApiRequester requester) {
+        super(requester, path);
     }
 
     @Override
@@ -89,51 +85,40 @@ public final class ClientEnvironmentManager extends ApiRequester implements UpEn
         }
     }
 
+    @SuppressWarnings("unchecked")
     @Override
-    public UpEnvironment.Info getInfo() {
+    public UpService.Info<T> getInfo() {
         try {
-            return apiRead("info", ApiEnvironmentInfo.class);
+            return (UpService.Info<T>) apiRead("info", ApiServiceInfo.class).toUp();
+        } catch (ApiException | ClassNotFoundException | UpException cause) {
+            throw new ApiException("Failed to read application info: " + cause.getMessage(), cause);
+        }
+    }
+
+    @Override
+    public String getImplementationName() {
+        try {
+            return apiRead("implementation/name", String.class);
         } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to read environment info: " + cause.getMessage(), cause);
+            throw new ApiException("Failed to read implementation name: " + cause.getMessage(), cause);
         }
     }
 
     @Override
-    public boolean supportsPackageDefinitionType(Class<? extends UpPackageDefinition> packageDefinitionType) {
-        return ApiPackageDefinition.class.equals(packageDefinitionType);
-    }
-
-    @Override
-    public UpPackage.Manager deployPackage(UpPackageDefinition packageDefinition) throws DeployException {
-        try (InputStream bytes = ((ApiPackageDefinition) packageDefinition).open()) {
-            ApiPackageInfo packageInfo = apiWrite("deploy/package", bytes, new ApiResponseType.Value(ApiPackageInfo.class));
-            return new UpPackageManagerImpl(packageInfo);
-        } catch (DeployException cause) {
-            throw cause;
-        } catch (IOException cause) {
-            throw new DeployException(cause);
-        } catch (UpException cause) {
-            throw new ApiException(cause);
+    public String getImplementationVersion() {
+        try {
+            return apiRead("implementation/version", String.class);
+        } catch (ApiException | UpException cause) {
+            throw new ApiException("Failed to read implementation version: " + cause.getMessage(), cause);
         }
     }
 
     @Override
-    public UpApplication.Manager createApplication(String name, UpPackage.Info packageInfo) throws DeployException {
-        return null;
-    }
-
-    @Override
-    public UpApplication.Manager deployApplication(UpApplicationDefinition applicationDefinition, UpPackage.Info packageInfo) throws DeployException {
-        return null;
-    }
-
-    @Override
-    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
-    }
-
-    @Override
-    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
+    public Specification getSpecification() {
+        try {
+            return apiRead("specification", ApiSpecification.class);
+        } catch (ApiException | UpException cause) {
+            throw new ApiException("Failed to read specification: " + cause.getMessage(), cause);
+        }
     }
 }

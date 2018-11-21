@@ -84,6 +84,12 @@ public abstract class ApiRequester {
         doPostRequest(path, payload);
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T> T apiWrite(String path, Object payload, ApiResponseType responseType) throws ApiException, UpClientException, DeployException, AccessDeniedException, UpRuntimeException, LifecycleException {
+        String stringResponse = doPostRequest(path, payload).readEntity(String.class);
+        return (T) parse(stringResponse, responseType);
+    }
+
     private Response doPostRequest(String path, Object payload) throws ApiException, UpClientException, AccessDeniedException, DeployException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         try {

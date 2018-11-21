@@ -1,62 +1,84 @@
 package net.tvburger.up.applications.api;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.ApiList;
+import net.tvburger.up.applications.api.types.ApiServiceInfo;
+import net.tvburger.up.behaviors.Specification;
+import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identification;
 
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Application;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
-import javax.ws.rs.ext.MessageBodyReader;
-import javax.ws.rs.ext.MessageBodyWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.lang.annotation.Annotation;
-import java.lang.reflect.Type;
-import java.util.Collections;
-import java.util.HashSet;
+import javax.ws.rs.GET;
+import javax.ws.rs.NotFoundException;
+import javax.ws.rs.Path;
+import javax.ws.rs.PathParam;
+import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.UUID;
 
-@ApplicationPath("/")
-public final class ApiApplication extends Application {
+public final class ApiApplication {
 
-    private final ObjectMapper mapper = new ObjectMapper();
+    private final UpApplication application;
 
-    @Override
-    public Set<Object> getSingletons() {
-        Set<Object> singletons = new HashSet<>();
-        singletons.add(new MessageBodyReader<Object>() {
-
-            @Override
-            public boolean isReadable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-                return true;
-            }
-
-            @Override
-            public Object readFrom(Class<Object> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, String> httpHeaders, InputStream entityStream) throws IOException, WebApplicationException {
-                return mapper.readValue(entityStream, type);
-            }
-        });
-        singletons.add(new MessageBodyWriter<Object>() {
-
-            @Override
-            public boolean isWriteable(Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType) {
-                return true;
-            }
-
-            @Override
-            public void writeTo(Object o, Class<?> type, Type genericType, Annotation[] annotations, MediaType mediaType, MultivaluedMap<String, Object> httpHeaders, OutputStream entityStream) throws IOException, WebApplicationException {
-                mapper.writeValue(entityStream, o);
-            }
-        });
-        singletons.add(new ApiExceptionMapper());
-        return singletons;
+    public ApiApplication(UpApplication application) {
+        this.application = application;
     }
 
-    @Override
-    public Set<Class<?>> getClasses() {
-        return Collections.singleton(ApiRoot.class);
+    @Path("/service")
+    @GET
+    public Set<ApiServiceInfo> listServices() {
+        Set<ApiServiceInfo> services = new LinkedHashSet<>();
+        for (UpService.Info<?> serviceInfo : application.listServices()) {
+            services.add(ApiServiceInfo.fromUp(serviceInfo));
+        }
+        return services;
+    }
+
+    public <T> T getService(UpService.Info<T> serviceInfo) throws AccessDeniedException {
+        return null;
+    }
+
+    @Path("/service/{uuid}")
+    public ApiServiceManager getServiceManager(@PathParam("uuid") String uuid) throws AccessDeniedException {
+        UUID serviceInstanceId = UUID.fromString(uuid);
+        for (UpService.Info<?> serviceInfo : application.listServices()) {
+            if (serviceInfo.getServiceInstanceId().equals(serviceInstanceId)) {
+                return new ApiServiceManager(application.getServiceManager(serviceInfo));
+            }
+        }
+        throw new NotFoundException();
+    }
+
+    @SuppressWarnings("unchecked")
+    @Path("/endpoint")
+    @GET
+    public ApiList<Specification, Set<UpEndpoint.Info>> listEndpoints() {
+        return new ApiList(application.listEndpoints());
+    }
+
+    public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
+        return null;
+    }
+
+    @Path("/package")
+    public ApiPackage getPackage() {
+        return new ApiPackage(application.getPackage());
+    }
+
+    public Identification getIdentification() {
+        return null;
+    }
+
+    @Path("/manager")
+    public ApiApplicationManager getManager() throws AccessDeniedException {
+        return new ApiApplicationManager(application.getManager());
+    }
+
+    @Path("/info")
+    @GET
+    public UpApplication.Info getInfo() {
+        return application.getInfo();
     }
 
 }

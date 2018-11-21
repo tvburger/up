@@ -7,6 +7,7 @@ import net.tvburger.up.clients.java.ApiException;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -14,7 +15,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     private static final ApiResponseType listServiceTypesResponseType =
             new ApiResponseType.Set(
-                    new ApiResponseType.Value(Class.class));
+                    new ApiResponseType.Value(ApiClass.class));
 
     private static final ApiResponseType listServicesResponseType =
             new ApiResponseType.Set(
@@ -25,6 +26,14 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
                     new ApiResponseType.Value(ApiSpecification.class),
                     new ApiResponseType.Set(new ApiResponseType.Value(ApiEndpointInfo.class)));
 
+    private static final ApiResponseType listPackagesResponseType =
+            new ApiResponseType.Set(
+                    new ApiResponseType.Value(ApiPackageInfo.class));
+
+    private static final ApiResponseType listApplicationsResponseType =
+            new ApiResponseType.Set(
+                    new ApiResponseType.Value(ApiApplicationInfo.class));
+
     public ClientEnvironment(ApiRequester requester) {
         super(requester);
     }
@@ -33,7 +42,11 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Set<Class<?>> listServiceTypes() {
         try {
-            return apiRead("service_type", listServiceTypesResponseType);
+            Set<Class<?>> serviceTypes = new LinkedHashSet<>();
+            for (ApiClass apiClass : (Set<ApiClass>) apiRead("service_type", listServiceTypesResponseType)) {
+                serviceTypes.add(apiClass.toUp(null));
+            }
+            return serviceTypes;
         } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read list service types: " + cause.getMessage(), cause);
         }
@@ -49,8 +62,12 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     @Override
     public Set<UpService.Info<?>> listServices() {
         try {
-            return apiRead("service", listServicesResponseType);
-        } catch (UpException | ApiException cause) {
+            Set<UpService.Info<?>> services = new LinkedHashSet<>();
+            for (ApiServiceInfo apiServiceInfo : (Set<ApiServiceInfo>) apiRead("service", listServicesResponseType)) {
+                services.add(apiServiceInfo.toUp());
+            }
+            return services;
+        } catch (UpException | ClassNotFoundException | ApiException cause) {
             throw new ApiException("Failed to read list services: " + cause.getMessage(), cause);
         }
     }
@@ -63,8 +80,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        // TODO: return API service proxy
-        return null;
+        return new ClientServiceManager<>("service/" + serviceInfo.getServiceInstanceId(), this);
     }
 
     @SuppressWarnings("unchecked")
@@ -85,22 +101,30 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public Set<UpPackage.Info> listPackages() {
-        return null;
+        try {
+            return apiRead("package", listPackagesResponseType);
+        } catch (UpException | ApiException cause) {
+            throw new ApiException("Failed to read list packages: " + cause.getMessage(), cause);
+        }
     }
 
     @Override
     public UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException {
-        return null;
+        return new ClientPackage(packageInfo.getPackageId().toString(), this);
     }
 
     @Override
     public Set<UpApplication.Info> listApplications() {
-        return null;
+        try {
+            return apiRead("application", listApplicationsResponseType);
+        } catch (UpException | ApiException cause) {
+            throw new ApiException("Failed to read list applications: " + cause.getMessage(), cause);
+        }
     }
 
     @Override
     public UpApplication getApplication(UpApplication.Info applicationInfo) throws AccessDeniedException {
-        return null;
+        return new ClientApplication(applicationInfo.getName(), this);
     }
 
     @Override

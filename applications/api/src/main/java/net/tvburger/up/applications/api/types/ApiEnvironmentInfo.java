@@ -10,6 +10,18 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApiEnvironmentInfo implements UpEnvironment.Info {
 
+    public static ApiEnvironmentInfo fromUp(UpEnvironment.Info up) {
+        ApiEnvironmentInfo api = new ApiEnvironmentInfo();
+        api.name = up.getName();
+        api.runtimeInfo = ApiRuntimeInfo.fromUp(up.getRuntimeInfo());
+        api.identification = ApiIdentification.fromUp(up.getIdentification());
+        return api;
+    }
+
+    public UpEnvironment.Info toUp() {
+        return this;
+    }
+
     private String name;
     private ApiRuntimeInfo runtimeInfo;
     private ApiIdentification identification;

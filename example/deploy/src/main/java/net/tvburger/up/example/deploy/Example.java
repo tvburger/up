@@ -148,7 +148,7 @@ public final class Example {
 
     private static void allowWebAccessFor60secs() {
         try {
-            Thread.sleep(60_000);
+            Thread.sleep(6_000_000);
         } catch (InterruptedException cause) {
         }
     }

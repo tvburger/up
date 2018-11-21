@@ -1,38 +1,24 @@
 package net.tvburger.up.applications.api;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.LifecycleException;
+import net.tvburger.up.deploy.DeployException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
+import java.io.InputStream;
+import java.util.UUID;
 
-@Path("/")
-public final class ApiEnvironmentManager {
+public final class ApiApplicationManager {
 
-    private final UpEnvironment.Manager manager;
+    private final UpApplication.Manager manager;
 
-    public ApiEnvironmentManager(UpEnvironment.Manager manager) {
+    public ApiApplicationManager(UpApplication.Manager manager) {
         this.manager = manager;
     }
 
-//    @Path("/deploy/package")
-//    @POST
-//    public UUID deployPackage(InputStream bytes) throws DeployException {
-//
-//        manager.deployPackage(packageDefinition);
-//        try {
-//            UpContext context = UpContext.getContext();
-//            UpResourceRepository store = context.getRuntime().getFileStore(manager.getInfo());
-//            UUID applicationUuid = UUID.randomUUID();
-//            store.save(applicationDefinitionStream, applicationUuid);
-//            File file = store.resolve(applicationUuid);
-//            manager.deploy(ApiApplicationDefinition.Factory.create(file));
-//        } catch (AccessDeniedException cause) {
-//            throw new DeployException("Failed to deploy application: " + cause.getMessage(), cause);
-//        }
-//        return null;
-//    }
 
 // TODO: support application, serivce and endpoint definitions (?)
 //    @Path("/deploy/service")
@@ -99,7 +85,7 @@ public final class ApiEnvironmentManager {
 
     @Path("/info")
     @GET
-    public UpEnvironment.Info getInfo() {
+    public UpApplication.Info getInfo() {
         return manager.getInfo();
     }
 

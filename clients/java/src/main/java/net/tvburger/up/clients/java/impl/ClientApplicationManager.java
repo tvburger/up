@@ -1,20 +1,19 @@
 package net.tvburger.up.clients.java.impl;
 
-import net.tvburger.up.*;
-import net.tvburger.up.applications.api.types.ApiEnvironmentInfo;
-import net.tvburger.up.applications.api.types.ApiPackageDefinition;
-import net.tvburger.up.applications.api.types.ApiPackageInfo;
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpException;
+import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.ApiApplicationInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.deploy.*;
-import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpEndpointDefinition;
+import net.tvburger.up.deploy.UpServiceDefinition;
 
-import java.io.IOException;
-import java.io.InputStream;
+public final class ClientApplicationManager extends ApiRequester implements UpApplication.Manager {
 
-public final class ClientEnvironmentManager extends ApiRequester implements UpEnvironment.Manager {
-
-    public ClientEnvironmentManager(ApiRequester requester) {
+    public ClientApplicationManager(ApiRequester requester) {
         super(requester, "manager");
     }
 
@@ -90,50 +89,22 @@ public final class ClientEnvironmentManager extends ApiRequester implements UpEn
     }
 
     @Override
-    public UpEnvironment.Info getInfo() {
+    public UpApplication.Info getInfo() {
         try {
-            return apiRead("info", ApiEnvironmentInfo.class);
+            return apiRead("info", ApiApplicationInfo.class);
         } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to read environment info: " + cause.getMessage(), cause);
+            throw new ApiException("Failed to read application info: " + cause.getMessage(), cause);
         }
     }
 
     @Override
-    public boolean supportsPackageDefinitionType(Class<? extends UpPackageDefinition> packageDefinitionType) {
-        return ApiPackageDefinition.class.equals(packageDefinitionType);
-    }
-
-    @Override
-    public UpPackage.Manager deployPackage(UpPackageDefinition packageDefinition) throws DeployException {
-        try (InputStream bytes = ((ApiPackageDefinition) packageDefinition).open()) {
-            ApiPackageInfo packageInfo = apiWrite("deploy/package", bytes, new ApiResponseType.Value(ApiPackageInfo.class));
-            return new UpPackageManagerImpl(packageInfo);
-        } catch (DeployException cause) {
-            throw cause;
-        } catch (IOException cause) {
-            throw new DeployException(cause);
-        } catch (UpException cause) {
-            throw new ApiException(cause);
-        }
-    }
-
-    @Override
-    public UpApplication.Manager createApplication(String name, UpPackage.Info packageInfo) throws DeployException {
+    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition) throws DeployException {
         return null;
     }
 
     @Override
-    public UpApplication.Manager deployApplication(UpApplicationDefinition applicationDefinition, UpPackage.Info packageInfo) throws DeployException {
+    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition) throws DeployException {
         return null;
     }
 
-    @Override
-    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
-    }
-
-    @Override
-    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
-    }
 }

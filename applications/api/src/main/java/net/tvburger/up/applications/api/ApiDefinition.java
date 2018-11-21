@@ -7,7 +7,7 @@ public final class ApiDefinition extends UpApplicationDefinition {
 
     public ApiDefinition() {
         super("api-application", new UpApplicationDefinition.Builder()
-                .withEndpointDefinition(Jsr370.Endpoint.Definition.Factory.create(ApiApplication.class))
+                .withEndpointDefinition(Jsr370.Endpoint.Definition.Factory.create(ApiApplicationApplication.class))
                 .build());
     }
 

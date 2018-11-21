@@ -1,9 +1,9 @@
 package net.tvburger.up.applications.api;
 
 import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.ApiServiceInfo;
 import net.tvburger.up.applications.api.types.ApiSpecification;
 import net.tvburger.up.behaviors.LifecycleException;
-import net.tvburger.up.behaviors.LifecycleManager;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
@@ -61,8 +61,8 @@ public final class ApiServiceManager {
 
     @Path("/state")
     @GET
-    public LifecycleManager.State getState() {
-        return manager.getState();
+    public String getState() {
+        return manager.getState().name();
     }
 
     @Path("/logged")
@@ -79,8 +79,8 @@ public final class ApiServiceManager {
 
     @Path("/info")
     @GET
-    public UpService.Info<?> getInfo() {
-        return manager.getInfo();
+    public ApiServiceInfo getInfo() {
+        return ApiServiceInfo.fromUp(manager.getInfo());
     }
 
 }

@@ -10,6 +10,13 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApiIdentification implements Identification {
 
+    public static ApiIdentification fromUp(Identification up) {
+        ApiIdentification api = new ApiIdentification();
+        api.principal = ApiPrincipal.fromUp(up.getPrincipal());
+        api.publicKey = ApiPublicKey.fromUp(up.getPublicKey());
+        return api;
+    }
+
     private ApiPrincipal principal;
     private ApiPublicKey publicKey;
 

@@ -9,6 +9,18 @@ import java.util.Objects;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApiRuntimeInfo implements UpRuntimeInfo {
 
+    public static ApiRuntimeInfo fromUp(UpRuntimeInfo up) {
+        ApiRuntimeInfo api = new ApiRuntimeInfo();
+        api.identification = ApiIdentification.fromUp(up.getIdentification());
+        api.specificationName = up.getSpecificationName();
+        api.specificationVersion = up.getSpecificationVersion();
+        return api;
+    }
+
+    public UpRuntimeInfo toUp() {
+        return this;
+    }
+
     private ApiIdentification identification;
     private String specificationName;
     private String specificationVersion;
