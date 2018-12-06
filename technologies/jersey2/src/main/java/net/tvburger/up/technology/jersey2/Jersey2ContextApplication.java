@@ -1,6 +1,8 @@
 package net.tvburger.up.technology.jersey2;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.context.UpContext;
 import net.tvburger.up.runtime.impl.UpContextImpl;
@@ -34,7 +36,7 @@ public final class Jersey2ContextApplication extends Application {
             try {
                 UpContext engineContext = UpContextHolder.getContext();
                 contexts.set(engineContext);
-                UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, identity, engineContext));
+                UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, upPackage, upApplication, identity, engineContext));
                 logger.info("Serving URI: " + containerRequestContext.getUriInfo().getRequestUri());
             } catch (DeployException | AccessDeniedException cause) {
                 logger.error("Failed to set context: " + cause.getMessage(), cause);
@@ -65,11 +67,15 @@ public final class Jersey2ContextApplication extends Application {
     private final static Logger logger = LoggerFactory.getLogger(Jersey2ContextApplication.class);
     private final ThreadLocal<UpContext> contexts = new ThreadLocal<>();
     private final Application application;
+    private final UpApplication upApplication;
+    private final UpPackage upPackage;
     private final UpEndpoint endpoint;
     private final Identity identity;
 
-    public Jersey2ContextApplication(Application application, UpEndpoint endpoint, Identity identity) {
+    Jersey2ContextApplication(Application application, UpApplication upApplication, UpPackage upPackage, UpEndpoint endpoint, Identity identity) {
         this.application = application;
+        this.upApplication = upApplication;
+        this.upPackage = upPackage;
         this.endpoint = endpoint;
         this.identity = identity;
     }

@@ -1,11 +1,13 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.technology.jsr340.Jsr340;
 import net.tvburger.up.util.Java8Specification;
 
+import java.util.Map;
 import java.util.Set;
 
 public final class Jetty9Technology implements Jsr340 {
@@ -32,7 +34,7 @@ public final class Jetty9Technology implements Jsr340 {
     }
 
     @Override
-    public Set<Jsr340.Endpoint.Info> listEndpoints(UpEnvironment.Info environmentInfo) {
+    public Map<UpApplication.Info, Set<Endpoint.Info>> listEndpoints(UpEnvironment.Info environmentInfo) {
         return technologyManager.listEndpoints(environmentInfo);
     }
 

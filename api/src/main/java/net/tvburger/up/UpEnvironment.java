@@ -4,7 +4,9 @@ import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.behaviors.LogManager;
 import net.tvburger.up.behaviors.ManagedEntity;
 import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.deploy.*;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpApplicationDefinition;
+import net.tvburger.up.deploy.UpPackageDefinition;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.util.Map;
@@ -30,10 +32,6 @@ public interface UpEnvironment extends ManagedEntity<UpEnvironment.Manager, UpEn
 
         UpApplication.Manager deployApplication(UpApplicationDefinition applicationDefinition, UpPackage.Info packageInfo) throws DeployException;
 
-        UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException;
-
-        UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException;
-
     }
 
     Set<Class<?>> listServiceTypes();
@@ -52,7 +50,7 @@ public interface UpEnvironment extends ManagedEntity<UpEnvironment.Manager, UpEn
 
     Set<UpPackage.Info> listPackages();
 
-    UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException;
+    UpPackage.Manager getPackageManager(UpPackage.Info packageInfo) throws AccessDeniedException;
 
     Set<UpApplication.Info> listApplications();
 

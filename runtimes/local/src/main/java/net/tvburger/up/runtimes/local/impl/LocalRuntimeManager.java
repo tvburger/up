@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpRuntimeInfo;
@@ -36,8 +36,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
         public static LocalRuntimeManager create(UpEngineDefinition engineDefinition) {
             Identity identity = Identities.ANONYMOUS;
             UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, SpecificationImpl.Factory.create("Up", "0.1.0"));
-            LocalRuntimeManager manager = new LocalRuntimeManager(info, identity, engineDefinition);
-            return manager;
+            return new LocalRuntimeManager(info, identity, engineDefinition);
         }
 
         private Factory() {
@@ -96,11 +95,11 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
         super.init();
         try {
             Set<UpEngine.Info> engineInfos = new HashSet<>();
-            runtime = LocalRuntimeImpl.Factory.create(this, engineInfos, environments);
+            runtime = LocalRuntime.Factory.create(this, engineInfos, environments);
             engineManager = UpEngineManagerImpl.Factory.create(new LocalEngineInfo(identity), engineDefinition, identity, runtime);
             engineManager.setEngine(new UpEngineImpl(engineManager));
             UpContextHolder.setContext(UpContextImpl.Factory.createEngineContext(engineManager.getEngine(), identity));
-            logger.info("Intializing: " + getInfo());
+            logger.info("Initializing: " + getInfo());
             engineInfos.add(engineManager.getInfo());
             engineManager.init();
             logger.info("Initialized: " + getInfo());

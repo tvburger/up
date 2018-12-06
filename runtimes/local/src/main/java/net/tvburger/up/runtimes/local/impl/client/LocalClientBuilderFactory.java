@@ -1,9 +1,8 @@
-package net.tvburger.up.runtimes.local.client.spi;
+package net.tvburger.up.runtimes.local.impl.client;
 
 import net.tvburger.up.client.UpClientBuilder;
 import net.tvburger.up.client.UpClientTarget;
 import net.tvburger.up.client.spi.UpClientBuilderFactory;
-import net.tvburger.up.runtimes.local.client.LocalClientBuilder;
 import net.tvburger.up.runtimes.local.client.LocalClientTarget;
 
 public final class LocalClientBuilderFactory implements UpClientBuilderFactory {

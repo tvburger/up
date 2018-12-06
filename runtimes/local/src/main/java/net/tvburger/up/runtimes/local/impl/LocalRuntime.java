@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.UpEndpointTechnologyInfo;
 import net.tvburger.up.UpEnvironment;
@@ -14,15 +14,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-public class LocalRuntimeImpl implements UpRuntime {
+public final class LocalRuntime implements UpRuntime {
 
     public static final class Factory {
 
-        public static LocalRuntimeImpl create(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+        public static LocalRuntime create(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
             Objects.requireNonNull(manager);
             Objects.requireNonNull(engines);
             Objects.requireNonNull(environments);
-            return new LocalRuntimeImpl(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments));
+            return new LocalRuntime(manager, Collections.unmodifiableSet(engines), Collections.unmodifiableMap(environments));
         }
 
         private Factory() {
@@ -34,7 +34,7 @@ public class LocalRuntimeImpl implements UpRuntime {
     private final Set<UpEngine.Info> engines;
     private final Map<String, UpEnvironment> environments;
 
-    protected LocalRuntimeImpl(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
+    private LocalRuntime(LocalRuntimeManager manager, Set<UpEngine.Info> engines, Map<String, UpEnvironment> environments) {
         this.manager = manager;
         this.engines = engines;
         this.environments = environments;

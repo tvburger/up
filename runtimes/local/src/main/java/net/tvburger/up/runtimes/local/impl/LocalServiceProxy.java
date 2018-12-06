@@ -1,6 +1,7 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.LifecycleManager;
 import net.tvburger.up.runtime.context.UpContext;
@@ -28,7 +29,7 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
     public static final class Factory {
 
         @SuppressWarnings("unchecked")
-        public static <T> T create(T service, UpApplication application, Identity serviceIdentity, UpService.Manager<T> serviceManager) {
+        public static <T> T create(T service, UpPackage upPackage, UpApplication application, Identity serviceIdentity, UpService.Manager<T> serviceManager) {
             Objects.requireNonNull(service);
             Objects.requireNonNull(application);
             Objects.requireNonNull(serviceIdentity);
@@ -36,7 +37,11 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
             return (T) Proxy.newProxyInstance(
                     service.getClass().getClassLoader(),
                     service.getClass().getInterfaces(),
-                    new LocalServiceProxy<>(new UpServiceImpl<>(application, serviceManager, service), serviceIdentity));
+                    new LocalServiceProxy<>(
+                            new UpServiceImpl<>(serviceManager, service),
+                            serviceIdentity,
+                            application,
+                            upPackage));
         }
 
         private Factory() {
@@ -48,10 +53,14 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
 
     private final UpService<T> service;
     private final Identity serviceIdentity;
+    private final UpApplication application;
+    private final UpPackage upPackage;
 
-    private LocalServiceProxy(UpService<T> service, Identity serviceIdentity) {
+    private LocalServiceProxy(UpService<T> service, Identity serviceIdentity, UpApplication application, UpPackage upPackage) {
         this.service = service;
         this.serviceIdentity = serviceIdentity;
+        this.application = application;
+        this.upPackage = upPackage;
     }
 
     @Override
@@ -61,7 +70,7 @@ public final class LocalServiceProxy<T> implements InvocationHandler {
             if (service.getManager().getState() != LifecycleManager.State.ACTIVE) {
                 throw new UpProxyException("We are not active: " + service.getInfo());
             }
-            UpContextHolder.setContext(UpContextImpl.Factory.createServiceContext(service, serviceIdentity, callerContext));
+            UpContextHolder.setContext(UpContextImpl.Factory.createServiceContext(service, upPackage, application, serviceIdentity, callerContext));
             boolean logMethod = service.getManager().isLogged() && !method.getDeclaringClass().equals(Object.class);
             return logMethod ? invokeLogged(method, args) : method.invoke(service.getInterface(), args);
         } catch (InvocationTargetException cause) {

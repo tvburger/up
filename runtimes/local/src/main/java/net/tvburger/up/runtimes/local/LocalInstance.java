@@ -6,6 +6,7 @@ import net.tvburger.up.infra.UpRuntimeTopology;
 import net.tvburger.up.infra.impl.UpEngineManagerImpl;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
+import net.tvburger.up.runtimes.local.impl.LocalRuntimeManager;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 
@@ -22,18 +23,23 @@ public final class LocalInstance {
     }
 
     public UpRuntime getRuntime() {
+        if (runtimeManager == null) {
+            throw new IllegalStateException();
+        }
         return runtimeManager.getRuntime();
     }
 
     public UpEngine getEngine() {
+        if (runtimeManager == null) {
+            throw new IllegalStateException();
+        }
         return runtimeManager.getEngine();
     }
 
-    public LocalEnvironmentManager getLocalEnvironmentManager(String environmentName) throws AccessDeniedException {
-        return (LocalEnvironmentManager) getRuntime().getEnvironment(environmentName).getManager();
-    }
-
     public Identity getEngineIdentity() throws AccessDeniedException {
+        if (runtimeManager == null) {
+            throw new IllegalStateException();
+        }
         return ((UpEngineManagerImpl) getEngine().getManager()).getIdentity();
     }
 

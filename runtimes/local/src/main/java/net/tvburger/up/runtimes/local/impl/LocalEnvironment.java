@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.*;
 import net.tvburger.up.behaviors.Specification;
@@ -50,28 +50,32 @@ public final class LocalEnvironment implements UpEnvironment {
 
     @Override
     public Set<Class<?>> listServiceTypes() {
-        return manager.getLocalServicesManager().listServiceTypes();
+        return manager.getServiceRegistry().listServiceTypes();
     }
 
     @Override
     public <T> T lookupService(Class<T> serviceType) {
-        UpService<T> service = manager.getLocalServicesManager().getService(serviceType);
+        UpService<T> service = manager.getServiceRegistry().getService(serviceType);
         return service == null ? null : service.getInterface();
     }
 
     @Override
     public Set<UpService.Info<?>> listServices() {
-        return manager.getLocalServicesManager().listServices();
+        Set<UpService.Info<?>> services = new HashSet<>();
+        for (Set<UpService.Info<?>> serviceInfos : manager.getServiceRegistry().listServices().values()) {
+            services.addAll(serviceInfos);
+        }
+        return services;
     }
 
     @Override
     public <T> T getService(UpService.Info<T> serviceInfo) {
-        return manager.getLocalServicesManager().getService(serviceInfo).getInterface();
+        return manager.getServiceRegistry().getService(serviceInfo).getInterface();
     }
 
     @Override
     public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return manager.getLocalServicesManager().getService(serviceInfo).getManager();
+        return manager.getServiceRegistry().getService(serviceInfo).getManager();
     }
 
     @SuppressWarnings("unchecked")
@@ -108,8 +112,8 @@ public final class LocalEnvironment implements UpEnvironment {
     }
 
     @Override
-    public UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException {
-        return manager.getPackages().get(packageInfo);
+    public UpPackage.Manager getPackageManager(UpPackage.Info packageInfo) throws AccessDeniedException {
+        return manager.getPackages().get(packageInfo).getManager();
     }
 
     @Override

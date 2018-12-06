@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local.client;
+package net.tvburger.up.runtimes.local.impl.client;
 
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.client.UpClient;
@@ -7,6 +7,7 @@ import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.impl.UpClientInfoImpl;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.UpRuntimeException;
+import net.tvburger.up.runtimes.local.client.LocalClientTarget;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;

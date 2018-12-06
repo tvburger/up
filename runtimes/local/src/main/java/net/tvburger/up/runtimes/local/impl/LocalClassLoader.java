@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.deploy.UpClassLoader;

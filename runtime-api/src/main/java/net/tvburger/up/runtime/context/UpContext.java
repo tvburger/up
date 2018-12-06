@@ -1,8 +1,6 @@
 package net.tvburger.up.runtime.context;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.util.UpContextHolder;
@@ -39,6 +37,20 @@ public interface UpContext {
      * @return
      */
     UpEnvironment getEnvironment();
+
+    /**
+     * Returns the package that is applicable, or null when not executing within an UpPackage
+     *
+     * @return
+     */
+    UpPackage getPackage();
+
+    /**
+     * Returns the application that is applicable, or null when not executing within an UpApplication
+     *
+     * @return
+     */
+    UpApplication getApplication();
 
     /**
      * Returns the identity of the UpService, UpEndpoint, UpEngine or UpRuntime

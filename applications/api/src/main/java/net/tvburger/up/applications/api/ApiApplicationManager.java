@@ -1,15 +1,11 @@
 package net.tvburger.up.applications.api;
 
 import net.tvburger.up.UpApplication;
-import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.behaviors.LifecycleException;
-import net.tvburger.up.deploy.DeployException;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
-import java.io.InputStream;
-import java.util.UUID;
 
 public final class ApiApplicationManager {
 

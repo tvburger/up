@@ -2,6 +2,7 @@ package net.tvburger.up.technology.jetty9;
 
 import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
@@ -29,6 +30,8 @@ import java.net.InetAddress;
 import java.net.URI;
 import java.net.UnknownHostException;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArraySet;
 
 // https://www.eclipse.org/jetty/documentation/9.4.x/embedded-examples.html
 // TODO: add logging
@@ -36,8 +39,10 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     private static final Logger logger = LoggerFactory.getLogger(Jetty9TechnologyManager.class);
 
-    private final Map<UpEnvironment.Info, Set<Jetty9Endpoint.Info>> environments = new HashMap<>();
+    private final Map<UpEnvironment.Info, Map<UpApplication.Info, Set<Jetty9Endpoint.Info>>> environments = new HashMap<>();
     private final Map<Jetty9Endpoint.Info, Jetty9Endpoint.Definition> endpointDefinitions = new HashMap<>();
+    private final Map<Jetty9Endpoint.Info, UpApplication> endpointApplicationMapping = new HashMap<>();
+    private final Map<Jetty9Endpoint.Info, UpPackage> endpointPackageMapping = new HashMap<>();
     private final Map<Jetty9Endpoint.Info, Jetty9Endpoint> infoEndpointMapping = new HashMap<>();
     private final Map<Jetty9Endpoint, ServletHolder> endpointHolderMapping = new HashMap<>();
 
@@ -48,19 +53,9 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
     private boolean logged;
     private int port;
 
-    public Jetty9TechnologyManager(UpEngine engine, Identity identity) {
+    Jetty9TechnologyManager(UpEngine engine, Identity identity) {
         this.engine = engine;
         this.identity = identity;
-    }
-
-    public Set<Jsr340.Endpoint.Info> listEndpoints(UpEnvironment.Info environmentInfo) {
-        Set<Jsr340.Endpoint.Info> endpoints = this.environments.get(environmentInfo);
-        return endpoints == null ? Collections.emptySet() : Collections.unmodifiableSet(endpoints);
-    }
-
-    public Jsr340.Endpoint.Manager getEndpointManager(Jsr340.Endpoint.Info endpointInfo) throws AccessDeniedException {
-        Jsr340.Endpoint endpoint = infoEndpointMapping.get(endpointInfo);
-        return endpoint == null ? null : endpoint.getManager();
     }
 
     public UpEngine getEngine() {
@@ -110,16 +105,23 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     private ContextHandlerCollection createHandler() throws AccessDeniedException, DeployException {
         ArrayList<ServletContextHandler> handlers = new ArrayList<>();
-        for (Map.Entry<UpEnvironment.Info, Set<Jsr340.Endpoint.Info>> entry : environments.entrySet()) {
+        for (Map.Entry<UpEnvironment.Info, Map<UpApplication.Info, Set<Jsr340.Endpoint.Info>>> entry : environments.entrySet()) {
             ServletContextHandler handler = createServletContextHandler(entry.getKey());
-            for (Jetty9Endpoint.Info endpointInfo : entry.getValue()) {
-                Jetty9Endpoint endpoint = infoEndpointMapping.get(endpointInfo);
-                if (endpoint.getManager().getState() == State.ACTIVE) {
-                    String mapping = addEndpointToHandler(handler, endpoint);
-                    handler.addFilter(
-                            new FilterHolder(new Jetty9ContextFilter(identity, endpoint)),
-                            mapping,
-                            EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
+            for (Set<Jsr340.Endpoint.Info> endpointsInfos : entry.getValue().values()) {
+                for (Jetty9Endpoint.Info endpointInfo : endpointsInfos) {
+                    Jetty9Endpoint endpoint = infoEndpointMapping.get(endpointInfo);
+                    if (endpoint.getManager().getState() == State.ACTIVE) {
+                        String mapping = addEndpointToHandler(handler, endpoint);
+                        handler.addFilter(
+                                new FilterHolder(
+                                        new Jetty9ContextFilter(
+                                                identity,
+                                                endpointApplicationMapping.get(endpointInfo),
+                                                endpointPackageMapping.get(endpointInfo),
+                                                endpoint)),
+                                mapping,
+                                EnumSet.of(DispatcherType.INCLUDE, DispatcherType.REQUEST));
+                    }
                 }
             }
             handlers.add(handler);
@@ -132,8 +134,9 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
     private String addEndpointToHandler(ServletContextHandler handler, Jetty9Endpoint endpoint) throws AccessDeniedException, DeployException {
         try {
             Jetty9Endpoint.Definition definition = endpointDefinitions.get(endpoint.getInfo());
+            UpPackage upPackage = endpointPackageMapping.get(endpoint.getInfo());
             ServletHolder holder;
-            Class<? extends Servlet> servletClass = endpoint.getApplication().getPackage().getClassLoader().loadClass(definition.getServletSpecification(), Servlet.class);
+            Class<? extends Servlet> servletClass = upPackage.getClassLoader().loadClass(definition.getServletSpecification(), Servlet.class);
             if (!definition.getInstanceDefinition().getArguments().isEmpty()) {
                 UpEnvironment environment = getEnvironment(endpoint);
                 Object[] arguments = new ArrayList<>(definition.getArguments()).toArray();
@@ -166,7 +169,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         doStop();
     }
 
-    public void doStop() throws LifecycleException {
+    private void doStop() throws LifecycleException {
         try {
             server.stop();
         } catch (Exception cause) {
@@ -219,7 +222,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
 
     @SuppressWarnings("unchecked")
     @Override
-    public synchronized Jsr340.Endpoint.Manager deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication application) throws DeployException {
+    public synchronized Jsr340.Endpoint.Manager deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication application, UpPackage upPackage) throws DeployException {
         try {
             if (endpointDefinition == null || application == null) {
                 throw new IllegalArgumentException();
@@ -228,7 +231,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             if (!endpointDefinition.getEndpointTechnology().equals(getSpecification())) {
                 throw new DeployException("Unsupported specification!");
             }
-            Class<? extends Servlet> servletClass = application.getPackage().getClassLoader().loadClass(endpointDefinition.getInstanceDefinition().getClassSpecification(), Servlet.class);
+            Class<? extends Servlet> servletClass = upPackage.getClassLoader().loadClass(endpointDefinition.getInstanceDefinition().getClassSpecification(), Servlet.class);
             Map<String, String> settings = endpointDefinition.getSettings();
             if (!settings.containsKey("mapping")) {
                 throw new DeployException("Invalid endpoint definition: no mapping specified in settings!");
@@ -236,9 +239,13 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
             String mapping = settings.getOrDefault("mapping", "/");
             Jsr340.Endpoint.Info info = createInfo(application.getInfo(), servletClass, mapping);
             endpointDefinitions.put(info, Jsr340.Endpoint.Definition.parse(endpointDefinition));
-            Jetty9Endpoint endpoint = Jetty9Endpoint.Factory.create(info, this, application);
+            Jetty9Endpoint endpoint = Jetty9Endpoint.Factory.create(info, this);
             infoEndpointMapping.put(info, endpoint);
-            environments.computeIfAbsent(info.getApplicationInfo().getEnvironmentInfo(), k -> new HashSet<>()).add(info);
+            endpointApplicationMapping.put(info, application);
+            endpointPackageMapping.put(info, upPackage);
+            environments.computeIfAbsent(info.getApplicationInfo().getEnvironmentInfo(), k -> new ConcurrentHashMap<>())
+                    .computeIfAbsent(application.getInfo(), k -> new CopyOnWriteArraySet<>())
+                    .add(info);
             endpoint.getManager().init();
             logger.info("UpEndpoint deployed: " + info);
             return endpoint.getManager();
@@ -249,7 +256,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         }
     }
 
-    public synchronized void restartIfNeeded() throws LifecycleException {
+    private synchronized void restartIfNeeded() throws LifecycleException {
         if (getState() == State.ACTIVE) {
             logger.info("Restarting server!");
             doStop();
@@ -266,7 +273,20 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         return new Jsr340.Endpoint.Info(URI.create(url), identification, servletClass, port, serverName, contextPath, mapping, name, applicationInfo);
     }
 
-    public void start(Jsr340.Endpoint.Info info) throws LifecycleException {
+    Map<UpApplication.Info, Set<Jsr340.Endpoint.Info>> listEndpoints(UpEnvironment.Info environmentInfo) {
+        Map<UpApplication.Info, Set<Jsr340.Endpoint.Info>> endpoints = new HashMap<>();
+        for (Map.Entry<UpApplication.Info, Set<Jsr340.Endpoint.Info>> entry : this.environments.get(environmentInfo).entrySet()) {
+            endpoints.put(entry.getKey(), Collections.unmodifiableSet(entry.getValue()));
+        }
+        return endpoints;
+    }
+
+    Jsr340.Endpoint.Manager getEndpointManager(Jsr340.Endpoint.Info endpointInfo) throws AccessDeniedException {
+        Jsr340.Endpoint endpoint = infoEndpointMapping.get(endpointInfo);
+        return endpoint == null ? null : endpoint.getManager();
+    }
+
+    synchronized void start(Jsr340.Endpoint.Info info) throws LifecycleException {
         try {
             Jetty9Endpoint endpoint = infoEndpointMapping.get(info);
             endpoint.getManager().doStart();
@@ -277,7 +297,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         }
     }
 
-    public void stop(Jsr340.Endpoint.Info info) throws LifecycleException {
+    synchronized void stop(Jsr340.Endpoint.Info info) throws LifecycleException {
         try {
             Jetty9Endpoint endpoint = infoEndpointMapping.get(info);
             endpoint.getManager().doStop();
@@ -288,13 +308,17 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         }
     }
 
-    void destroy(Jsr340.Endpoint.Info info) throws LifecycleException {
+    synchronized void destroy(Jsr340.Endpoint.Info info) throws LifecycleException {
         try {
             logger.info("Removing endpoint: " + info);
             Jetty9Endpoint endpoint = infoEndpointMapping.remove(info);
             endpoint.getManager().doDestroy();
-            environments.get(info.getApplicationInfo().getEnvironmentInfo()).remove(info);
+            environments.get(info.getApplicationInfo().getEnvironmentInfo())
+                    .get(info.getApplicationInfo())
+                    .remove(info);
             endpointDefinitions.remove(info);
+            endpointApplicationMapping.remove(info);
+            endpointPackageMapping.remove(info);
             ServletHolder servletHolder = endpointHolderMapping.remove(endpoint);
             servletHolder.destroyInstance(servletHolder.getServletInstance());
         } catch (Exception cause) {

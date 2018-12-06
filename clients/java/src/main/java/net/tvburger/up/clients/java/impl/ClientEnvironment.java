@@ -109,8 +109,9 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
     }
 
     @Override
-    public UpPackage getPackage(UpPackage.Info packageInfo) throws AccessDeniedException {
-        return new ClientPackage(packageInfo.getPackageId().toString(), this);
+    public UpPackage.Manager getPackageManager(UpPackage.Info packageInfo) throws AccessDeniedException {
+        // TODO: need to specifcy packageId...
+        return new ClientPackageManager(this);
     }
 
     @Override

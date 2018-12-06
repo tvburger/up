@@ -18,7 +18,7 @@ public final class UpEnvironments {
         for (UpApplication.Info applicationInfo : environment.listApplications()) {
             UpApplication application = environment.getApplication(applicationInfo);
             System.out.println(String.format("[%-7s]   UpApplication: %s", application.getManager().getState(), applicationInfo.getName()));
-            System.out.println(String.format("[%-7s]     UpPackage: %s", "-", application.getPackage().getInfo().getPackageId()));
+            System.out.println(String.format("[%-7s]     UpPackage: %s", "-", application.getInfo().getPackageInfo().getPackageId()));
             System.out.println(String.format("[%-7s]     UpServices:", "-"));
             for (UpService.Info<?> serviceInfo : application.listServices()) {
                 UpService.Manager<?> serviceManager = environment.getServiceManager(serviceInfo);

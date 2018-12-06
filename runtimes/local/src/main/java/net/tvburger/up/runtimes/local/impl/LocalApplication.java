@@ -1,8 +1,7 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpPackage;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.security.AccessDeniedException;
@@ -14,11 +13,10 @@ public final class LocalApplication implements UpApplication {
 
     public static final class Factory {
 
-        public static LocalApplication create(LocalApplicationManager manager, UpPackage upPackage, Identification identification) {
+        static LocalApplication create(LocalApplicationManager manager, Identification identification) {
             Objects.requireNonNull(manager);
-            Objects.requireNonNull(upPackage);
             Objects.requireNonNull(identification);
-            return new LocalApplication(manager, upPackage, identification);
+            return new LocalApplication(manager, identification);
         }
 
         private Factory() {
@@ -26,13 +24,11 @@ public final class LocalApplication implements UpApplication {
 
     }
 
-    private final UpPackage upPackage;
     private final Identification identification;
     private final LocalApplicationManager manager;
 
-    private LocalApplication(LocalApplicationManager manager, UpPackage upPackage, Identification identification) {
+    private LocalApplication(LocalApplicationManager manager, Identification identification) {
         this.manager = manager;
-        this.upPackage = upPackage;
         this.identification = identification;
     }
 
@@ -71,11 +67,6 @@ public final class LocalApplication implements UpApplication {
             }
         }
         return null;
-    }
-
-    @Override
-    public UpPackage getPackage() {
-        return upPackage;
     }
 
     @Override

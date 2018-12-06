@@ -1,12 +1,16 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
-import net.tvburger.up.*;
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpPackage;
+import net.tvburger.up.UpRuntimeInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.deploy.*;
 import net.tvburger.up.runtime.UpEngine;
 import net.tvburger.up.runtime.impl.UpApplicationInfoImpl;
 import net.tvburger.up.runtime.impl.UpEnvironmentInfoImpl;
+import net.tvburger.up.runtimes.local.LocalPackageDefinition;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.util.Identities;
 import org.slf4j.Logger;
@@ -25,10 +29,9 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
 
         public static LocalEnvironmentManager create(UpEngine engine, String environmentName, UpRuntimeInfo runtimeInfo) {
             UpEnvironment.Info info = UpEnvironmentInfoImpl.Factory.create(environmentName, runtimeInfo, Identities.ANONYMOUS);
-            LocalEnvironmentManager manager = new LocalEnvironmentManager(
+            return new LocalEnvironmentManager(
                     engine, info,
-                    new LocalServicesManager(engine, info));
-            return manager;
+                    new LocalServiceRegistry(engine, info));
         }
 
         private Factory() {
@@ -40,25 +43,25 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     private final Map<UpApplication.Info, UpApplication> applications = new HashMap<>();
     private final UpEngine engine;
     private final UpEnvironment.Info environmentInfo;
-    private final LocalServicesManager localServicesManager;
+    private final LocalServiceRegistry localServiceRegistry;
     private boolean logged;
 
-    public LocalEnvironmentManager(UpEngine engine, UpEnvironment.Info environmentInfo, LocalServicesManager localServicesManager) {
+    public LocalEnvironmentManager(UpEngine engine, UpEnvironment.Info environmentInfo, LocalServiceRegistry localServiceRegistry) {
         this.engine = engine;
         this.environmentInfo = environmentInfo;
-        this.localServicesManager = localServicesManager;
+        this.localServiceRegistry = localServiceRegistry;
     }
 
-    public Map<UpPackage.Info, UpPackage> getPackages() {
+    Map<UpPackage.Info, UpPackage> getPackages() {
         return Collections.unmodifiableMap(packages);
     }
 
-    public Map<UpApplication.Info, UpApplication> getApplications() {
+    Map<UpApplication.Info, UpApplication> getApplications() {
         return applications;
     }
 
-    public LocalServicesManager getLocalServicesManager() {
-        return localServicesManager;
+    LocalServiceRegistry getServiceRegistry() {
+        return localServiceRegistry;
     }
 
     @Override
@@ -161,8 +164,8 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
             throw new DeployException("No such package: " + packageInfo);
         }
         UpApplication.Info info = new UpApplicationInfoImpl(name, packageInfo, environmentInfo, Identities.ANONYMOUS);
-        LocalApplicationManager manager = new LocalApplicationManager(localServicesManager, engine, info);
-        UpApplication application = LocalApplication.Factory.create(manager, upPackage, Identities.ANONYMOUS);
+        LocalApplicationManager manager = new LocalApplicationManager(localServiceRegistry, engine, info, upPackage);
+        UpApplication application = LocalApplication.Factory.create(manager, Identities.ANONYMOUS);
         manager.init(application);
         applications.put(application.getInfo(), application);
         logger.info("Created application: " + name);
@@ -188,28 +191,6 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
             String message = "Failed to deploy application: " + cause.getMessage();
             logger.error(message, cause);
             throw new DeployException(message, cause);
-        }
-    }
-
-    @Override
-    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        Objects.requireNonNull(serviceDefinition);
-        Objects.requireNonNull(applicationInfo);
-        try {
-            return applications.get(applicationInfo).getManager().deployService(serviceDefinition);
-        } catch (AccessDeniedException cause) {
-            throw new DeployException(cause);
-        }
-    }
-
-    @Override
-    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        Objects.requireNonNull(endpointDefinition);
-        Objects.requireNonNull(applicationInfo);
-        try {
-            return applications.get(applicationInfo).getManager().deployEndpoint(endpointDefinition);
-        } catch (AccessDeniedException cause) {
-            throw new DeployException(cause);
         }
     }
 

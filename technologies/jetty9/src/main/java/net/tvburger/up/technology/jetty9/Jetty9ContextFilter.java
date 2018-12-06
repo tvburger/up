@@ -1,5 +1,7 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.context.UpContext;
 import net.tvburger.up.runtime.impl.UpContextImpl;
@@ -18,10 +20,14 @@ public final class Jetty9ContextFilter implements Filter {
 
     private static final Logger logger = LoggerFactory.getLogger(Jetty9ContextFilter.class);
     private final Identity identity;
+    private final UpApplication application;
+    private final UpPackage upPackage;
     private final Jsr340.Endpoint endpoint;
 
-    public Jetty9ContextFilter(Identity identity, Jsr340.Endpoint endpoint) {
+    Jetty9ContextFilter(Identity identity, UpApplication application, UpPackage upPackage, Jsr340.Endpoint endpoint) {
         this.identity = identity;
+        this.application = application;
+        this.upPackage = upPackage;
         this.endpoint = endpoint;
     }
 
@@ -33,7 +39,7 @@ public final class Jetty9ContextFilter implements Filter {
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         UpContext engineContext = UpContextHolder.getContext();
         try {
-            UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, identity, engineContext));
+            UpContextHolder.setContext(UpContextImpl.Factory.createEndpointContext(endpoint, upPackage, application, identity, engineContext));
             logger.info("Serving URI: " + ((HttpServletRequest) request).getRequestURI());
             chain.doFilter(request, response);
             logger.info("Returning from: " + ((HttpServletRequest) request).getRequestURI());

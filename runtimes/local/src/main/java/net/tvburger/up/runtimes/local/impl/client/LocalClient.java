@@ -1,7 +1,8 @@
-package net.tvburger.up.runtimes.local.client;
+package net.tvburger.up.runtimes.local.impl.client;
 
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.client.UpClient;
+import net.tvburger.up.runtimes.local.client.LocalClientTarget;
 import net.tvburger.up.security.Identification;
 import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;

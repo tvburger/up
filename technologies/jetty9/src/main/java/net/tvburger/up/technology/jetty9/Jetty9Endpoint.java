@@ -1,6 +1,5 @@
 package net.tvburger.up.technology.jetty9;
 
-import net.tvburger.up.UpApplication;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -9,15 +8,19 @@ import net.tvburger.up.technology.jsr340.Jsr340;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(Jetty9Endpoint.class);
 
     public static final class Factory {
 
-        public static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager, UpApplication application) {
+        static Jetty9Endpoint create(Info endpointInfo, Jetty9TechnologyManager technologyManager) {
+            Objects.requireNonNull(endpointInfo);
+            Objects.requireNonNull(technologyManager);
             logger.info("Creating new endpoint: " + endpointInfo);
-            return new Jetty9Endpoint(application, new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
+            return new Jetty9Endpoint(new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
         }
 
         private Factory() {
@@ -91,12 +94,10 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
 
     }
 
-    private final UpApplication application;
     private final Manager manager;
     private final Identification identification;
 
-    public Jetty9Endpoint(UpApplication application, Manager manager, Identification identification) {
-        this.application = application;
+    private Jetty9Endpoint(Manager manager, Identification identification) {
         this.manager = manager;
         this.identification = identification;
     }
@@ -116,8 +117,4 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
         return identification;
     }
 
-    @Override
-    public UpApplication getApplication() {
-        return application;
-    }
 }

@@ -1,6 +1,9 @@
 package net.tvburger.up.clients.java.impl;
 
-import net.tvburger.up.*;
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpException;
+import net.tvburger.up.UpService;
 import net.tvburger.up.applications.api.types.ApiApplicationInfo;
 import net.tvburger.up.applications.api.types.ApiEndpointInfo;
 import net.tvburger.up.applications.api.types.ApiServiceInfo;
@@ -50,7 +53,7 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
 
     @Override
     public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return new ClientServiceManager("service/" + serviceInfo.getServiceInstanceId() + "/manager", this);
+        return new ClientServiceManager<>("service/" + serviceInfo.getServiceInstanceId() + "/manager", this);
     }
 
     @Override
@@ -65,11 +68,6 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
     @Override
     public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
         return null;
-    }
-
-    @Override
-    public UpPackage getPackage() {
-        return new ClientPackage("package", this);
     }
 
     @Override

@@ -1,17 +1,14 @@
 package net.tvburger.up.runtime.impl;
 
-import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpService;
 import net.tvburger.up.security.Identification;
 
 public class UpServiceImpl<T> implements UpService<T> {
 
-    private final UpApplication application;
     private final UpService.Manager<T> manager;
     private final T service;
 
-    public UpServiceImpl(UpApplication application, Manager<T> manager, T service) {
-        this.application = application;
+    public UpServiceImpl(Manager<T> manager, T service) {
         this.manager = manager;
         this.service = service;
     }
@@ -34,11 +31,6 @@ public class UpServiceImpl<T> implements UpService<T> {
     @Override
     public Identification getIdentification() {
         return manager.getInfo().getIdentification();
-    }
-
-    @Override
-    public UpApplication getApplication() {
-        return application;
     }
 
     @Override

@@ -42,6 +42,4 @@ public interface UpApplication extends ManagedEntity<UpApplication.Manager, UpAp
 
     <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException;
 
-    UpPackage getPackage();
-
 }

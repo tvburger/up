@@ -1,12 +1,17 @@
 package net.tvburger.up.clients.java.impl;
 
-import net.tvburger.up.*;
+import net.tvburger.up.UpApplication;
+import net.tvburger.up.UpEnvironment;
+import net.tvburger.up.UpException;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.applications.api.types.ApiEnvironmentInfo;
 import net.tvburger.up.applications.api.types.ApiPackageDefinition;
 import net.tvburger.up.applications.api.types.ApiPackageInfo;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.clients.java.ApiException;
-import net.tvburger.up.deploy.*;
+import net.tvburger.up.deploy.DeployException;
+import net.tvburger.up.deploy.UpApplicationDefinition;
+import net.tvburger.up.deploy.UpPackageDefinition;
 import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
 
 import java.io.IOException;
@@ -127,13 +132,4 @@ public final class ClientEnvironmentManager extends ApiRequester implements UpEn
         return null;
     }
 
-    @Override
-    public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
-    }
-
-    @Override
-    public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition, UpApplication.Info applicationInfo) throws DeployException {
-        return null;
-    }
 }

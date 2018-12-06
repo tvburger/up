@@ -1,4 +1,4 @@
-package net.tvburger.up.runtimes.local.client;
+package net.tvburger.up.runtimes.local.impl.client;
 
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientTarget;
@@ -9,6 +9,7 @@ import net.tvburger.up.runtime.context.UpContext;
 import net.tvburger.up.runtime.impl.UpContextImpl;
 import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.runtimes.local.LocalInstance;
+import net.tvburger.up.runtimes.local.client.LocalClientTarget;
 import net.tvburger.up.security.AccessDeniedException;
 
 import java.lang.reflect.InvocationHandler;
@@ -47,6 +48,7 @@ public final class LocalClientProxy<T> implements InvocationHandler {
                     new LocalClientProxy<>(target, clientInfo, instance));
         }
 
+        // TODO: review this... Especially since we are returning Collections
         private static Class<?> getInterfaceType(Object instance) {
             if (instance.getClass().isPrimitive()
                     || instance.getClass().getName().startsWith("java.")
@@ -54,9 +56,11 @@ public final class LocalClientProxy<T> implements InvocationHandler {
                     || instance instanceof UpClientTarget) {
                 return null;
             }
+//            if (instance.getClass().getName().startsWith("net.tvburger.up.runtimes.local.impl")) {
             for (Class<?> interfaze : instance.getClass().getInterfaces()) {
                 return interfaze;
             }
+//            }
             return null;
         }
 

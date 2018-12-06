@@ -1,8 +1,6 @@
 package net.tvburger.up.runtime.impl;
 
-import net.tvburger.up.UpEndpoint;
-import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.UpService;
+import net.tvburger.up.*;
 import net.tvburger.up.behaviors.MutableComposition;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.runtime.UpEngine;
@@ -21,8 +19,10 @@ public class UpContextImpl implements UpContext, MutableComposition {
 
     public static final class Factory {
 
-        public static UpContextImpl createEndpointContext(UpEndpoint<?, ?> endpoint, Identity identity, UpContext engineContext) throws DeployException, AccessDeniedException {
+        public static UpContextImpl createEndpointContext(UpEndpoint<?, ?> endpoint, UpPackage upPackage, UpApplication application, Identity identity, UpContext engineContext) throws DeployException, AccessDeniedException {
             Objects.requireNonNull(endpoint);
+            Objects.requireNonNull(upPackage);
+            Objects.requireNonNull(application);
             Objects.requireNonNull(identity);
             Objects.requireNonNull(engineContext);
             UpContextImpl endpointContext = createEnvironmentContext(endpoint.getInfo().getApplicationInfo().getEnvironmentInfo().getName(), identity, engineContext);
@@ -30,18 +30,24 @@ public class UpContextImpl implements UpContext, MutableComposition {
             endpointContext.setOperationId(transactionInfo.getId());
             endpointContext.setTransactionInfo(transactionInfo);
             endpointContext.setCallerInfo(CallerInfo.Factory.create(endpoint.getInfo(), transactionInfo.getId()));
+            endpointContext.setPackage(upPackage);
+            endpointContext.setApplication(application);
             endpointContext.setEndpoint(endpoint);
             return endpointContext;
         }
 
-        public static UpContextImpl createServiceContext(UpService<?> service, Identity identity, UpContext callerContext) throws DeployException, AccessDeniedException {
+        public static UpContextImpl createServiceContext(UpService<?> service, UpPackage upPackage, UpApplication application, Identity identity, UpContext callerContext) throws DeployException, AccessDeniedException {
             Objects.requireNonNull(service);
+            Objects.requireNonNull(upPackage);
+            Objects.requireNonNull(application);
             Objects.requireNonNull(identity);
             Objects.requireNonNull(callerContext);
             UpContextImpl serviceContext = createEnvironmentContext(service.getInfo().getApplicationInfo().getEnvironmentInfo().getName(), identity, callerContext);
             serviceContext.setOperationId(UUID.randomUUID());
             serviceContext.setTransactionInfo(callerContext.getTransactionInfo());
             serviceContext.setCallerInfo(CallerInfo.Factory.create(callerContext));
+            serviceContext.setPackage(upPackage);
+            serviceContext.setApplication(application);
             serviceContext.setService(service);
             return serviceContext;
         }
@@ -89,6 +95,8 @@ public class UpContextImpl implements UpContext, MutableComposition {
     private TransactionInfo transactionInfo;
     private CallerInfo callerInfo;
     private UpEnvironment environment;
+    private UpPackage upPackage;
+    private UpApplication application;
     private Identity identity;
     private UpService<?> service;
     private UpEndpoint<?, ?> endpoint;
@@ -130,6 +138,24 @@ public class UpContextImpl implements UpContext, MutableComposition {
 
     public void setEnvironment(UpEnvironment environment) {
         this.environment = environment;
+    }
+
+    @Override
+    public UpPackage getPackage() {
+        return upPackage;
+    }
+
+    public void setPackage(UpPackage upPackage) {
+        this.upPackage = upPackage;
+    }
+
+    @Override
+    public UpApplication getApplication() {
+        return application;
+    }
+
+    public void setApplication(UpApplication application) {
+        this.application = application;
     }
 
     @Override

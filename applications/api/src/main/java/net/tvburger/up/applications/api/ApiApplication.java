@@ -3,11 +3,11 @@ package net.tvburger.up.applications.api;
 import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpService;
+import net.tvburger.up.applications.api.types.ApiIdentification;
 import net.tvburger.up.applications.api.types.ApiList;
 import net.tvburger.up.applications.api.types.ApiServiceInfo;
 import net.tvburger.up.behaviors.Specification;
 import net.tvburger.up.security.AccessDeniedException;
-import net.tvburger.up.security.Identification;
 
 import javax.ws.rs.GET;
 import javax.ws.rs.NotFoundException;
@@ -35,11 +35,19 @@ public final class ApiApplication {
         return services;
     }
 
-    public <T> T getService(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return null;
+    // TODO: finish this...
+    @Path("/service/{uuid}")
+    public ApiService getService(@PathParam("uuid") String uuid) throws AccessDeniedException {
+        UUID serviceInstanceId = UUID.fromString(uuid);
+        for (UpService.Info<?> serviceInfo : application.listServices()) {
+//            if (serviceInfo.getServiceInstanceId().equals(serviceInstanceId)) {
+//                return new ApiService(ApiServiceProxy.Factory.createProxy(serviceInstanceId, application.getService(serviceInfo)));
+//            }
+        }
+        throw new NotFoundException();
     }
 
-    @Path("/service/{uuid}")
+    @Path("/service/{uuid}/manager")
     public ApiServiceManager getServiceManager(@PathParam("uuid") String uuid) throws AccessDeniedException {
         UUID serviceInstanceId = UUID.fromString(uuid);
         for (UpService.Info<?> serviceInfo : application.listServices()) {
@@ -57,17 +65,12 @@ public final class ApiApplication {
         return new ApiList(application.listEndpoints());
     }
 
-    public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
-        return null;
-    }
+    // TODO: add getEndpointManager
 
-    @Path("/package")
-    public ApiPackage getPackage() {
-        return new ApiPackage(application.getPackage());
-    }
-
-    public Identification getIdentification() {
-        return null;
+    @Path("/identitifcation")
+    @GET
+    public ApiIdentification getIdentification() {
+        return ApiIdentification.fromUp(application.getIdentification());
     }
 
     @Path("/manager")

@@ -1,1 +1,1 @@
-net.tvburger.up.runtimes.local.client.spi.LocalClientBuilderFactory
+net.tvburger.up.runtimes.local.impl.client.LocalClientBuilderFactory

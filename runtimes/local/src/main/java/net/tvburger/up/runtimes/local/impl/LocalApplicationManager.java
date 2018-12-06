@@ -1,7 +1,8 @@
-package net.tvburger.up.runtimes.local;
+package net.tvburger.up.runtimes.local.impl;
 
 import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpPackage;
 import net.tvburger.up.UpService;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.Specification;
@@ -14,28 +15,29 @@ import net.tvburger.up.security.AccessDeniedException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class LocalApplicationManager extends LifecycleManagerImpl implements UpApplication.Manager {
+public final class LocalApplicationManager extends LifecycleManagerImpl implements UpApplication.Manager {
 
     private static final Logger logger = LoggerFactory.getLogger(LocalApplicationManager.class);
 
     private final Map<UpService.Info<?>, UpService<?>> services = new ConcurrentHashMap<>();
     private final Map<Specification, Map<UpEndpoint.Info, UpEndpoint.Manager<?>>> endpoints = new ConcurrentHashMap<>();
 
-    private final LocalServicesManager servicesManager;
+    private final LocalServiceRegistry registry;
     private final UpEngine engine;
     private final UpApplication.Info info;
+    private final UpPackage upPackage;
 
     private UpApplication application;
     private boolean logged = true;
 
-    public LocalApplicationManager(LocalServicesManager servicesManager, UpEngine engine, UpApplication.Info info) {
-        this.servicesManager = servicesManager;
+    public LocalApplicationManager(LocalServiceRegistry registry, UpEngine engine, UpApplication.Info info, UpPackage upPackage) {
+        this.registry = registry;
         this.engine = engine;
         this.info = info;
+        this.upPackage = upPackage;
     }
 
     void init(UpApplication application) throws DeployException {
@@ -55,20 +57,16 @@ public class LocalApplicationManager extends LifecycleManagerImpl implements UpA
         return endpoints;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public UpService.Manager<?> deployService(UpServiceDefinition serviceDefinition) throws DeployException {
         try {
             logger.info("Deploying service: " + serviceDefinition.getServiceType());
-            UpService<?> service = servicesManager.addService(application,
-                    (Class) application.getPackage().getClassLoader().loadClass(serviceDefinition.getServiceType()),
-                    application.getPackage().getClassLoader().loadClass(serviceDefinition.getInstanceDefinition().getClassSpecification()),
-                    new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray());
+            UpService<?> service = registry.deployService(serviceDefinition, application, upPackage);
             services.put(service.getInfo(), service);
             service.getManager().init();
             logger.info("UpService deployed: " + service.getInfo());
             return service.getManager();
-        } catch (LifecycleException | ClassNotFoundException | AccessDeniedException cause) {
+        } catch (LifecycleException | AccessDeniedException cause) {
             String message = "Failed to deploy service: " + cause.getMessage();
             logger.error(message, cause);
             throw new DeployException(message, cause);
@@ -78,7 +76,7 @@ public class LocalApplicationManager extends LifecycleManagerImpl implements UpA
     @Override
     public UpEndpoint.Manager<?> deployEndpoint(UpEndpointDefinition endpointDefinition) throws DeployException {
         try {
-            UpEndpoint.Manager<?> manager = engine.getEndpointTechnology(endpointDefinition.getEndpointTechnology()).getManager().deployEndpoint(endpointDefinition, application);
+            UpEndpoint.Manager<?> manager = engine.getEndpointTechnology(endpointDefinition.getEndpointTechnology()).getManager().deployEndpoint(endpointDefinition, application, upPackage);
             endpoints.computeIfAbsent(endpointDefinition.getEndpointTechnology(), (s) -> new ConcurrentHashMap<>()).put(manager.getInfo(), manager);
             return manager;
         } catch (AccessDeniedException cause) {

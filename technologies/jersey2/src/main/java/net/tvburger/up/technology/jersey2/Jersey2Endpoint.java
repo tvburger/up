@@ -1,6 +1,5 @@
 package net.tvburger.up.technology.jersey2;
 
-import net.tvburger.up.UpApplication;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -9,15 +8,19 @@ import net.tvburger.up.technology.jsr370.Jsr370;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Objects;
+
 public final class Jersey2Endpoint implements Jsr370.Endpoint {
 
     private static final Logger logger = LoggerFactory.getLogger(Jersey2Endpoint.class);
 
     public static final class Factory {
 
-        public static Jersey2Endpoint create(Jsr370.Endpoint.Info endpointInfo, Jersey2TechnologyManager technologyManager, UpApplication application) {
+        static Jersey2Endpoint create(Jsr370.Endpoint.Info endpointInfo, Jersey2TechnologyManager technologyManager) {
+            Objects.requireNonNull(endpointInfo);
+            Objects.requireNonNull(technologyManager);
             logger.info("Creating new endpoint: " + endpointInfo);
-            return new Jersey2Endpoint(application, new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
+            return new Jersey2Endpoint(new Manager(endpointInfo, technologyManager), endpointInfo.getIdentification());
         }
 
         private Factory() {
@@ -91,12 +94,10 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
 
     }
 
-    private final UpApplication application;
     private final Manager manager;
     private final Identification identification;
 
-    public Jersey2Endpoint(UpApplication application, Manager manager, Identification identification) {
-        this.application = application;
+    private Jersey2Endpoint(Manager manager, Identification identification) {
         this.manager = manager;
         this.identification = identification;
     }
@@ -116,8 +117,4 @@ public final class Jersey2Endpoint implements Jsr370.Endpoint {
         return identification;
     }
 
-    @Override
-    public UpApplication getApplication() {
-        return application;
-    }
 }

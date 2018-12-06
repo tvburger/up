@@ -22,6 +22,4 @@ public interface UpEndpoint<M extends UpEndpoint.Manager<I>, I extends UpEndpoin
     interface Manager<I extends Info> extends LogManager, LifecycleManager, ManagedObject.Manager<I> {
     }
 
-    UpApplication getApplication();
-
 }

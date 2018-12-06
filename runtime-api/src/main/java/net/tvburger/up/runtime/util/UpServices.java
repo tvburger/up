@@ -16,8 +16,6 @@ public final class UpServices {
             Constructor<T> constructor = getConstructor(serviceClass, arguments);
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < arguments.length; i++) {
-                if (arguments[i].getClass().equals(String.class)) {
-                }
                 if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {
                     Object serviceInterface = environment.lookupService(parameterTypes[i]);
                     if (serviceInterface == null) {

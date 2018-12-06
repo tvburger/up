@@ -28,8 +28,6 @@ public final class Example {
     private UpRuntimeTopology runtimeTopology;
     private UpClientTarget target;
     private UpEnvironment environment;
-    private UpClient adminClient;
-    private UpClient apiClient;
 
     public Example(UpApplicationDefinition applicationDefinition) {
         this.applicationDefinition = applicationDefinition;
@@ -54,31 +52,21 @@ public final class Example {
         }
     }
 
+    public void exampleApplication() throws UpException {
+        UpPackage.Info packageInfo = environment.getManager().deployPackage(LocalPackageDefinition.Factory.create("test")).getInfo();
+        environment.getManager().deployApplication(applicationDefinition, packageInfo);
+    }
+
     private void adminApplication() throws UpException {
-        adminClient = UpClient.newBuilder(target)
-                .withEnvironment("admin")
-                .withIdentity(Identities.ANONYMOUS)
-                .build();
-        UpEnvironment.Manager manager = adminClient.getEnvironment().getManager();
+        UpEnvironment.Manager manager = environment.getManager();
         UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("admin")).getInfo();
         manager.deployApplication(new AdminApplicationDefinition(), packageInfo);
-        manager.start();
     }
 
     private void apiApplication() throws UpException {
-        apiClient = UpClient.newBuilder(target)
-                .withEnvironment("api")
-                .withIdentity(Identities.ANONYMOUS)
-                .build();
-        UpEnvironment.Manager manager = apiClient.getEnvironment().getManager();
+        UpEnvironment.Manager manager = environment.getManager();
         UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("api")).getInfo();
         manager.deployApplication(new ApiDefinition(), packageInfo);
-        manager.start();
-    }
-
-    public void deploy() throws UpException {
-        UpPackage.Info packageInfo = environment.getManager().deployPackage(LocalPackageDefinition.Factory.create("test")).getInfo();
-        environment.getManager().deployApplication(applicationDefinition, packageInfo);
     }
 
     public void start() throws UpException {
@@ -104,18 +92,6 @@ public final class Example {
     }
 
     public void printEnvironment() throws UpException {
-        printEnvironment(environment);
-    }
-
-    public void printAdmin() throws UpException {
-        printEnvironment(adminClient.getEnvironment());
-    }
-
-    public void printApi() throws UpException {
-        printEnvironment(apiClient.getEnvironment());
-    }
-
-    private void printEnvironment(UpEnvironment environment) throws UpException {
         System.out.println("_________ UpEnvironment: " + environment.getInfo().getName() + " ___________________");
         UpEnvironments.printEnvironment(environment);
         System.out.println("---------------------------------------------");
@@ -127,18 +103,16 @@ public final class Example {
         example.init();
 
 
-        example.deploy();
-        example.start();
-
+        example.exampleApplication();
         example.adminApplication();
         example.apiApplication();
+        example.start();
+
 
         example.sayHi();
         example.printEnvironment();
-        example.printAdmin();
-        example.printApi();
 
-        allowWebAccessFor60secs();
+        allowWebAccessFor10min();
 
         example.stop();
         example.printEnvironment();
@@ -146,9 +120,9 @@ public final class Example {
         example.printEnvironment();
     }
 
-    private static void allowWebAccessFor60secs() {
+    private static void allowWebAccessFor10min() {
         try {
-            Thread.sleep(6_000_000);
+            Thread.sleep(600_000);
         } catch (InterruptedException cause) {
         }
     }

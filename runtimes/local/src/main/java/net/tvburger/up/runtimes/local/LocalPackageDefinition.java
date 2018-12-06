@@ -6,6 +6,7 @@ import net.tvburger.up.behaviors.impl.SpecificationImpl;
 import net.tvburger.up.deploy.*;
 import net.tvburger.up.runtime.impl.UpPackageInfoImpl;
 import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
+import net.tvburger.up.runtimes.local.impl.LocalClassLoader;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.util.Specifications;
 

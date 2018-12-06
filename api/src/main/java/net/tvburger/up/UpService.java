@@ -21,6 +21,4 @@ public interface UpService<T> extends ManagedEntity<UpService.Manager<T>, UpServ
 
     T getInterface();
 
-    UpApplication getApplication();
-
 }
