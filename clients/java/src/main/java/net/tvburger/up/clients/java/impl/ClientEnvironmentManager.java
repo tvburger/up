@@ -7,7 +7,6 @@ import net.tvburger.up.UpPackage;
 import net.tvburger.up.applications.api.types.ApiEnvironmentInfo;
 import net.tvburger.up.applications.api.types.ApiPackageDefinition;
 import net.tvburger.up.applications.api.types.ApiPackageInfo;
-import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.clients.java.ApiException;
 import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpApplicationDefinition;
@@ -17,81 +16,10 @@ import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
 import java.io.IOException;
 import java.io.InputStream;
 
-public final class ClientEnvironmentManager extends ApiRequester implements UpEnvironment.Manager {
+public final class ClientEnvironmentManager extends ClientEntityManager implements UpEnvironment.Manager {
 
     public ClientEnvironmentManager(ApiRequester requester) {
         super(requester, "manager");
-    }
-
-    @Override
-    public void init() throws LifecycleException {
-        try {
-            apiWrite("init");
-        } catch (LifecycleException cause) {
-            throw cause;
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to write init: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public void start() throws LifecycleException {
-        try {
-            apiWrite("start");
-        } catch (LifecycleException cause) {
-            throw cause;
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to write start: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public void stop() throws LifecycleException {
-        try {
-            apiWrite("stop");
-        } catch (LifecycleException cause) {
-            throw cause;
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to write stop: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public void destroy() throws LifecycleException {
-        try {
-            apiWrite("destroy");
-        } catch (LifecycleException cause) {
-            throw cause;
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to write destroy: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public State getState() {
-        try {
-            return apiRead("state", State.class);
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to read state: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public boolean isLogged() {
-        try {
-            return apiRead("logged", Boolean.class);
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to read logged: " + cause.getMessage(), cause);
-        }
-    }
-
-    @Override
-    public void setLogged(boolean logged) {
-        try {
-            apiWrite("logged", logged);
-        } catch (ApiException | UpException cause) {
-            throw new ApiException("Failed to write logged: " + cause.getMessage(), cause);
-        }
     }
 
     @Override

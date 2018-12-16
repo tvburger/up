@@ -1,8 +1,6 @@
 package net.tvburger.up.runtimes.local;
 
 import net.tvburger.up.UpPackage;
-import net.tvburger.up.behaviors.Specification;
-import net.tvburger.up.behaviors.impl.SpecificationImpl;
 import net.tvburger.up.deploy.*;
 import net.tvburger.up.runtime.impl.UpPackageInfoImpl;
 import net.tvburger.up.runtime.impl.UpPackageManagerImpl;
@@ -13,40 +11,30 @@ import net.tvburger.up.util.Specifications;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
 public final class LocalPackageDefinition implements UpPackage, UpPackageDefinition {
 
-    public static final class Factory {
+    private static final LocalPackageDefinition INSTANCE = new LocalPackageDefinition(
+            LocalPackageDefinition.class.getClassLoader(),
+            new UpPackageManagerImpl(new UpPackageInfoImpl(UUID.randomUUID(),
+                    Specifications.forClass(LocalPackageDefinition.class))));
 
-        public static LocalPackageDefinition create(String name) {
-            Objects.requireNonNull(name);
-            return create(SpecificationImpl.Factory.create(name, Specifications.UNVERSIONED));
-        }
-
-        public static LocalPackageDefinition create(Specification specification) {
-            Objects.requireNonNull(specification);
-            UpPackage.Manager manager = new UpPackageManagerImpl(new UpPackageInfoImpl(UUID.randomUUID(), specification));
-            return new LocalPackageDefinition(manager);
-        }
-
-        private Factory() {
-        }
-
+    public static LocalPackageDefinition get() {
+        return INSTANCE;
     }
 
-    public static class ResourceLoader implements UpResourceLoader {
+    public class ResourceLoader implements UpResourceLoader {
 
         @Override
         public boolean hasResource(String resourceName) {
-            return getClass().getClassLoader().getResourceAsStream(resourceName) != null;
+            return classLoader.getResourceAsStream(resourceName) != null;
         }
 
         @Override
         public InputStream loadResource(String resourceName) throws ResourceNotFoundException, IOException {
-            InputStream in = getClass().getClassLoader().getResourceAsStream(resourceName);
+            InputStream in = classLoader.getResourceAsStream(resourceName);
             if (in == null) {
                 throw new ResourceNotFoundException(resourceName);
             }
@@ -55,22 +43,25 @@ public final class LocalPackageDefinition implements UpPackage, UpPackageDefinit
 
     }
 
-    private final UpResourceLoader resourceLoader = new ResourceLoader();
-    private final UpClassLoader classLoader = new LocalClassLoader();
+    private final ClassLoader classLoader;
     private final Manager manager;
+    private final UpClassLoader upClassLoader;
+    private final UpResourceLoader upResourceLoader = new ResourceLoader();
 
-    private LocalPackageDefinition(Manager manager) {
+    private LocalPackageDefinition(ClassLoader classLoader, Manager manager) {
+        this.classLoader = classLoader;
         this.manager = manager;
+        this.upClassLoader = new LocalClassLoader(classLoader);
     }
 
     @Override
     public UpResourceLoader getResourceLoader() {
-        return resourceLoader;
+        return upResourceLoader;
     }
 
     @Override
     public UpClassLoader getClassLoader() {
-        return classLoader;
+        return upClassLoader;
     }
 
     @Override

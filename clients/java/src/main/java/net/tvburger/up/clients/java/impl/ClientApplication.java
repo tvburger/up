@@ -28,8 +28,8 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
                     new ApiResponseType.Value(ApiSpecification.class),
                     new ApiResponseType.Set(new ApiResponseType.Value(ApiEndpointInfo.class)));
 
-    public ClientApplication(String name, ApiRequester requester) {
-        super(requester, "application/" + name);
+    ClientApplication(ApiRequester requester, UpApplication.Info applicationInfo) {
+        super(requester, "application/" + applicationInfo.getIdentification().getUuid());
     }
 
     @SuppressWarnings("unchecked")
@@ -53,7 +53,7 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
 
     @Override
     public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return new ClientServiceManager<>("service/" + serviceInfo.getServiceInstanceId() + "/manager", this);
+        return new ClientServiceManager<>(this, serviceInfo);
     }
 
     @Override
@@ -67,7 +67,7 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
 
     @Override
     public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
-        return null;
+        return new ClientEndpointManager<>(this, endpointInfo);
     }
 
     @Override

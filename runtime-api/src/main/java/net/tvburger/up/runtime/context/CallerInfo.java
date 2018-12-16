@@ -1,7 +1,9 @@
 package net.tvburger.up.runtime.context;
 
+import net.tvburger.up.UpApplication;
 import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.UpService;
+import net.tvburger.up.runtime.UpEngine;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -11,35 +13,19 @@ public final class CallerInfo implements Serializable {
 
     public static final class Factory {
 
-        public static CallerInfo create() {
-            return new CallerInfo(
-                    null,
-                    null,
-                    UUID.randomUUID(),
-                    System.currentTimeMillis());
-        }
-
-        public static CallerInfo create(UpContext context) {
+        public static CallerInfo create(final UpContext context) {
             Objects.requireNonNull(context);
             UpService<?> service = context.getService();
             UpEndpoint<?, ?> endpoint = context.getEndpoint();
+            UpApplication application = context.getApplication();
+            UpEngine engine = context.getEngine();
             return new CallerInfo(
                     service == null ? null : service.getInfo(),
                     endpoint == null ? null : endpoint.getInfo(),
+                    application == null ? null : application.getInfo(),
+                    engine == null ? null : engine.getInfo(),
                     context.getOperationId(),
                     System.currentTimeMillis());
-        }
-
-        public static CallerInfo create(UpEndpoint.Info endpointInfo, UUID operationId) {
-            Objects.requireNonNull(endpointInfo);
-            Objects.requireNonNull(operationId);
-            return new CallerInfo(null, endpointInfo, operationId, System.currentTimeMillis());
-        }
-
-        public static CallerInfo create(UpService.Info<?> serviceInfo, UUID operationId) {
-            Objects.requireNonNull(serviceInfo);
-            Objects.requireNonNull(operationId);
-            return new CallerInfo(serviceInfo, null, operationId, System.currentTimeMillis());
         }
 
         private Factory() {
@@ -49,12 +35,16 @@ public final class CallerInfo implements Serializable {
 
     private final UpService.Info<?> serviceInfo;
     private final UpEndpoint.Info endpointInfo;
+    private final UpApplication.Info applicationInfo;
+    private final UpEngine.Info engineInfo;
     private final UUID operationId;
     private final long timestamp;
 
-    private CallerInfo(UpService.Info<?> serviceInfo, UpEndpoint.Info endpointInfo, UUID operationId, long timestamp) {
+    private CallerInfo(UpService.Info<?> serviceInfo, UpEndpoint.Info endpointInfo, UpApplication.Info applicationInfo, UpEngine.Info engineInfo, UUID operationId, long timestamp) {
         this.serviceInfo = serviceInfo;
         this.endpointInfo = endpointInfo;
+        this.applicationInfo = applicationInfo;
+        this.engineInfo = engineInfo;
         this.operationId = operationId;
         this.timestamp = timestamp;
     }
@@ -77,6 +67,14 @@ public final class CallerInfo implements Serializable {
         return endpointInfo;
     }
 
+    public UpApplication.Info getApplicationInfo() {
+        return applicationInfo;
+    }
+
+    public UpEngine.Info getEngineInfo() {
+        return engineInfo;
+    }
+
     public UUID getOperationId() {
         return operationId;
     }
@@ -87,7 +85,7 @@ public final class CallerInfo implements Serializable {
 
     @Override
     public String toString() {
-        return String.format("CallerInfo{%s, %s, %s}", serviceInfo == null ? endpointInfo : serviceInfo, operationId, timestamp);
+        return String.format("CallerInfo{%s, %s, %s, %s, %s}", serviceInfo == null ? endpointInfo : serviceInfo, applicationInfo, engineInfo, operationId, timestamp);
     }
 
 }

@@ -154,7 +154,7 @@ public final class Jersey2TechnologyManager extends LifecycleManagerImpl impleme
             URI uri = UriBuilder.fromPath("/" + application.getInfo().getEnvironmentInfo().getName() + "/" + mappingWithoutSlash).scheme("http").host(hostname).port(findFreePort()).build();
             Class<? extends Application> applicationClass = upPackage.getClassLoader().loadClass(definition.getApplicationSpecification(), Application.class);
             Jsr370.Endpoint.Info info = new Jsr370.Endpoint.Info(uri,
-                    Identities.ANONYMOUS,
+                    Identities.createAnonymous(),
                     applicationClass,
                     uri.getPort(),
                     uri.getHost(),

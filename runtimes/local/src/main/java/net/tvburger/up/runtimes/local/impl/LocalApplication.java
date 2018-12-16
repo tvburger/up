@@ -13,10 +13,9 @@ public final class LocalApplication implements UpApplication {
 
     public static final class Factory {
 
-        static LocalApplication create(LocalApplicationManager manager, Identification identification) {
+        static LocalApplication create(LocalApplicationManager manager) {
             Objects.requireNonNull(manager);
-            Objects.requireNonNull(identification);
-            return new LocalApplication(manager, identification);
+            return new LocalApplication(manager);
         }
 
         private Factory() {
@@ -24,12 +23,10 @@ public final class LocalApplication implements UpApplication {
 
     }
 
-    private final Identification identification;
     private final LocalApplicationManager manager;
 
-    private LocalApplication(LocalApplicationManager manager, Identification identification) {
+    private LocalApplication(LocalApplicationManager manager) {
         this.manager = manager;
-        this.identification = identification;
     }
 
     @Override
@@ -71,7 +68,7 @@ public final class LocalApplication implements UpApplication {
 
     @Override
     public Identification getIdentification() {
-        return identification;
+        return getInfo().getIdentification();
     }
 
     @Override

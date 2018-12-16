@@ -56,11 +56,9 @@ public final class LocalClientProxy<T> implements InvocationHandler {
                     || instance instanceof UpClientTarget) {
                 return null;
             }
-//            if (instance.getClass().getName().startsWith("net.tvburger.up.runtimes.local.impl")) {
             for (Class<?> interfaze : instance.getClass().getInterfaces()) {
                 return interfaze;
             }
-//            }
             return null;
         }
 

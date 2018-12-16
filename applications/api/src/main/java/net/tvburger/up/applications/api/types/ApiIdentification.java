@@ -6,6 +6,7 @@ import net.tvburger.up.security.Identification;
 import java.security.Principal;
 import java.security.PublicKey;
 import java.util.Objects;
+import java.util.UUID;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApiIdentification implements Identification {
@@ -14,11 +15,13 @@ public final class ApiIdentification implements Identification {
         ApiIdentification api = new ApiIdentification();
         api.principal = ApiPrincipal.fromUp(up.getPrincipal());
         api.publicKey = ApiPublicKey.fromUp(up.getPublicKey());
+        api.uuid = up.getUuid();
         return api;
     }
 
     private ApiPrincipal principal;
     private ApiPublicKey publicKey;
+    private UUID uuid;
 
     @Override
     public Principal getPrincipal() {
@@ -28,6 +31,11 @@ public final class ApiIdentification implements Identification {
     @Override
     public PublicKey getPublicKey() {
         return publicKey;
+    }
+
+    @Override
+    public UUID getUuid() {
+        return uuid;
     }
 
     @Override

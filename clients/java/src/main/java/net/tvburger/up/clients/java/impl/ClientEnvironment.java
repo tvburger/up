@@ -80,7 +80,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public <T> UpService.Manager<T> getServiceManager(UpService.Info<T> serviceInfo) throws AccessDeniedException {
-        return new ClientServiceManager<>("service/" + serviceInfo.getServiceInstanceId(), this);
+        return new ClientServiceManager<>(this, serviceInfo);
     }
 
     @SuppressWarnings("unchecked")
@@ -95,8 +95,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public <I extends UpEndpoint.Info> UpEndpoint.Manager<I> getEndpointManager(I endpointInfo) throws AccessDeniedException {
-        // TODO: return API service proxy
-        return null;
+        return new ClientEndpointManager<>(this, endpointInfo);
     }
 
     @Override
@@ -110,8 +109,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public UpPackage.Manager getPackageManager(UpPackage.Info packageInfo) throws AccessDeniedException {
-        // TODO: need to specifcy packageId...
-        return new ClientPackageManager(this);
+        return new ClientPackageManager(this, packageInfo);
     }
 
     @Override
@@ -125,7 +123,7 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
 
     @Override
     public UpApplication getApplication(UpApplication.Info applicationInfo) throws AccessDeniedException {
-        return new ClientApplication(applicationInfo.getName(), this);
+        return new ClientApplication(this, applicationInfo);
     }
 
     @Override

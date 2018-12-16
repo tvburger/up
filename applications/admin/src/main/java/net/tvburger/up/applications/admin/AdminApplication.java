@@ -4,15 +4,16 @@ import net.tvburger.up.runtime.context.UpContext;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
+import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Set;
 
-@ApplicationPath("/")
+@ApplicationPath("/admin")
 public final class AdminApplication extends Application {
 
     @Override
     public Set<Object> getSingletons() {
-        return Collections.singleton(new RuntimeResource(UpContext.getContext().getRuntime()));
+        return Collections.singleton(new EnvironmentResource(UpContext.getContext().getEnvironment()));
     }
 
 }

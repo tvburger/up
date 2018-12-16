@@ -5,12 +5,12 @@ import my.company.example.logic.ExampleService;
 import my.company.example.runtime.MyDevRuntimeTopology;
 import net.tvburger.up.UpEnvironment;
 import net.tvburger.up.UpException;
-import net.tvburger.up.UpPackage;
 import net.tvburger.up.applications.admin.AdminApplicationDefinition;
-import net.tvburger.up.applications.api.ApiDefinition;
+import net.tvburger.up.applications.api.ApiApplicationDefinition;
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientException;
 import net.tvburger.up.client.UpClientTarget;
+import net.tvburger.up.deploy.DeployException;
 import net.tvburger.up.deploy.UpApplicationDefinition;
 import net.tvburger.up.infra.UpRuntimeTopology;
 import net.tvburger.up.runtime.UpRuntimeException;
@@ -37,14 +37,15 @@ public final class Example {
         this.runtimeTopology = runtimeTopology;
     }
 
-    public void init() throws UpRuntimeException, UpClientException, AccessDeniedException {
+    public void init() throws UpRuntimeException, UpClientException, DeployException, AccessDeniedException {
         if (runtimeTopology != null) {
             target = new LocalProvisioner().provision(runtimeTopology);
             UpClient client = UpClient.newBuilder(target)
                     .withEnvironment("dev")
-                    .withIdentity(Identities.ANONYMOUS)
+                    .withIdentity(Identities.createAnonymous())
                     .build();
             environment = client.getEnvironment();
+            environment.getManager().deployPackage(LocalPackageDefinition.get());
         } else {
             environment = LocalProvisioner.createEnvironment(
                     Jetty9Implementation.get(),
@@ -53,20 +54,17 @@ public final class Example {
     }
 
     public void exampleApplication() throws UpException {
-        UpPackage.Info packageInfo = environment.getManager().deployPackage(LocalPackageDefinition.Factory.create("test")).getInfo();
-        environment.getManager().deployApplication(applicationDefinition, packageInfo);
+        environment.getManager().deployApplication(applicationDefinition, LocalPackageDefinition.get().getInfo());
     }
 
     private void adminApplication() throws UpException {
         UpEnvironment.Manager manager = environment.getManager();
-        UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("admin")).getInfo();
-        manager.deployApplication(new AdminApplicationDefinition(), packageInfo);
+        manager.deployApplication(new AdminApplicationDefinition(), LocalPackageDefinition.get().getInfo());
     }
 
     private void apiApplication() throws UpException {
         UpEnvironment.Manager manager = environment.getManager();
-        UpPackage.Info packageInfo = manager.deployPackage(LocalPackageDefinition.Factory.create("api")).getInfo();
-        manager.deployApplication(new ApiDefinition(), packageInfo);
+        manager.deployApplication(new ApiApplicationDefinition(), LocalPackageDefinition.get().getInfo());
     }
 
     public void start() throws UpException {
@@ -104,7 +102,6 @@ public final class Example {
 
 
         example.exampleApplication();
-        example.adminApplication();
         example.apiApplication();
         example.start();
 

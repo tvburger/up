@@ -48,7 +48,7 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
 
     private StackTraceElement getStackTraceElement() {
         for (StackTraceElement element : Thread.currentThread().getStackTrace()) {
-            if (!element.getClassName().equals(Slf4jLogger.class.getName())
+            if (!element.getClassName().startsWith("org.slf4j.")
                     && !element.getClassName().equals(Thread.class.getName())) {
                 return element;
             }
@@ -79,11 +79,11 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     public void trace(String msg) {
-        this.log(LogLevel.TRACE, msg, (Throwable) null);
+        this.log(LogLevel.TRACE, msg, null);
     }
 
     public void trace(String format, Object param1) {
-        this.formatAndLog(LogLevel.TRACE, format, param1, (Object) null);
+        this.formatAndLog(LogLevel.TRACE, format, param1, null);
     }
 
     public void trace(String format, Object param1, Object param2) {
@@ -103,11 +103,11 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     public void debug(String msg) {
-        this.log(LogLevel.DEBUG, msg, (Throwable) null);
+        this.log(LogLevel.DEBUG, msg, null);
     }
 
     public void debug(String format, Object param1) {
-        this.formatAndLog(LogLevel.DEBUG, format, param1, (Object) null);
+        this.formatAndLog(LogLevel.DEBUG, format, param1, null);
     }
 
     public void debug(String format, Object param1, Object param2) {
@@ -127,11 +127,11 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     public void info(String msg) {
-        this.log(LogLevel.INFO, msg, (Throwable) null);
+        this.log(LogLevel.INFO, msg, null);
     }
 
     public void info(String format, Object arg) {
-        this.formatAndLog(LogLevel.INFO, format, arg, (Object) null);
+        this.formatAndLog(LogLevel.INFO, format, arg, null);
     }
 
     public void info(String format, Object arg1, Object arg2) {
@@ -151,11 +151,11 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     public void warn(String msg) {
-        this.log(LogLevel.WARN, msg, (Throwable) null);
+        this.log(LogLevel.WARN, msg, null);
     }
 
     public void warn(String format, Object arg) {
-        this.formatAndLog(LogLevel.WARN, format, arg, (Object) null);
+        this.formatAndLog(LogLevel.WARN, format, arg, null);
     }
 
     public void warn(String format, Object arg1, Object arg2) {
@@ -175,11 +175,11 @@ public final class Slf4jLogger extends MarkerIgnoringBase implements org.slf4j.L
     }
 
     public void error(String msg) {
-        this.log(LogLevel.ERROR, msg, (Throwable) null);
+        this.log(LogLevel.ERROR, msg, null);
     }
 
     public void error(String format, Object arg) {
-        this.formatAndLog(LogLevel.ERROR, format, arg, (Object) null);
+        this.formatAndLog(LogLevel.ERROR, format, arg, null);
     }
 
     public void error(String format, Object arg1, Object arg2) {

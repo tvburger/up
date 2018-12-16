@@ -35,7 +35,7 @@ public final class LocalProvisioner implements InfrastructureProvisioner {
                 }
             }
             LocalClientTarget target = (LocalClientTarget) new LocalProvisioner().provision(UpRuntimeTopology.Factory.create(builder.build()));
-            UpClient client = UpClient.newBuilder(target).withIdentity(Identities.ANONYMOUS).withEnvironment("default").build();
+            UpClient client = UpClient.newBuilder(target).withIdentity(Identities.createAnonymous()).withEnvironment("default").build();
             UpEnvironment environment = client.getEnvironment();
             targets.put(environment, target);
             return environment;

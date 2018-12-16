@@ -269,7 +269,7 @@ public final class Jetty9TechnologyManager extends LifecycleManagerImpl implemen
         String contextPath = "/" + applicationInfo.getEnvironmentInfo().getName();
         String name = servletClass.getName();
         String url = "http://" + serverName + (port != 80 ? ":" + port : "") + contextPath + mapping;
-        Identification identification = Identities.ANONYMOUS;
+        Identification identification = Identities.createAnonymous();
         return new Jsr340.Endpoint.Info(URI.create(url), identification, servletClass, port, serverName, contextPath, mapping, name, applicationInfo);
     }
 

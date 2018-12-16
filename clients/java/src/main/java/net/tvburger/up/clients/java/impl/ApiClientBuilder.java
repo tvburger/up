@@ -59,7 +59,7 @@ public final class ApiClientBuilder implements UpClientBuilder {
         }
         try {
             Client client = ClientBuilder.newClient();
-            ApiRequester requester = ApiRequester.Factory.create(client, target.getUrl() + "/" + environmentName, identity);
+            ApiRequester requester = ApiRequester.Factory.create(client, target.getUrl() + "/" + environmentName + "/api", identity);
             UpEnvironment.Info environmentInfo = requester.apiRead("info", ApiEnvironmentInfo.class);
             UpClient.Info clientInfo = UpClientInfoImpl.Factory.create(environmentInfo, identity);
             return new ApiClient(requester, identity, new ApiClientManager(clientInfo, client));

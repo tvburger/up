@@ -7,8 +7,8 @@ import net.tvburger.up.clients.java.ApiException;
 
 public final class ClientPackageManager extends ApiRequester implements UpPackage.Manager {
 
-    public ClientPackageManager(ApiRequester requester) {
-        super(requester, "manager");
+    ClientPackageManager(ApiRequester requester, UpPackage.Info packageInfo) {
+        super(requester, "package/" + packageInfo.getPackageId());
     }
 
     @Override

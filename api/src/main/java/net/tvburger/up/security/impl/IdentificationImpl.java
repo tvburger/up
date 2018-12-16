@@ -1,29 +1,39 @@
 package net.tvburger.up.security.impl;
 
 import net.tvburger.up.security.Identification;
+import net.tvburger.up.security.Identity;
 
 import java.security.Principal;
 import java.security.PublicKey;
 import java.util.Objects;
+import java.util.UUID;
 
 public class IdentificationImpl implements Identification {
 
     public static final class Factory {
 
-        public static IdentificationImpl create(Principal principal, PublicKey publicKey) {
+        public static IdentificationImpl create(final Identity identity) {
+            Objects.requireNonNull(identity);
+            return new IdentificationImpl(identity.getPrincipal(), identity.getPublicKey(), identity.getUuid());
+        }
+
+        public static IdentificationImpl create(final Principal principal, final PublicKey publicKey, final UUID uuid) {
             Objects.requireNonNull(principal);
             Objects.requireNonNull(publicKey);
-            return new IdentificationImpl(principal, publicKey);
+            Objects.requireNonNull(uuid);
+            return new IdentificationImpl(principal, publicKey, uuid);
         }
 
     }
 
     private final Principal principal;
     private final PublicKey publicKey;
+    private final UUID uuid;
 
-    protected IdentificationImpl(Principal principal, PublicKey publicKey) {
+    protected IdentificationImpl(Principal principal, PublicKey publicKey, UUID uuid) {
         this.principal = principal;
         this.publicKey = publicKey;
+        this.uuid = uuid;
     }
 
     @Override
@@ -37,12 +47,17 @@ public class IdentificationImpl implements Identification {
     }
 
     @Override
-    public String toString() {
-        return String.format("Identification{%s, %s}", principal, publicKey);
+    public UUID getUuid() {
+        return uuid;
     }
 
     @Override
-    public boolean equals(Object object) {
+    public String toString() {
+        return String.format("Identification{%s, %s}", principal, uuid);
+    }
+
+    @Override
+    public boolean equals(final Object object) {
         return object == this
                 || null != object &&
                 (object instanceof Identification

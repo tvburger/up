@@ -16,7 +16,7 @@ public final class LocalClientBuilder implements UpClientBuilder {
 
     private final LocalClientTarget target;
     private String environmentName = "default";
-    private Identity identity = Identities.ANONYMOUS;
+    private Identity identity = Identities.createAnonymous();
 
     public LocalClientBuilder(LocalClientTarget target) {
         this.target = target;

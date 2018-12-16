@@ -29,7 +29,6 @@ public class UpContextImpl implements UpContext, MutableComposition {
             TransactionInfo transactionInfo = TransactionInfo.Factory.create(endpoint.getInfo().getEndpointUri());
             endpointContext.setOperationId(transactionInfo.getId());
             endpointContext.setTransactionInfo(transactionInfo);
-            endpointContext.setCallerInfo(CallerInfo.Factory.create(endpoint.getInfo(), transactionInfo.getId()));
             endpointContext.setPackage(upPackage);
             endpointContext.setApplication(application);
             endpointContext.setEndpoint(endpoint);
@@ -52,6 +51,18 @@ public class UpContextImpl implements UpContext, MutableComposition {
             return serviceContext;
         }
 
+        public static UpContextImpl createEngineContext(UpEngine engine, Identity engineIdentity) {
+            Objects.requireNonNull(engine);
+            Objects.requireNonNull(engineIdentity);
+            UpContextImpl context = new UpContextImpl();
+            context.setOperationId(UUID.randomUUID());
+            context.setIdentity(engineIdentity);
+            context.setEngine(engine);
+            context.setRuntime(engine.getRuntime());
+            context.setLocality(Locality.Factory.create(engine));
+            return context;
+        }
+
         private static UpContextImpl createEnvironmentContext(String environmentName, Identity identity, UpContext parentContext) throws DeployException, AccessDeniedException {
             UpRuntime runtime = parentContext.getRuntime();
             if (!runtime.hasEnvironment(environmentName)) {
@@ -69,20 +80,6 @@ public class UpContextImpl implements UpContext, MutableComposition {
             context.setEngine(parentContext.getEngine());
             context.setRuntime(parentContext.getRuntime());
             context.setLocality(Locality.Factory.create(parentContext.getEngine()));
-            return context;
-        }
-
-        public static UpContextImpl createEngineContext(UpEngine engine, Identity engineIdentity) {
-            Objects.requireNonNull(engine);
-            Objects.requireNonNull(engineIdentity);
-            CallerInfo callerInfo = CallerInfo.Factory.create();
-            UpContextImpl context = new UpContextImpl();
-            context.setOperationId(callerInfo.getOperationId());
-            context.setCallerInfo(callerInfo);
-            context.setIdentity(engineIdentity);
-            context.setEngine(engine);
-            context.setRuntime(engine.getRuntime());
-            context.setLocality(Locality.Factory.create(engine));
             return context;
         }
 

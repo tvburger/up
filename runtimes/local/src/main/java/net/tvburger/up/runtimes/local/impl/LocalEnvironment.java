@@ -85,7 +85,9 @@ public final class LocalEnvironment implements UpEnvironment {
         for (Class<?> endpointType : engine.listEndpointTypes()) {
             UpEndpointTechnology<?> technology = engine.getEndpointTechnology(endpointType);
             Set<? extends UpEndpoint.Info> technologyEndpoints = endpoints.computeIfAbsent(technology.getInfo(), (key) -> new HashSet<>());
-            technologyEndpoints.addAll((Set) technology.listEndpoints(getInfo()));
+            for (Map.Entry entry : technology.listEndpoints(getInfo()).entrySet()) {
+                technologyEndpoints.addAll((Set) entry.getValue());
+            }
         }
         return endpoints;
     }

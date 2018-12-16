@@ -2,12 +2,26 @@ package net.tvburger.up.applications.api.types;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import net.tvburger.up.UpEndpoint;
+import net.tvburger.up.UpEndpointTechnologyInfo;
 
 import java.net.URI;
 import java.util.Objects;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public final class ApiEndpointInfo implements UpEndpoint.Info {
+
+    public static ApiEndpointInfo fromUp(UpEndpoint.Info up) {
+        ApiEndpointInfo api = new ApiEndpointInfo();
+        api.endpointUri = up.getEndpointUri();
+        api.endpointTechnologyInfo = ApiEndpointTechnologyInfo.fromUp(up.getEndpointTechnologyInfo());
+        api.applicationInfo = ApiApplicationInfo.fromUp(up.getApplicationInfo());
+        api.identification = ApiIdentification.fromUp(up.getIdentification());
+        return api;
+    }
+
+    public UpEndpoint.Info toUp() {
+        return this;
+    }
 
     private URI endpointUri;
     private ApiEndpointTechnologyInfo endpointTechnologyInfo;
@@ -20,7 +34,7 @@ public final class ApiEndpointInfo implements UpEndpoint.Info {
     }
 
     @Override
-    public ApiEndpointTechnologyInfo getEndpointTechnologyInfo() {
+    public UpEndpointTechnologyInfo getEndpointTechnologyInfo() {
         return endpointTechnologyInfo;
     }
 

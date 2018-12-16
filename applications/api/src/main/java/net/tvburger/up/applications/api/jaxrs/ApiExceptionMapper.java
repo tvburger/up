@@ -1,4 +1,4 @@
-package net.tvburger.up.applications.api;
+package net.tvburger.up.applications.api.jaxrs;
 
 import net.tvburger.up.UpException;
 import net.tvburger.up.behaviors.LifecycleException;
@@ -18,6 +18,7 @@ public final class ApiExceptionMapper implements ExceptionMapper<Throwable> {
     @Override
     public Response toResponse(Throwable throwable) {
         Response response;
+        logger.warn("We got exception: " + throwable.getMessage(), throwable);
         if (throwable instanceof UpException) {
             logger.warn("UpException thrown: " + throwable.getMessage(), throwable);
             if (throwable instanceof AccessDeniedException) {

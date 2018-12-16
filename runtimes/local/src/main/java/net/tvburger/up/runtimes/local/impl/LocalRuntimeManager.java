@@ -34,7 +34,7 @@ public final class LocalRuntimeManager extends LifecycleManagerImpl implements U
     public static final class Factory {
 
         public static LocalRuntimeManager create(UpEngineDefinition engineDefinition) {
-            Identity identity = Identities.ANONYMOUS;
+            Identity identity = Identities.createAnonymous();
             UpRuntimeInfo info = UpRuntimeInfoImpl.Factory.create(identity, SpecificationImpl.Factory.create("Up", "0.1.0"));
             return new LocalRuntimeManager(info, identity, engineDefinition);
         }

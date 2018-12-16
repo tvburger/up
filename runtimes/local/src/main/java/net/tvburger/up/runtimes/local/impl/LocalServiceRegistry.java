@@ -19,7 +19,6 @@ import net.tvburger.up.util.Identities;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.CopyOnWriteArraySet;
 
 public final class LocalServiceRegistry {
@@ -48,7 +47,7 @@ public final class LocalServiceRegistry {
             if (!serviceType.isAssignableFrom(serviceClass) || !serviceType.isInterface()) {
                 throw new DeployException("Invalid serviceType and serviceClass: " + serviceType + " - " + serviceClass);
             }
-            Identity identity = Identities.ANONYMOUS;
+            Identity identity = Identities.createAnonymous();
             UpService.Manager<T> serviceManager = createServiceManager(serviceType, serviceClass, identity, application.getInfo());
             UpEnvironment environment = engine.getRuntime().getEnvironment(environmentInfo.getName());
             Object[] arguments = new ArrayList<>(serviceDefinition.getInstanceDefinition().getArguments()).toArray();
@@ -58,7 +57,7 @@ public final class LocalServiceRegistry {
                     application,
                     identity,
                     serviceManager);
-            Set<UpService<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new ConcurrentSkipListSet<>());
+            Set<UpService<?>> services = serviceRegistry.computeIfAbsent(serviceType, (key) -> new CopyOnWriteArraySet<>());
             UpService<T> service = new UpServiceImpl<>(serviceManager, serviceInstance);
             services.add(service);
             this.services.computeIfAbsent(application.getInfo(), k -> new CopyOnWriteArraySet<>()).add(service.getInfo());

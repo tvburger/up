@@ -16,7 +16,7 @@ public final class UpServices {
             Constructor<T> constructor = getConstructor(serviceClass, arguments);
             Class<?>[] parameterTypes = constructor.getParameterTypes();
             for (int i = 0; i < arguments.length; i++) {
-                if (parameterTypes[i].equals(arguments[i]) && !parameterTypes[i].equals(Class.class)) {
+                if (arguments[i] instanceof Class<?> && !parameterTypes[i].equals(Class.class)) {
                     Object serviceInterface = environment.lookupService(parameterTypes[i]);
                     if (serviceInterface == null) {
                         throw new DeployException("No dependent service found: " + parameterTypes[i]);

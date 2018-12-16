@@ -12,6 +12,7 @@ import net.tvburger.up.runtime.impl.UpApplicationInfoImpl;
 import net.tvburger.up.runtime.impl.UpEnvironmentInfoImpl;
 import net.tvburger.up.runtimes.local.LocalPackageDefinition;
 import net.tvburger.up.security.AccessDeniedException;
+import net.tvburger.up.security.Identity;
 import net.tvburger.up.util.Identities;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -28,7 +29,7 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
     public static final class Factory {
 
         public static LocalEnvironmentManager create(UpEngine engine, String environmentName, UpRuntimeInfo runtimeInfo) {
-            UpEnvironment.Info info = UpEnvironmentInfoImpl.Factory.create(environmentName, runtimeInfo, Identities.ANONYMOUS);
+            UpEnvironment.Info info = UpEnvironmentInfoImpl.Factory.create(environmentName, runtimeInfo, Identities.createAnonymous());
             return new LocalEnvironmentManager(
                     engine, info,
                     new LocalServiceRegistry(engine, info));
@@ -163,9 +164,10 @@ public final class LocalEnvironmentManager extends LifecycleManagerImpl implemen
         if (upPackage == null) {
             throw new DeployException("No such package: " + packageInfo);
         }
-        UpApplication.Info info = new UpApplicationInfoImpl(name, packageInfo, environmentInfo, Identities.ANONYMOUS);
+        Identity applicationIdentity = Identities.createAnonymous();
+        UpApplication.Info info = new UpApplicationInfoImpl(name, packageInfo, environmentInfo, Identities.getSafeIdentification(applicationIdentity));
         LocalApplicationManager manager = new LocalApplicationManager(localServiceRegistry, engine, info, upPackage);
-        UpApplication application = LocalApplication.Factory.create(manager, Identities.ANONYMOUS);
+        UpApplication application = LocalApplication.Factory.create(manager);
         manager.init(application);
         applications.put(application.getInfo(), application);
         logger.info("Created application: " + name);

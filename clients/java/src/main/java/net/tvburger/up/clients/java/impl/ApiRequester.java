@@ -93,6 +93,7 @@ public abstract class ApiRequester {
     private Response doPostRequest(String path, Object payload) throws ApiException, UpClientException, AccessDeniedException, DeployException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         try {
+            System.out.println(factory.createTarget(path));
             Response response = client.target(factory.createTarget(path)).request()
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .header("Client-Name", identity.getPrincipal())
@@ -155,6 +156,7 @@ public abstract class ApiRequester {
     private Response doGetRequest(String path) throws ApiException, AccessDeniedException, DeployException, UpClientException, UpRuntimeException, LifecycleException {
         Objects.requireNonNull(path);
         try {
+            System.out.println(factory.createTarget(path));
             Response response = client.target(factory.createTarget(path)).request()
                     .accept(MediaType.APPLICATION_JSON_TYPE)
                     .header("Client-Name", identity.getPrincipal())

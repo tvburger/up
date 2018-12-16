@@ -7,28 +7,37 @@ import java.util.Objects;
 
 public final class ApiEndpointTechnologyInfo implements UpEndpointTechnologyInfo {
 
+    public static ApiEndpointTechnologyInfo fromUp(UpEndpointTechnologyInfo up) {
+        ApiEndpointTechnologyInfo api = new ApiEndpointTechnologyInfo();
+        api.endpointType = up.getEndpointType();
+        api.specificationName = up.getSpecificationName();
+        api.specificationVersion = up.getSpecificationVersion();
+        return api;
+    }
+
+    public UpEndpointTechnologyInfo toUp() {
+        return this;
+    }
+
     private Class<?> endpointType;
     private String specificationName;
     private String specificationVersion;
 
-    @Override
     public Class<?> getEndpointType() {
         return endpointType;
     }
 
-    @Override
     public String getSpecificationName() {
         return specificationName;
     }
 
-    @Override
     public String getSpecificationVersion() {
         return specificationVersion;
     }
 
     @Override
     public String toString() {
-        return String.format("ApiEndpointTechnologyInfo{%s, %s, %s}", endpointType.getCanonicalName(), specificationName, specificationVersion);
+        return String.format("ApiEndpointTechnologyInfo{%s, %s, %s}", endpointType.getName(), specificationName, specificationVersion);
     }
 
     @Override
