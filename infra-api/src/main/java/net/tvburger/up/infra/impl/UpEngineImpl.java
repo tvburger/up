@@ -8,6 +8,7 @@ import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.security.AccessDeniedException;
 import net.tvburger.up.security.Identification;
 
+import java.util.Objects;
 import java.util.Set;
 
 public class UpEngineImpl implements UpEngine {
@@ -56,6 +57,22 @@ public class UpEngineImpl implements UpEngine {
     @Override
     public UpEngine.Info getInfo() {
         return manager.getInfo();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpEngine)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpEngine) object).getInfo());
     }
 
 }

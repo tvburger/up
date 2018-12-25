@@ -4,7 +4,6 @@ import net.tvburger.up.runtime.context.UpContext;
 
 import javax.ws.rs.ApplicationPath;
 import javax.ws.rs.core.Application;
-import java.lang.reflect.InvocationTargetException;
 import java.util.Collections;
 import java.util.Set;
 

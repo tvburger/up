@@ -9,6 +9,7 @@ import net.tvburger.up.security.Identification;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public final class ClientEnvironment extends ApiRequester implements UpEnvironment {
@@ -154,6 +155,22 @@ public final class ClientEnvironment extends ApiRequester implements UpEnvironme
         } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read environment info: " + cause.getMessage(), cause);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpEnvironment)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpEnvironment) object).getInfo());
     }
 
 }

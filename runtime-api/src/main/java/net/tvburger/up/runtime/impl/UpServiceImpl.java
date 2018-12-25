@@ -3,6 +3,8 @@ package net.tvburger.up.runtime.impl;
 import net.tvburger.up.UpService;
 import net.tvburger.up.security.Identification;
 
+import java.util.Objects;
+
 public class UpServiceImpl<T> implements UpService<T> {
 
     private final UpService.Manager<T> manager;
@@ -37,4 +39,21 @@ public class UpServiceImpl<T> implements UpService<T> {
     public String toString() {
         return String.format("UpService{%s}", getInfo());
     }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpService)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpService<?>) object).getInfo());
+    }
+
 }

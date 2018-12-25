@@ -7,6 +7,7 @@ import net.tvburger.up.security.impl.IdentificationImpl;
 import java.security.Principal;
 import java.security.PrivateKey;
 import java.security.PublicKey;
+import java.util.Objects;
 import java.util.UUID;
 
 public final class Identities {
@@ -41,6 +42,10 @@ public final class Identities {
                 return "Anonymous";
             }
 
+            @Override
+            public int hashCode() {
+                return Objects.hash(getPrincipal(), getPublicKey());
+            }
         };
     }
 

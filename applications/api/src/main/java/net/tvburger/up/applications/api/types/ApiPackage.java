@@ -6,6 +6,7 @@ import net.tvburger.up.deploy.UpClassLoader;
 import net.tvburger.up.deploy.UpResourceLoader;
 import net.tvburger.up.security.AccessDeniedException;
 
+import java.util.Objects;
 import java.util.Set;
 
 public final class ApiPackage implements UpPackage {
@@ -41,6 +42,22 @@ public final class ApiPackage implements UpPackage {
     @Override
     public Info getInfo() {
         return manager.getInfo();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpPackage)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpPackage) object).getInfo());
     }
 
 }

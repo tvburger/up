@@ -6,6 +6,7 @@ import net.tvburger.up.runtime.UpRuntime;
 import net.tvburger.up.runtime.util.UpContextHolder;
 import net.tvburger.up.security.Identity;
 
+import java.util.Objects;
 import java.util.UUID;
 
 public interface UpContext {
@@ -96,6 +97,23 @@ public interface UpContext {
 
     static UpContext getContext() {
         return UpContextHolder.getContext();
+    }
+
+    static boolean equals(UpContext context1, UpContext context2) {
+        return (context1 == null && context2 == null) ||
+                (context1 != null && context2 != null &&
+                        Objects.equals(context1.getApplication(), context2.getApplication())
+                        && Objects.equals(context1.getCallerInfo(), context2.getCallerInfo())
+                        && Objects.equals(context1.getEndpoint(), context2.getEndpoint())
+                        && Objects.equals(context1.getEngine(), context2.getEngine())
+                        && Objects.equals(context1.getEnvironment(), context2.getEnvironment())
+                        && Objects.equals(context1.getIdentity(), context2.getIdentity())
+                        && Objects.equals(context1.getLocality(), context2.getLocality())
+                        && Objects.equals(context1.getOperationId(), context2.getOperationId())
+                        && Objects.equals(context1.getPackage(), context2.getPackage())
+                        && Objects.equals(context1.getRuntime(), context2.getRuntime())
+                        && Objects.equals(context1.getService(), context2.getService())
+                        && Objects.equals(context1.getTransactionInfo(), context2.getTransactionInfo()));
     }
 
 }

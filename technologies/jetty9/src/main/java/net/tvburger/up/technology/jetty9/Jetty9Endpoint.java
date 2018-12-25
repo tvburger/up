@@ -1,5 +1,6 @@
 package net.tvburger.up.technology.jetty9;
 
+import net.tvburger.up.UpEndpoint;
 import net.tvburger.up.behaviors.LifecycleException;
 import net.tvburger.up.behaviors.impl.LifecycleManagerImpl;
 import net.tvburger.up.security.AccessDeniedException;
@@ -115,6 +116,22 @@ public final class Jetty9Endpoint implements Jsr340.Endpoint {
     @Override
     public Identification getIdentification() {
         return identification;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpEndpoint)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpEndpoint<?, ?>) object).getInfo());
     }
 
 }

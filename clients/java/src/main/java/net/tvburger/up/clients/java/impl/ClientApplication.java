@@ -15,6 +15,7 @@ import net.tvburger.up.security.Identification;
 
 import java.util.LinkedHashSet;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 public final class ClientApplication extends ApiRequester implements UpApplication {
@@ -87,6 +88,22 @@ public final class ClientApplication extends ApiRequester implements UpApplicati
         } catch (UpException | ApiException cause) {
             throw new ApiException("Failed to read application info: " + cause.getMessage(), cause);
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpApplication)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpApplication) object).getInfo());
     }
 
 }

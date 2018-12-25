@@ -60,4 +60,23 @@ public final class Locality implements Serializable {
         return String.format("Locality{%s, %s, %s}", runtimeInfo, engineInfo, threadName);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(runtimeInfo, engineInfo, threadName);
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof Locality)) {
+            return false;
+        }
+        Locality other = (Locality) object;
+        return Objects.equals(runtimeInfo, other.runtimeInfo)
+                && Objects.equals(engineInfo, other.engineInfo)
+                && Objects.equals(threadName, other.threadName);
+    }
+
 }

@@ -51,4 +51,23 @@ public final class TransactionInfo implements Serializable {
         return String.format("TransactionInfo{%s, %s, %s}", id, requestUri, requester);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(id) * 11 + 3;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof TransactionInfo)) {
+            return false;
+        }
+        TransactionInfo other = (TransactionInfo) object;
+        return Objects.equals(other.id, id)
+                && Objects.equals(other.requester, requester)
+                && Objects.equals(other.requestUri, requestUri);
+    }
+
 }

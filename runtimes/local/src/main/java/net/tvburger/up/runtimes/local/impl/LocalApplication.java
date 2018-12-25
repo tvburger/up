@@ -81,4 +81,20 @@ public final class LocalApplication implements UpApplication {
         return manager.getInfo();
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpApplication)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpApplication) object).getInfo());
+    }
+
 }

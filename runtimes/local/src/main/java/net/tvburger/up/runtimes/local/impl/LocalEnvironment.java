@@ -128,4 +128,20 @@ public final class LocalEnvironment implements UpEnvironment {
         return manager.getApplications().get(applicationInfo);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpEnvironment)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpEnvironment) object).getInfo());
+    }
+
 }

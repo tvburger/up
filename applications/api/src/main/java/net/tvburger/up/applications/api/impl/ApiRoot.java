@@ -1,7 +1,6 @@
 package net.tvburger.up.applications.api.impl;
 
 import net.tvburger.up.UpEnvironment;
-import net.tvburger.up.applications.api.impl.ApiEnvironment;
 import net.tvburger.up.runtime.context.UpContext;
 
 import javax.ws.rs.NotFoundException;

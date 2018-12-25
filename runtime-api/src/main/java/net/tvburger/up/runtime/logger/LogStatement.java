@@ -22,6 +22,12 @@ public class LogStatement implements Serializable {
         private Long timestamp;
         private LogLevel logLevel;
         private String message;
+        private UpContext context;
+
+        public Builder withContext(UpContext context) {
+            this.context = context;
+            return this;
+        }
 
         public Builder withOperationId(UUID operationId) {
             this.operationId = operationId;
@@ -71,7 +77,7 @@ public class LogStatement implements Serializable {
         public LogStatement build() {
             UpContext context;
             if (operationId == null || transactionInfo == null || callerInfo == null || entityInfo == null || locality == null) {
-                context = UpContext.getContext();
+                context = this.context == null ? UpContext.getContext() : this.context;
             } else {
                 context = null;
             }

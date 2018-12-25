@@ -7,15 +7,18 @@ import net.tvburger.up.runtime.context.TransactionInfo;
 import net.tvburger.up.runtime.logger.LogStatement;
 import net.tvburger.up.runtime.logger.UpLogger;
 
+import java.io.PrintStream;
 import java.security.Principal;
 import java.util.Date;
 
 public final class ConsoleLogger implements UpLogger {
 
     private final String loggerName;
+    private final PrintStream out;
 
-    public ConsoleLogger(String loggerName) {
+    public ConsoleLogger(String loggerName, PrintStream out) {
         this.loggerName = loggerName;
+        this.out = out;
     }
 
     @Override
@@ -26,8 +29,8 @@ public final class ConsoleLogger implements UpLogger {
         TransactionInfo transactionInfo = logStatement.getTransactionInfo();
         Principal requester = transactionInfo != null ? transactionInfo.getRequester() : null;
         CallerInfo callerInfo = logStatement.getCallerInfo();
-        System.out.println(String.format(
-                " %s (%s->%s) [%s] <%s> %s {%s%s} (%s@%s@%s) [%s@%s] : %s",
+        out.println(String.format(
+                "%s (%s->%s) [%s] <%s> %s {%s%s} (%s@%s@%s) [%s@%s] : %s",
                 new Date(logStatement.getTimestamp()),
                 callerInfo != null ? callerInfo.getOperationId() : null,
                 logStatement.getOperationId(),

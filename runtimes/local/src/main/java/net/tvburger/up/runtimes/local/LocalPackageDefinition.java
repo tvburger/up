@@ -11,6 +11,7 @@ import net.tvburger.up.util.Specifications;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collections;
+import java.util.Objects;
 import java.util.Set;
 import java.util.UUID;
 
@@ -77,6 +78,22 @@ public final class LocalPackageDefinition implements UpPackage, UpPackageDefinit
     @Override
     public Info getInfo() {
         return manager.getInfo();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(getInfo()) * 3 + 7;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof UpPackage)) {
+            return false;
+        }
+        return Objects.equals(getInfo(), ((UpPackage) object).getInfo());
     }
 
 }

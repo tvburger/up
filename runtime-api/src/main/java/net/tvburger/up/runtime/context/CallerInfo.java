@@ -88,4 +88,26 @@ public final class CallerInfo implements Serializable {
         return String.format("CallerInfo{%s, %s, %s, %s, %s}", serviceInfo == null ? endpointInfo : serviceInfo, applicationInfo, engineInfo, operationId, timestamp);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(operationId) * 19 + Objects.hashCode(timestamp) * 3 + 29;
+    }
+
+    @Override
+    public boolean equals(Object object) {
+        if (object == this) {
+            return true;
+        }
+        if (!(object instanceof CallerInfo)) {
+            return false;
+        }
+        CallerInfo other = (CallerInfo) object;
+        return Objects.equals(serviceInfo, other.serviceInfo)
+                && Objects.equals(endpointInfo, other.endpointInfo)
+                && Objects.equals(applicationInfo, other.applicationInfo)
+                && Objects.equals(engineInfo, other.engineInfo)
+                && Objects.equals(operationId, other.operationId)
+                && Objects.equals(timestamp, other.timestamp);
+    }
+
 }
