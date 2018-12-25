@@ -26,6 +26,7 @@ public final class UpLoggerStream extends OutputStream {
 
     private UpContext currentContext;
     private UpContext previousContext;
+    private long startTimestamp = -1;
 
     public UpLoggerStream(PrintStream out, UpLogger logger, LogLevel logLevel) {
         this.logger = logger;
@@ -49,6 +50,7 @@ public final class UpLoggerStream extends OutputStream {
         if (context != null) {
             logger.log(new LogStatement.Builder()
                     .withContext(context)
+                    .withTimestamp(startTimestamp)
                     .withSource(getStackTraceElement())
                     .withLogLevel(logLevel)
                     .withMessage(getOutputString())
@@ -58,6 +60,7 @@ public final class UpLoggerStream extends OutputStream {
             out.flush();
         }
         outputStream.reset();
+        startTimestamp = -1;
     }
 
     private StackTraceElement getStackTraceElement() {
@@ -77,6 +80,9 @@ public final class UpLoggerStream extends OutputStream {
     @Override
     public synchronized void write(int b) throws IOException {
         handleContextChange();
+        if (startTimestamp == -1) {
+            startTimestamp = System.currentTimeMillis();
+        }
         outputStream.write(b);
         if (b == '\n') {
             doOutput(currentContext);
@@ -86,6 +92,9 @@ public final class UpLoggerStream extends OutputStream {
     @Override
     public synchronized void write(byte[] b) throws IOException {
         handleContextChange();
+        if (startTimestamp == -1) {
+            startTimestamp = System.currentTimeMillis();
+        }
         outputStream.write(b);
         if (currentContext == null || b[b.length - 1] == '\n') {
             doOutput(currentContext);
@@ -95,6 +104,9 @@ public final class UpLoggerStream extends OutputStream {
     @Override
     public synchronized void write(byte[] b, int off, int len) throws IOException {
         handleContextChange();
+        if (startTimestamp == -1) {
+            startTimestamp = System.currentTimeMillis();
+        }
         outputStream.write(b, off, len);
         if (currentContext == null || b[off + len] == '\n') {
             doOutput(currentContext);
@@ -103,7 +115,6 @@ public final class UpLoggerStream extends OutputStream {
 
     @Override
     public synchronized void flush() throws IOException {
-        out.write("FLUSH CALLED!".getBytes());
         if (outputStream.size() > 0) {
             doOutput(currentContext);
         }

@@ -2,7 +2,6 @@ package net.tvburger.up.runtimes.local.impl.client;
 
 import net.tvburger.up.client.UpClient;
 import net.tvburger.up.client.UpClientTarget;
-import net.tvburger.up.runtime.context.CallerInfo;
 import net.tvburger.up.runtime.context.Locality;
 import net.tvburger.up.runtime.context.TransactionInfo;
 import net.tvburger.up.runtime.context.UpContext;
@@ -99,7 +98,6 @@ public final class LocalClientProxy<T> implements InvocationHandler {
         TransactionInfo transactionInfo = createTransactionInfo(method);
         context.setOperationId(transactionInfo.getId());
         context.setTransactionInfo(transactionInfo);
-        context.setCallerInfo(CallerInfo.Factory.create(context));
         context.setEnvironment(localInstance.getRuntime().getEnvironment(clientInfo.getEnvironmentInfo().getName()));
         context.setIdentity(localInstance.getEngineIdentity());
         context.setEngine(localInstance.getEngine());
