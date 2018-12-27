@@ -12,27 +12,24 @@ public class UpEngineInfoImpl implements UpEngine.Info {
 
     public static final class Factory {
 
-        public static UpEngineInfoImpl create(UUID uuid, InetAddress host, int port, Identification identification, Specification specification) {
-            Objects.requireNonNull(uuid);
+        public static UpEngineInfoImpl create(InetAddress host, int port, Identification identification, Specification specification) {
             Objects.requireNonNull(host);
             if (port < -1 || port == 0) {
                 throw new IllegalArgumentException("Invalid port number: -1 or positive!");
             }
             Objects.requireNonNull(identification);
             Objects.requireNonNull(specification);
-            return new UpEngineInfoImpl(uuid, host, port, identification, specification);
+            return new UpEngineInfoImpl(host, port, identification, specification);
         }
 
     }
 
-    private final UUID uuid;
     private final InetAddress host;
     private final int port;
     private final Identification identification;
     private final Specification specification;
 
-    protected UpEngineInfoImpl(UUID uuid, InetAddress host, int port, Identification identification, Specification specification) {
-        this.uuid = uuid;
+    protected UpEngineInfoImpl(InetAddress host, int port, Identification identification, Specification specification) {
         this.host = host;
         this.port = port;
         this.identification = identification;
@@ -41,7 +38,7 @@ public class UpEngineInfoImpl implements UpEngine.Info {
 
     @Override
     public UUID getUuid() {
-        return uuid;
+        return identification.getUuid();
     }
 
     @Override
@@ -89,11 +86,7 @@ public class UpEngineInfoImpl implements UpEngine.Info {
 
     @Override
     public int hashCode() {
-        return 9 + Objects.hashCode(uuid) * 13
-                + Objects.hashCode(host) * 47
-                + Objects.hashCode(port) * 31
-                + Objects.hashCode(identification) * 11
-                + Objects.hashCode(specification) * 17;
+        return Objects.hash(host, port, identification, specification);
     }
 
 }

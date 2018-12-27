@@ -14,8 +14,8 @@ import java.io.PrintStream;
 public final class UpLoggerStream extends OutputStream {
 
     public static void bind() {
-        System.setErr(new PrintStream(new UpLoggerStream(System.err, UpLoggers.getLogger("stderr"), LogLevel.ERROR)));
-        System.setOut(new PrintStream(new UpLoggerStream(System.out, UpLoggers.getLogger("stdout"), LogLevel.INFO)));
+        System.setErr(new PrintStream(new UpLoggerStream(LogBindings.getStderr(), UpLoggers.getLogger("stderr"), LogLevel.ERROR)));
+        System.setOut(new PrintStream(new UpLoggerStream(LogBindings.getStdout(), UpLoggers.getLogger("stdout"), LogLevel.INFO)));
     }
 
     private final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

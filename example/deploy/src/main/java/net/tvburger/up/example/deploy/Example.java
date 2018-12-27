@@ -105,11 +105,8 @@ public final class Example {
         example.apiApplication();
         example.start();
 
-
         example.sayHi();
         example.printEnvironment();
-
-        allowWebAccessFor10min();
 
         example.stop();
         example.printEnvironment();
